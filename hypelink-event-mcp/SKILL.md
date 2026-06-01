@@ -42,7 +42,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.duplicate` | write | `{ uuid }` 複製活動 |
 | `events.delete` | write | `{ uuid }` 軟刪除，**兩階段確認** |
 | `events.cancel` | write | `{ uuid }` 取消活動（會通知已報名者，不刪資料） |
-| `events.set_cover` | write | `{ uuid, ... }` 設定封面（封面建議 **1200×900，4:3**） |
+| `events.set_cover` | write | 從**公開圖片 URL** 設定活動封面（`{ uuid, url }`；`clear:true` 清除；後端下載 re-host）。可搭配 AI 生圖或網路圖庫；封面建議 **1200×900，4:3** |
 | `events.check_slug` | read | `{ slug, excludeUuid? }` 檢查 slug 可用 |
 | `events.slug_history` | read | `{ uuid, limit? }` slug 變更歷史 |
 

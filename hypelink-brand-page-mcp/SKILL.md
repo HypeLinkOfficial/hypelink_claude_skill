@@ -42,7 +42,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `profile.get` | read | 完整 profile |
 | `profile.update` | write | `name / description / mail / isPublic / publicEnabled / stickyNote / prefer3dFirst / seoTitle / seoDescription / socialOgImageUrl / hideFooterBranding` 等任意子集 |
-| `profile.set_image` | write | 設定品牌頭像（avatar） |
+| `profile.set_image` | write | 從**公開圖片 URL** 設定 avatar / socialOgImage / brandLogo（`{ target, url }`；後端下載並 re-host 到 R2，限 image/*、10MB） |
 
 ### Folders（分頁 / 分類）
 | Tool | Scope | 主要參數 |
@@ -62,7 +62,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `links.list` | read | 支援 `?folderId` 過濾 |
 | `links.create` | write | 連結卡欄位（name / url / 描述 / size / backgroundType / buttonSize / **textPosition** 等） |
 | `links.update` | write | 部分更新 |
-| `links.set_image` | write | 設定連結卡封面圖 |
+| `links.set_image` | write | 從**公開圖片 URL** 設定連結卡封面（`{ id, url }`；`clear:true` 清除）—— 可搭配 AI 生圖或網路圖庫：取得公開圖片網址即可套用 |
 | `links.reorder` | write | `{ orderedIds }` |
 | `links.delete` | write | 兩階段 |
 

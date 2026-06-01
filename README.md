@@ -1,33 +1,43 @@
-# hypelink_claude_skill
+# HypeLink Claude Skills
 
-HypeLink 官方的 **Claude Agent Skills** 集合 —— 讓使用者用 Claude（Claude Code / Claude Desktop / 任何 MCP client）透過 **HypeLink MCP server**（`https://api.hypelink.app/mcp`）操作自己的品牌。
+用聊天的方式，讓 **Claude** 幫你打理 HypeLink 品牌！🎉
 
-此資料夾是一個**獨立的 git repo**（remote：`HypeLinkOfficial/hypelink_claude_skill`），與主專案 `HypeLink_MainRepo` 分開維護，方便對外發佈／讓使用者安裝。
+把這裡的 skill 裝進你的 Claude（Claude Code / Claude Desktop 等），就能直接用一句話請 Claude 透過 **HypeLink MCP** 幫你編輯品牌頁、建立活動 —— 不必自己一頁一頁點。
 
-## 用途
+> 📖 **完整設定教學請看官方文件**：<https://hypelink.app/docs/ai/mcp>
 
-收錄可載入的 skill，每支一個資料夾、內含一個 `SKILL.md`（帶 `name` / `description` frontmatter），符合 Claude Code Agent Skill 格式。
+## 你可以請 Claude 做什麼
 
-| Skill 資料夾 | 用途 |
+| Skill | 你可以這樣說 |
 |---|---|
-| `hypelink-brand-page-mcp/` | 製作 / 編輯**品牌頁**（首頁資訊：profile、folders、links、page modules、socials，以及設計主題 design/theme） |
-| `hypelink-event-mcp/` | 製作 / 經營**活動**（活動 CRUD、票種、報名表、通知、名單 / 報到 / 成效，及公告 / 投票 / Q&A / 問卷 / 審核 / EDM / 協作者 / 識別 / 配對 / 成果等子功能） |
+| **品牌頁**（`hypelink-brand-page-mcp/`） | 「把我的 IG 和官網加到品牌頁」「新增一個『關於我們』分頁，放一段公司簡介」「幫我把 bio 改得更專業」「把品牌頁換成深色主題」 |
+| **活動**（`hypelink-event-mcp/`） | 「幫我建一場 6/20 的講座並開放報名」「加早鳥 / 一般兩種票」「報名表加一個公司名稱必填」「匯出報名名單、看報到統計」「對報名者寄一封提醒信」 |
 
-## 安裝 / 載入方式
+## 開始使用（3 步）
 
-Claude Code 只會掃描 `.claude/skills/<name>/SKILL.md`（專案）與 `~/.claude/skills/<name>/SKILL.md`（個人）。要讓本 repo 的 skill「可載入、可 `/名稱` 觸發」，擇一：
+1. **拿到你的 Token**
+   到 HypeLink 後台 → `品牌設定 → API Tokens`，產生一組 Token（它只會綁定你這一個品牌）。
+2. **連上 HypeLink MCP**
+   依官方文件把 MCP 設定加進你的 Claude（會用到上一步的 Token）。
+   👉 <https://hypelink.app/docs/ai/mcp>
+3. **裝上這些 Skill**
+   把 `hypelink-brand-page-mcp/` 與 `hypelink-event-mcp/` 兩個資料夾放到 Claude 會讀取 skill 的位置：
+   - 個人全域：`~/.claude/skills/`
+   - 或你專案的：`.claude/skills/`
 
-- **個人全域**：clone 後把各 skill 資料夾 symlink 進 `~/.claude/skills/`，例如：
-  ```bash
-  ln -s "$(pwd)/hypelink-brand-page-mcp" ~/.claude/skills/hypelink-brand-page-mcp
-  ln -s "$(pwd)/hypelink-event-mcp"      ~/.claude/skills/hypelink-event-mcp
-  ```
-- **專案層級**：在使用者自己的專案 `.claude/skills/` 下放同名資料夾（或 symlink）。
-- 直接複製整個資料夾到上述位置亦可。
+   例如（在本資料夾內執行）：
+   ```bash
+   ln -s "$(pwd)/hypelink-brand-page-mcp" ~/.claude/skills/hypelink-brand-page-mcp
+   ln -s "$(pwd)/hypelink-event-mcp"      ~/.claude/skills/hypelink-event-mcp
+   ```
+   （複製整個資料夾過去也可以。）
 
-> 前提：使用者需先在 dashboard `/dashboard/brands/[hypeId]/settings/api-tokens` 產生 token 並設定好 `.mcp.json`（細節見各 `SKILL.md`）。一個 token 綁定一個品牌。
+裝好後，直接跟 Claude 說你想做什麼就行了 ✨
 
-## 與主專案的關係
+## 小提醒
 
-- 這些 skill 描述的「能力」來自 HypeLink 後端的 MCP server（`hypelink-backend-v3/src/mcp/`）。後端工具若新增 / 改名 / 改參數，**請同步更新對應 `SKILL.md`**。
-- 主專案 `CLAUDE.md` 的 Development Skills 表已登記這兩支的路徑，供在主 repo 內開發時參照。
+- Claude 在動手改之前，通常會先**預覽要做的變更**讓你確認，刪除類操作還會**再確認一次**才執行 —— 可以放心嘗試。
+- 你透過 Claude 做的修改，和在後台手動修改是**同步的**，隨時可在後台看到結果。
+- 一組 Token 對應一個品牌；想操作另一個品牌，換上該品牌的 Token 即可。
+
+有任何設定問題，都可以參考官方文件：<https://hypelink.app/docs/ai/mcp> 🙌

@@ -1,6 +1,6 @@
 ---
 name: hypelink-brand-page-mcp
-description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊：profile、folders、links、page modules、socials，以及設計主題 design/theme）。當使用者要用 Claude 經 /mcp 操作某個既有品牌的公開頁內容或外觀時使用。
+description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊：profile、folders、links、page modules、socials，設計主題 design/theme，以及 Webhook 出站事件管理 webhooks — Max 方案）。當使用者要用 Claude 經 /mcp 操作某個既有品牌的公開頁內容、外觀或 Webhook 時使用。
 ---
 
 # Skill：HypeLink 品牌頁 MCP 操作
@@ -26,8 +26,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 
 ## Scope
 
-- `homeinfo:read` → 可讀（profile / folders / links / modules / socials / design / themes）
-- `homeinfo:write` → 才能寫
+- `homeinfo:read` → 可讀（profile / folders / links / modules / socials / design / themes / webhooks）
+- `homeinfo:write` → 才能寫（含 webhooks；Webhook 建立 / 啟用 / test 另需 **Max 方案**）
 - 寫入類工具大多支援 `dry_run: true`（回傳 changes 不執行）；`*.delete` 走兩階段 `confirmToken`。
 
 ## 可用工具
@@ -98,6 +98,24 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `themes.list` | read | 列出可用內建主題 |
 
 > 改主題色：選了內建主題後，主題色覆寫值（accentColor）會影響強調色與分頁 active 文字。`design.put` 是整包替換，請以 `design.get` 的結果為基底改最小子集，避免清掉其他設定。
+
+### Webhook 出站事件（🪄 Max 方案，scope 仍為 `homeinfo:*`）
+讓 HypeLink 在事件發生時反向推 HTTP 給你的 endpoint（訂單、報名…）。**這是 Max 方案功能**。
+
+| Tool | Scope | 說明 |
+|---|---|---|
+| `webhooks.list` | read | 列出 endpoints |
+| `webhooks.event_types` | read | 可訂閱的事件型別清單 |
+| `webhooks.create` | write | 新增 endpoint（`{ url, eventTypes[] }`）—— 非 Max 方案回 `403 SCOPE_DENIED` |
+| `webhooks.update` | write | 更新（改訂閱 / 啟停）—— 啟用同樣需 Max |
+| `webhooks.delete` | write | 刪除（兩階段確認） |
+| `webhooks.rotate_secret` | write | 輪換簽章密鑰 |
+| `webhooks.test` | write | 發測試事件 —— 需 Max |
+| `webhooks.list_deliveries` | read | 投遞紀錄 |
+| `webhooks.redeliver` | write | 重送某筆投遞 |
+
+> 非 Max 方案：`list / list_deliveries / event_types` 仍可讀（只是不會有事件 fire）；`create / update(enable) / test` 會回 `SCOPE_DENIED`。
+> 出站事件規格與簽名格式見官方文件 <https://hypelink.app/docs/ai/webhook>。
 
 ## Resources（自動上下文）
 

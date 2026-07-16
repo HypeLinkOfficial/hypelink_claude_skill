@@ -46,6 +46,49 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.check_slug` | read | `{ slug, excludeUuid? }` 檢查 slug 可用 |
 | `events.slug_history` | read | `{ uuid, limit? }` slug 變更歷史 |
 
+### `pageContent` 結構（EventContent）
+
+`events.create` 與 `events.update` 的 `pageContent` 使用結構化 **EventContent** JSON（非舊版 Puck 格式）：
+
+```jsonc
+{
+  "themeId": "gradient",        // gradient|minimal|editorial|conference|workshop|concert|midnight|cyber
+  "hero": {
+    "title": "",                // 留空時用 event.name
+    "subtitle": "",             // 副標 / tagline
+    "bgGradient": "hype"        // hype|sunset|ocean|aurora|forest|midnight（官方漸層配色）
+                                // 或省略讓主題自帶漸層
+  },
+  "about": "長文介紹（純文字）",
+  "body": "<p>富文字 HTML</p>",
+  "primaryColor": "#7c3aed",    // 全頁 CTA / 通知信主色
+  "background": {
+    "type": "animated",         // none|color|gradient|animated
+    "animatedVariant": "iridescence",
+    "accent": "#8B5CF6"
+  },
+  "sections": [                 // 內容模組排序＋顯隱（hero 也可排序）
+    { "id": "hero",    "visible": true },
+    { "id": "about",   "visible": true },
+    { "id": "tickets", "visible": true }
+    // id 可為：hero/about/body/highlights/agenda/speakers/faqs/
+    //          sponsors/notes/album/tickets/venue/contact/offlinePayment
+  ],
+  "highlights": [{ "icon": "lucide:Star", "title": "", "description": "" }],
+  "agenda":     [{ "time": "09:00", "title": "", "speaker": "" }],
+  "speakers":   [{ "name": "", "role": "", "avatar": "", "bio": "" }],
+  "faqs":       [{ "question": "", "answer": "" }],
+  "contactChannels": [
+    { "type": "line",     "value": "@handle", "label": "" },
+    { "type": "telegram", "value": "@user" },
+    { "type": "discord",  "value": "invite-code" },
+    { "type": "email",    "value": "hi@example.com" }
+  ]
+}
+```
+
+> **最小改動原則**：先 `events.get` 取現有 `pageContent`，在其基礎上改最小子集後回傳，避免覆蓋已設定的其他模組。
+
 ### 票種（`events.tickets.*`）
 | Tool | Scope | 說明 |
 |---|---|---|
@@ -65,7 +108,8 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 ### 報名名單 / 報到 / 成效
 | Tool | Scope | 說明 |
 |---|---|---|
-| `events.attendees.list` | read | `{ uuid, ... }` |
+| `events.attendees.list` | read | `{ uuid, page?, pageSize?, status?, search? }`；每筆含 **email**、票號、狀態、報到/付款狀態，以及**報名表單填寫資料** `answers`（label→value）與原始 `customValues`；回應頂層 `customFields`（id/label/type）為表單欄位定義 |
+| `events.attendees.get` | read | 取**單一**報名者完整資料（以 `attendeeUuid` 優先，否則 `email`）；欄位同 list 每筆 |
 | `events.attendees.patch_status` | write | 改報名狀態（核准 / 拒絕 / 取消…） |
 | `events.attendees.export_csv` | read | 匯出名單 |
 | `events.attendees.bulk_import` | write | 批次匯入 |
@@ -90,11 +134,14 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 - **投票** `events.polls.list/create/update/delete`
 - **Q&A** `events.qa.list/patch/delete`
 - **問卷** `events.surveys.get_config/put_config/list_responses/summary`
-- **報名審核** `events.submissions.update_settings/list/set_status/delete`
+- **徵稿（Submissions）** — 分兩層：**徵稿活動（campaign）** 是一檔徵件設定、**投稿（submission）** 是參加者作品。
+  - 總設定 `events.submissions.update_settings`（活動層級開關 / 允許類型）
+  - 徵稿活動 CRUD `events.submissions.campaigns.list/create/update/delete`（`update` 可帶 `status: open/closed`；`delete` 連同投稿兩階段確認）
+  - 投稿管理 `events.submissions.create`（以**公開檔案 URL** 新增：`fileUrl` + `fileName` 決定型別 png/jpg/mp4/glb/pdf/zip →image/video/model3d/pdf/archive，未帶 `campaignUuid` 歸入預設徵稿活動）`/list`（`includeAll` 連 pending/rejected）`/set_status`（pending/approved/rejected）`/delete`（兩階段）
 - **EDM 廣播** `events.broadcasts.preview_audience/send_email/list_history`
 - **協作者** `events.collaborators.list/invite/resend/change_role/remove`
 - **活動識別** `events.identity.get_config/put_config/list_cards`
-- **配對** `events.pairing.get_current/generate/reset`
+- **配對 / 分組名單** `events.pairing.get_current`（讀取目前分組）`/generate`（隨機或依欄位自動分組）`/import`（**批次上傳分組** `rows: [{ group, email, name? }]`，依 email 對應報名者、單次上限 5000 筆，**取代**目前分組）`/add_group`（新增分組，可帶成員）`/add_members`（加入成員到分組，自動從其他組移除）`/remove_member`（從分組移除成員）`/delete_group`（刪除分組）`/reset`（清空，兩階段確認）。成員以 `attendeeUuid` 或 `email` 指定;`add_group`／`import` 在尚無分組時會自動建立 manual session
 - **成果紀錄** `events.feature_records.list/create/delete`
 
 > EDM 廣播（`broadcasts.send_email`）會實際寄信 —— **務必先 `preview_audience` 看收件人數與範圍，請使用者明確同意後才發送**。

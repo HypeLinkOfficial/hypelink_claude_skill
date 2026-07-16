@@ -10,8 +10,12 @@
 
 | Skill | 你可以這樣說 |
 |---|---|
-| **品牌頁**（`hypelink-brand-page-mcp/`） | 「把我的 IG 和官網加到品牌頁」「新增一個『關於我們』分頁，放一段公司簡介」「幫我把 bio 改得更專業」「把品牌頁換成深色主題」 |
-| **活動**（`hypelink-event-mcp/`） | 「幫我建一場 6/20 的講座並開放報名」「加早鳥 / 一般兩種票」「報名表加一個公司名稱必填」「匯出報名名單、看報到統計」「對報名者寄一封提醒信」 |
+| **品牌頁**（`hypelink-brand-page-mcp/`） | 「把我的 IG 和官網加到品牌頁」「新增一個『關於我們』分頁，放一段公司簡介」「幫我把 bio 改得更專業」「把品牌頁換成深色主題」「設定一個訂單 Webhook」（Webhook 為 Max 方案） |
+| **活動**（`hypelink-event-mcp/`） | 「幫我建一場 6/20 的講座並開放報名」「加早鳥 / 一般兩種票」「報名表加一個公司名稱必填」「匯出報名名單、看報到統計」「對報名者寄一封提醒信」「開一檔徵稿並批次匯入分組」 |
+| **變現與成長**（`hypelink-commerce-mcp/`） | 「上架一個新商品 / 補庫存 / 把訂單標成已出貨並填單號」「幫我開一門課，加章節與單元」「看名單神器投廣頁的名單，把成交的標成 won」「新增一位聯盟 KOL 並寄邀請、給專屬折扣碼」「查這個月待出金的夥伴」 |
+| **內容豐富品牌頁**（`hypelink-rich-brand-page/`） | 「幫我把品牌頁做豐富一點、模組多加一點」「照偶像 / 餐飲 / 個人品牌的場景把整頁填好」「加幾個漸層 / 圖片背景的連結按鈕連到我的 Spotify / IG / 訂位」 |
+
+> **變現與成長** skill 涵蓋名單神器（`leads`）、Mini 商城（`mall`）、Mini 課程（`courses`）、聯盟行銷（`affiliates`），皆為付費方案功能；結帳 / 退款 / 出金等金錢操作僅開放於後台，MCP 不提供。
 
 ## 真實使用情境 💡
 
@@ -63,16 +67,18 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    依官方文件把 MCP 設定加進你的 Claude（會用到上一步的 Token）。
    👉 <https://hypelink.app/docs/ai/mcp>
 3. **裝上這些 Skill**
-   把 `hypelink-brand-page-mcp/` 與 `hypelink-event-mcp/` 兩個資料夾放到 Claude 會讀取 skill 的位置：
+   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/` 四個資料夾放到 Claude 會讀取 skill 的位置：
    - 個人全域：`~/.claude/skills/`
    - 或你專案的：`.claude/skills/`
 
    例如（在本資料夾內執行）：
    ```bash
-   ln -s "$(pwd)/hypelink-brand-page-mcp" ~/.claude/skills/hypelink-brand-page-mcp
-   ln -s "$(pwd)/hypelink-event-mcp"      ~/.claude/skills/hypelink-event-mcp
+   ln -s "$(pwd)/hypelink-brand-page-mcp"  ~/.claude/skills/hypelink-brand-page-mcp
+   ln -s "$(pwd)/hypelink-event-mcp"       ~/.claude/skills/hypelink-event-mcp
+   ln -s "$(pwd)/hypelink-commerce-mcp"    ~/.claude/skills/hypelink-commerce-mcp
+   ln -s "$(pwd)/hypelink-rich-brand-page" ~/.claude/skills/hypelink-rich-brand-page
    ```
-   （複製整個資料夾過去也可以。）
+   （複製整個資料夾過去也可以；只需要用到的 skill 也可只裝其中一兩個。）
 
 裝好後，直接跟 Claude 說你想做什麼就行了 ✨
 

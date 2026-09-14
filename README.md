@@ -13,9 +13,12 @@
 | **品牌頁**（`hypelink-brand-page-mcp/`） | 「把我的 IG 和官網加到品牌頁」「新增一個『關於我們』分頁，放一段公司簡介」「幫我把 bio 改得更專業」「把品牌頁換成深色主題」「設定一個訂單 Webhook」（Webhook 為 Max 方案） |
 | **活動**（`hypelink-event-mcp/`） | 「幫我建一場 6/20 的講座並開放報名」「加早鳥 / 一般兩種票」「報名表加一個公司名稱必填」「匯出報名名單、看報到統計」「對報名者寄一封提醒信」「開一檔徵稿並批次匯入分組」 |
 | **變現與成長**（`hypelink-commerce-mcp/`） | 「上架一個新商品 / 補庫存 / 把訂單標成已出貨並填單號」「幫我開一門課，加章節與單元」「看名單神器投廣頁的名單，把成交的標成 won」「新增一位聯盟 KOL 並寄邀請、給專屬折扣碼」「查這個月待出金的夥伴」 |
+| **3D 空間**（`hypelink-space-mcp/`） | 「在展場中間放一張桌子和一台筆電」「把空間改成黃昏、下點雨」「開啟導覽手冊，第一站是入口看板」「用發光的紅色方塊做招牌」 |
 | **內容豐富品牌頁**（`hypelink-rich-brand-page/`） | 「幫我把品牌頁做豐富一點、模組多加一點」「照偶像 / 餐飲 / 個人品牌的場景把整頁填好」「加幾個漸層 / 圖片背景的連結按鈕連到我的 Spotify / IG / 訂位」 |
 
-> **變現與成長** skill 涵蓋名單神器（`leads`）、Mini 商城（`mall`）、Mini 課程（`courses`）、聯盟行銷（`affiliates`），皆為付費方案功能；結帳 / 退款 / 出金等金錢操作僅開放於後台，MCP 不提供。
+> **變現與成長** skill 涵蓋名單神器（`leads`）、Mini 商城（`mall`）、Mini 課程（`courses`）、聯盟行銷（`affiliates`）與 PayConnect 唯讀查詢（`payconnect`：外部系統以 email 查會員資格 / 付款狀態），皆為付費方案功能；結帳 / 退款 / 出金等金錢操作僅開放於後台，MCP 不提供。
+>
+> **3D 空間** skill 只能佈置已存在的空間（擺放 / 移動 / 材質 / 導覽手冊）；建立空間、上傳自有模型、AI 管家仍在後台。
 
 ## 真實使用情境 💡
 
@@ -67,7 +70,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    依官方文件把 MCP 設定加進你的 Claude（會用到上一步的 Token）。
    👉 <https://hypelink.app/docs/ai/mcp>
 3. **裝上這些 Skill**
-   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/` 四個資料夾放到 Claude 會讀取 skill 的位置：
+   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-space-mcp/` 五個資料夾放到 Claude 會讀取 skill 的位置：
    - 個人全域：`~/.claude/skills/`
    - 或你專案的：`.claude/skills/`
 
@@ -77,6 +80,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    ln -s "$(pwd)/hypelink-event-mcp"       ~/.claude/skills/hypelink-event-mcp
    ln -s "$(pwd)/hypelink-commerce-mcp"    ~/.claude/skills/hypelink-commerce-mcp
    ln -s "$(pwd)/hypelink-rich-brand-page" ~/.claude/skills/hypelink-rich-brand-page
+   ln -s "$(pwd)/hypelink-space-mcp"       ~/.claude/skills/hypelink-space-mcp
    ```
    （複製整個資料夾過去也可以；只需要用到的 skill 也可只裝其中一兩個。）
 
@@ -89,3 +93,18 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
 - 一組 Token 對應一個品牌；想操作另一個品牌，換上該品牌的 Token 即可。
 
 有任何設定問題，都可以參考官方文件：<https://hypelink.app/docs/ai/mcp> 🙌
+
+## 品牌自訂網域（網域綁定）流程速查
+
+MCP 目前未暴露網域綁定工具，請引導使用者到 dashboard：品牌設定 → 網域（`/dashboard/brands/@id/settings/domain`；側欄「網域綁定」會轉到同一頁）。
+
+1. 需 **Pro 以上**；網域數預設 0，按「增加網域數」以 **1000 SP／個** 加購（每品牌上限 10 個）。輸入網域本身（不含 https:// 與路徑，不可為 hypelink.app 子網域）。
+2. 到 DNS 服務商加兩筆：`TXT _hypelink.<網域>` = `hl-verify=<token>`；`CNAME <網域>` → `pages.hypelink.app`（Cloudflare 託管請用灰雲 DNS only）。根網域不能設 CNAME 時改綁 www。
+3. 按「重新驗證」→ 通過後平台自動向 Cloudflare 簽發憑證（幾分鐘）→ 狀態「已開通」。
+4. 可選：「以品牌官網作為此網域首頁」開關（需官網已開放）：`/` 變官網、`/link` 為公開頁；關閉時 `/` 為公開頁、`/site` 為官網。
+5. SEO：canonical／og:url／sitemap 自動改指主網域；提醒使用者到 Google Search Console 驗證該網域並提交 `https://<網域>/sitemap.xml`。
+6. 訪客在自訂網域登入：Email 原地登入；Google 會先到 hypelink.app 登入再自動帶回。
+7. 方案降到 Pro 以下 → 網域暫停（訪客看到說明頁），升級後自動恢復。
+
+詳細規劃與故障排除：`document/HL-26-custom-domain-plan.md`、`infra/cloudflare/README.md`。
+

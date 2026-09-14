@@ -102,6 +102,8 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 |---|---|---|
 | `events.form.get` | read | `{ uuid }`：basicFields / customFields / successMessage / redirectUrl |
 | `events.form.put` | write | `{ uuid, basicFields[], customFields[] }`（覆寫）；basicField=`{key,label,enabled,required}`、customField=`{id,label,type,required,options?}` |
+
+> **姓名欄位可關閉**：`basicFields` 中 `key: "name"` 設 `enabled: false` 後，後端不再要求姓名；報名者姓名會從名稱類自訂欄位（label 含「姓名／名字／name」）或 email 前綴推導。Email 仍為必填。
 | `events.notifications.get` | read | `{ uuid }` |
 | `events.notifications.put` | write | `{ uuid }` 覆寫 `registrationSuccess / preEventReminder / eventChange` |
 
@@ -123,6 +125,10 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.report.attendees` | read | 成效名單（checked_in / absent） |
 | `events.feature_data.get` / `events.feature_data.put` | read/write | 活動頁進階區塊資料 |
 | `events.outcomes.list` / `events.outcomes.delete` / `events.outcomes.quota` | read/write | 活動成果紀錄（回顧素材） |
+
+> **僅 dashboard 的加值功能**（`events.feature_data.*` 之外）：**現場交友**——與會者在活動頁「現場交友」牆（`/@id/events/<slug>/networking`）用 HypeLink 帳號（hypeID 搜尋）或社群帳號上傳名片、公開牆可分享，主辦在 dashboard 活動 → 加值功能 → 現場交友 開啟並設定 6 位數入場密碼；MCP 目前無對應工具，請引導到 dashboard。
+
+> 活動探索頁 `/discover/events` 的「全部」以**即將開始**優先排序，再列已結束活動；要讓活動被探索到請確認已發布且時間正確。
 
 > **報名來源 / UTM**：透過自訂 UTM 分享連結報名者，來源會自動歸因，可在 `events.report.summary` 看到來源分佈與 UTM 標籤。
 

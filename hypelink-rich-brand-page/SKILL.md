@@ -46,7 +46,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `member-recruit` | `{ title, description, perks, ctaText }` | `perks` 每行一項權益 |
 | `tour-schedule` | `{ title, showsText, layout, hidePast, accentColor }` | `showsText` 每行：`日期 \| 城市 \| 場地 \| 購票連結 \| 狀態(onsale/soldout/upcoming)` |
 | `album-wall` | `{ title, albumsText, layout, spinOnHover, accentColor }` | `albumsText` 每行：`標題 \| 封面URL \| 連結URL`（需公開圖片 URL） |
-| `image-carousel` | `{ title, images, captions, autoplay, interval }` | `images` / `captions` 用換行分隔；需公開圖片 URL |
+| `image-carousel` | `{ title, images, captions, autoplay, interval, size, aspectRatio, fit }` | `images` / `captions` 用換行分隔；需公開圖片 URL |
 | `store-map` | `{ title, address, hours, mapUrl }` | `mapUrl` 留空會**用 address 自動產生 Google Map**，最省事 |
 | `line-add-friend` | `{ title, description, lineId, url, showQr }` | 在地觸點；`showQr:true` 顯示 QR |
 | `social-card` | `{ title, instagram, facebook, youtube, tiktok, threads, x }` | 填帳號 handle |

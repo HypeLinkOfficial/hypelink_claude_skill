@@ -1,6 +1,6 @@
 ---
 name: hypelink-commerce-mcp
-description: 透過 HypeLink MCP server 經營品牌的變現與成長功能——名單神器（投廣 Landing Page 與名單匣 leads）、Mini 商城（商品/庫存/訂單出貨 mall）、Mini 課程（課程/章節/單元/學員 courses）、聯盟行銷（夥伴/歸因訂單/出金查詢 affiliates）。當使用者要用 Claude 經 /mcp 操作某品牌的商品、訂單、課程、投廣頁名單或聯盟分潤時使用。
+description: 透過 HypeLink MCP server 經營品牌的變現與成長功能——名單神器（投廣 Landing Page 與名單匣 leads）、Mini 商城（商品/庫存/訂單出貨 mall）、Mini 課程（課程/章節/單元/學員 courses）、聯盟行銷（夥伴/歸因訂單/出金查詢 affiliates）。當使用者要用 Claude 經 /mcp 操作某品牌的商品、訂單、課程、投廣頁名單或聯盟分潤時使用。（另含 PayConnect 唯讀查詢 payconnect:*：外部系統以 email 查會員資格／付款狀態、查商城／數位商品／訂閱訂單）
 ---
 
 # Skill：HypeLink 變現與成長 MCP 操作
@@ -33,6 +33,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `mall:read` / `mall:write` | Mini 商城：商品、庫存、訂單出貨 |
 | `courses:read` / `courses:write` | Mini 課程：課程/章節/單元、學員名單、數據 |
 | `affiliates:read` / `affiliates:write` | 聯盟行銷：夥伴、歸因訂單、出金查詢 |
+| `payconnect:read` | PayConnect（唯讀）：訂單查詢、會員資格／付款狀態查詢；品牌需先在 dashboard「PayConnect」頁啟用 |
 
 寫入類工具大多支援 `dry_run: true`；`*.delete` 走兩階段 `confirmToken`。
 
@@ -40,7 +41,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 ## 一、名單神器（`leads:*`）
 
-投廣 Landing Page 的建立、發布、A/B 測試與名單回收。頁面內容為結構化 `sections` JSON（hero／賣點／見證／FAQ／比較表／好評輪播／LINE 按鈕／倒數／表單…16 種區塊，任一區塊可設 `bg` 背景圖）。
+投廣 Landing Page 的建立、發布、A/B 測試與名單回收。頁面內容為結構化 `sections` JSON（hero／賣點／見證／FAQ／比較表／好評輪播／LINE 按鈕／倒數／表單…19 種基本區塊＋7 種設計工作室風格區塊（liquidHero／statement／wordBand／portfolioCards／serviceRows／statsPanel／ctaFooter）＋6 種咖啡館／零售風格區塊（brewHero／productCards／clockLocations／philosophyCup／receiptOrder／brandFooterBand；brewHero、philosophyCup 可上傳 .glb 3D 模型），任一區塊可設 `bg` 背景圖）。
 
 | Tool | Scope | 說明 |
 |---|---|---|
@@ -54,7 +55,11 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `leads.list` | read | 名單匣（狀態管線＋標籤）；**回應含個資** |
 | `leads.update` | write | 改單一名單狀態 / 標籤 |
 
-- 公開頁網址：`https://hypelink.app/{hypeId}/lp/{slug}`
+- 公開頁網址：`https://hypelink.app/{hypeId}/lp/{slug}`（品牌若已綁自訂網域，會以該網域 `/lp/{slug}` 為主）
+- 每個 section 可另帶：`entrance`（進場動畫 `none / fade-up / fade / slide-left / slide-right / zoom / blur`，未設＝該區塊類型預設）、`minHeight`（`"auto"`／`"100vh"`／px 數字，預設 600）、`bg`。
+- `theme.animation`：`{ blocksEnabled?, durationSec?(0–10，預設 0.7), defaultEntrance?, transition?: none/stack/fade/horizontal }`（`transition` 為區塊之間的滾動切換）；`theme.layout.sectionMinHeight` 為全頁預設高度。
+- `seo` 除 title／description／OG 外可帶 GEO 欄位：`geoSummary`、`geoKeyPoints[]`、`geoFaq[{q,a}]`、`geoEntities`（輸出成 JSON-LD 供 AI 搜尋引擎引用）。
+- **僅 dashboard**：版本紀錄（草稿／已發布版本還原，creator 以上）、「表單與數據」（UTM／點擊數據；互動熱點圖 creator 以上、滑鼠軌跡 Pro 以上，資料依方案保留 30–365 天）、GEO AI 助手（扣 SP）。
 - **AI 生成 / AI 調整版面需扣 SP，不開放於 API** —— 請走 dashboard。
 - `leads.list` 回傳 Email／電話／表單答案等個資，比照名單匯出處理（勿貼公開處）。
 
@@ -113,9 +118,24 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 ---
 
+## 五、PayConnect（`payconnect:read`，唯讀）
+
+付款在 HypeLink 品牌頁完成，**開發者自己的產品**用這組工具查會員資格與付款狀態來解鎖功能（不經手金流、不碰卡號）。品牌需先在 dashboard「PayConnect」頁啟用，否則即使 scope 正確也回 `SCOPE_DENIED`。
+
+| Tool | Scope | 說明 |
+|---|---|---|
+| `payconnect.orders.list` | read | `{ source?: all/mall/digital/subscription, email?, status?, limit?(1–200，預設 50，每來源各自計) }`：統一格式 `{ source, orderNo, buyerEmail, amount, currency, status, createdAt, … }`；商城另有 `fulfillmentStatus`、數位商品有 `productName`、訂閱有 `intervalMonths / period / nextChargeAt` |
+| `payconnect.member.status` | read | `{ email }`（完全比對）：`isMember`、`member.tier`、有效等級授權 `tierGrants[]`（`tierKey / source / expiresAt`）、`subscriptions[]`、`hasActiveSubscription` |
+
+- 典型用法：外部 app 登入後以 email 呼叫 `payconnect.member.status`，`hasActiveSubscription` 或 `tierGrants` 含指定 `tierKey` 即放行。
+- 訂閱訂單只存會員 uuid，帶 `email` 查訂閱時會先反查會員；查無會員回空陣列。
+- 回傳含買家 email／姓名等個資，比照名單匯出處理。
+
+---
+
 ## 推薦工作流程
 
-1. **開場先讀**：對應 `*.list`（`lead_pages.list` / `mall.products.list` / `mall.orders.list` / `courses.list` / `affiliates.list`）看現況，再動作。
+1. **開場先讀**：對應 `*.list`（`lead_pages.list` / `mall.products.list` / `mall.orders.list` / `courses.list` / `affiliates.list` / `payconnect.orders.list`）看現況，再動作。
 2. **任何寫入先 `dry_run: true`** → 摘要給使用者確認 → 同意後正式執行。
 3. **`*.delete` 兩階段**：第一次回 `{ confirmToken }` + 摘要 → 第二次帶 `confirmToken`。
 4. **會對外寄信 / 通知的動作**（`mall.orders.update_fulfillment`、`affiliates.create` 帶 `sendInvite`）一律先預覽 + 明確同意。
@@ -125,7 +145,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 ## 安全規則（務必遵守）
 
 1. **金錢敏感操作不要嘗試繞道**：結帳 / 退款 / 出金建立與付款一律不在 API，直接告知使用者到 dashboard 操作。
-2. **個資保護**：`leads.list`、`mall.orders.*`、`courses.students` 回傳含個資，不要貼到公開頻道 / 檔案；必要時遮罩 Email / 電話。
+2. **個資保護**：`leads.list`、`mall.orders.*`、`courses.students`、`payconnect.*` 回傳含個資，不要貼到公開頻道 / 檔案；必要時遮罩 Email / 電話。
 3. **永遠 dry-run 後才寫**（除非使用者明確說直接執行）。
 4. **不存 token**：只走 MCP transport，不要印到 chat / 寫檔 / 進 git。
 5. **schema 不確定** → `tools/list` 拉最新，不要猜。

@@ -57,6 +57,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `projects.delete` | write | 硬刪除，兩階段確認 |
 
 > `blocks` 依序渲染：`{ type:'image', url | assetId, caption? }`、`{ type:'video', embedUrl }`（YouTube / Vimeo）、`{ type:'audio', url }`、`{ type:'text', text }`。
+> 展示：分頁放 `modules.add { slug:'projects-list' }`（作品專案（自動同步））即可自動列出已發布作品；不要再用手動的 portfolio-gallery / album-wall 重複貼同一批圖。
 > 批次匯入作品的流程：每件先 `assets.upload` 取 assetId（封面與內容圖），再 `projects.create` 帶 `coverAssetId` 與 `blocks[].assetId`，最後 `projects.reorder` 排序。
 
 ### Assets（圖片上傳）

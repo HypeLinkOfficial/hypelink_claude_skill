@@ -49,15 +49,21 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 ### Projects（作品專案，品牌內容 → 作品專案；公開頁 `/@id/projects`）
 | Tool | Scope | 說明 |
 |---|---|---|
-| `projects.list` | read | 含草稿；可 `status` 過濾。回 uuid / slug / status / coverUrl / tags / blockCount（不含全文） |
+| `projects.list` | read | 含草稿；可 `status` / `categoryUuid`（`"none"`＝未分類）過濾。回 uuid / slug / status / coverUrl / tags / category{uuid,name,slug} / blockCount（不含全文） |
 | `projects.get` | read | `{ uuid }` 完整內容（description、blocks） |
-| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生 |
-| `projects.update` | write | 部分更新；`blocks` 為整組取代；改 title 會重算 slug |
+| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生 |
+| `projects.update` | write | 部分更新；`blocks` 為整組取代；改 title 會重算 slug；`category: null` 或 `categoryUuid: null` 取消分類 |
 | `projects.reorder` | write | `{ orderedUuids }`，未列入的排後面 |
 | `projects.delete` | write | 硬刪除，兩階段確認 |
+| `projects.categories.list` | read | 分類清單（品牌自訂、依排序）：uuid / name / slug / count |
+| `projects.categories.create` | write | `{ name }`（同品牌唯一，最多 30 個）；slug 自動產生 |
+| `projects.categories.update` | write | `{ uuid, name }` 改名（slug 重算） |
+| `projects.categories.delete` | write | 刪分類，所屬專案變未分類；兩階段確認 |
+| `projects.categories.reorder` | write | `{ orderedUuids }` |
 
 > `blocks` 依序渲染：`{ type:'image', url | assetId, caption? }`、`{ type:'video', embedUrl }`（YouTube / Vimeo）、`{ type:'audio', url }`、`{ type:'text', text }`。
-> 展示：分頁放 `modules.add { slug:'projects-list' }`（作品專案（自動同步））即可自動列出已發布作品；不要再用手動的 portfolio-gallery / album-wall 重複貼同一批圖。
+> **分類 vs 標籤**：`category` 是品牌事先定義的固定清單（一件作品一個分類），公開頁 `/@id/projects` 上方有分類篩選列（`?category=slug`）；`tags` 是自由關鍵字，只顯示在卡片上。幫使用者整理作品集時先建分類（`projects.categories.create`）再指派，或在 `projects.create` 直接給 `category` 名稱自動建立。
+> 展示：分頁放 `modules.add { slug:'projects-list' }`（作品專案（自動同步））即可自動列出已發布作品；`data.category` 填分類 slug 可只列該分類。不要再用手動的 portfolio-gallery / album-wall 重複貼同一批圖。
 > 批次匯入作品的流程：每件先 `assets.upload` 取 assetId（封面與內容圖），再 `projects.create` 帶 `coverAssetId` 與 `blocks[].assetId`，最後 `projects.reorder` 排序。
 
 ### Assets（圖片上傳）

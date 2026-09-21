@@ -98,7 +98,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `inquiry-form` | `{ title, description, buttonText, successMessage, fields, tag, accentColor, notifyEnabled }` | 諮詢/合作表單（存 module-leads）；`tag` 內部分類（booking/collab…）；notifyEnabled 填寫時寄 Email 通知 |
 
 ### B. 需要「後端先有資料」才會顯示（先建資料，再放模組；否則空白 / 不顯示）
-`brand-services`（服務目錄）、`mall-products`（商城商品）、`mall-reviews`（買家評價）、`news-list`（最新消息）、`articles-list`（專欄）、`course-list`（Mini 課程）、`coupon-claim`（需先建優惠券）、`reservation`（需先設預約）、`event-list` / `event-timeline`（需先建活動）、`team-members`（需先在 dashboard 建「成員資料」；data 只有顯示設定 `{ title, layout, avatarStyle, scope:"active"|"alumni"|"all", paginated, perPage }`）、`projects-list`（需先發布「作品專案」；data `{ title, maxItems, layout:"grid"|"list"}`）、`brand-points-status`（品牌點數 BP 狀態卡，需啟用品牌點數；data `{ title, description }`）、`digital-goods`（預設 `source:"tool"` 撈 Mini 商城 digital 商品，需先上架；`source:"manual"` 可退回手填 `{ title, description, price, url, imageUrl }` 單一商品＝A 類用法）、`file-vault`（檔案下載區；**檔案須經 dashboard 上傳**產生 assetId，data 的 files/accessMode 由編輯器管理，另支援密碼/會員解鎖）、`music-showcase`（音樂陳列室；貼歌曲連結後**自動解析各平台**，data 由自訂編輯器管理，MCP 只適合改 `customPlatformsText`）。
+`brand-services`（服務目錄）、`mall-products`（商城商品）、`mall-reviews`（買家評價）、`news-list`（最新消息）、`articles-list`（專欄）、`course-list`（Mini 課程）、`coupon-claim`（需先建優惠券）、`reservation`（需先設預約）、`event-list` / `event-timeline`（需先建活動）、`team-members`（需先在 dashboard 建「成員資料」；data 只有顯示設定 `{ title, layout, avatarStyle, scope:"active"|"alumni"|"all", paginated, perPage }`）、`projects-list`（需先發布「作品專案」；data `{ title, maxItems, layout:"grid"|"list", category?: 分類 slug }`）、`brand-points-status`（品牌點數 BP 狀態卡，需啟用品牌點數；data `{ title, description }`）、`digital-goods`（預設 `source:"tool"` 撈 Mini 商城 digital 商品，需先上架；`source:"manual"` 可退回手填 `{ title, description, price, url, imageUrl }` 單一商品＝A 類用法）、`file-vault`（檔案下載區；**檔案須經 dashboard 上傳**產生 assetId，data 的 files/accessMode 由編輯器管理，另支援密碼/會員解鎖）、`music-showcase`（音樂陳列室；貼歌曲連結後**自動解析各平台**，data 由自訂編輯器管理，MCP 只適合改 `customPlatformsText`）。
 
 > 這類模組**拉取其他系統的資料**。想用它們，先透過對應功能（商城 / 課程 / 活動 / 優惠券…）建立資料，模組才有東西可顯示。純展示用途時，改用 A 類（richtext 手寫菜單/服務也可以）。
 
@@ -188,8 +188,8 @@ LinkedIn  linear-gradient(135deg,#0A66C2 0%,#004182 100%)
 ## 作品集（作品專案）
 品牌內容 → 作品專案是 Behance 式的作品集（公開頁 `/@id/projects`），比在分頁堆 album-wall 更適合放大量作品。
 **模組怎麼選（名字相近，別混用）**：
-- `projects-list`「作品專案（自動同步）」— 自動列出作品專案工具已發布的作品，`modules.add { slug:'projects-list', data:{ title, maxItems, layout:'grid'|'list' } }`；新增作品不用改模組。**大量作品一律用這個。**
+- `projects-list`「作品專案（自動同步）」— 自動列出作品專案工具已發布的作品，`modules.add { slug:'projects-list', data:{ title, maxItems, layout:'grid'|'list', category?:'<分類 slug>' } }`；新增作品不用改模組。**大量作品一律用這個。** 作品多時先用 `projects.categories.create` 建分類，一個分頁放一個分類的模組。
 - `portfolio-gallery`「作品集圖庫（手動貼圖）」、`portfolio-featured`「精選作品（手動單件）」、`portfolio-case`「案例研究（手動單篇）」、`album-wall`「專輯牆」— 資料手動填在模組裡，不會連動；只適合 1～10 件精選或單篇深度案例。
 流程：
-`assets.upload`（封面＋內容圖）→ `projects.create { title, coverAssetId, projectDate, client, tags, blocks }` → `projects.reorder`。
+`assets.upload`（封面＋內容圖）→ `projects.create { title, coverAssetId, projectDate, client, category, tags, blocks }` → `projects.reorder`。
 分頁上只放精選幾件，或放一顆連結按鈕指向 `/@id/projects`。

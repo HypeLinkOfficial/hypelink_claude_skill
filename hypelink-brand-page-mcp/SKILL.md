@@ -43,6 +43,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `profile.get` | read | 完整 profile |
 | `profile.update` | write | `name / description / mail / isPublic / publicEnabled / stickyNote / prefer3dFirst / seoTitle / seoDescription / socialOgImageUrl / hideFooterBranding` 等任意子集 |
 | `profile.set_image` | write | 設定 avatar / socialOgImage / brandLogo / footerLogo：`{ target, url }`（公開圖片 URL，後端 re-host）或 `{ target, assetId }`（`assets.upload` 取得） |
+| `profile.discovery_tags` | read | 品牌探索可用的內建標籤清單（slug / label / group） |
+| `profile.set_discovery` | write | 品牌探索設定：`{ enabled?, tags? }`，tags 最多 10 個，內建 slug（creator / food / travel…）或自訂 `#關鍵字`；省略 tags 保留既有 |
 
 ### Assets（圖片上傳）
 | Tool | Scope | 說明 |

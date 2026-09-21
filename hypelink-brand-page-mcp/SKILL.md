@@ -51,7 +51,10 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `assets.upload` | write | 把圖片上傳到品牌 R2，回 `{ assetId, url }`。來源二選一：`data`（base64，可含 `data:image/png;base64,` 前綴，≤ 8MB）或 `url`（公開網址，≤ 10MB）。支援 png / jpeg / gif / webp / svg / avif，後端以檔頭驗證。拿到的 `assetId` 給 `links.set_image` / `links.set_background` / `profile.set_image`；`url` 可放進 `design.put`、`modules.*` 任何吃圖片網址的欄位 |
 
+| `assets.inspect` | read | `{ assetId }`：從 R2 讀回檔案，回 `mimeType / bytes / sha256 / width / height / complete`；`complete:false` 表示被截斷 |
+
 > 使用者直接在對話貼圖片時：把圖片轉 base64 丟給 `assets.upload` 即可，不需要先找公開網址。
+> **base64 傳輸完整性**：自己產生的圖先算 `sha256` 與 bytes，上傳時帶 `expectedSha256` / `expectedBytes`，後端不符會拒絕儲存（也會擋掉缺結尾標記的截斷檔）。回傳的 `sha256 / width / height / complete` 可直接比對，**不需要**把檔案下載回來驗證；已上傳的舊 asset 用 `assets.inspect` 回頭檢查。大圖（>1MB）建議先縮到 1600px 內或改用公開 URL 路徑，base64 字串越長越容易在複製時斷掉。
 
 ### Folders（分頁 / 分類）
 | Tool | Scope | 主要參數 |

@@ -57,9 +57,48 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `portfolio-case` | `{ cover, title, client, role, year, summary, highlights, url }` | `cover` 需公開圖片 URL；`highlights` 換行分隔 |
 | `save-contact` | `{ name, title, org, phone, email, website, avatarUrl, buttonText, hint }` | 一鍵存通訊錄 |
 | `divider` | — | 分隔留白 |
+| `banner-h` | `{ title, subtitle, url, imageUrl, layout }` | 橫幅大圖卡；imageUrl 需公開 URL |
+| `banner-sq` | `{ gridSize, cells:[{imageUrl,title,url}] }` | 方格拼貼（IG grid 感） |
+| `dual-grid` | `{ items:[{imageUrl,title,url}] }` | 兩欄圖卡 |
+| `video` | `{ videoUrl, showControls, autoplay, layout }` | YouTube / Vimeo / mp4；autoplay 會自動靜音 |
+| `shorts` | `{ shorts:[{url,title}] }` | 直式短影音（YouTube Shorts / Reels 連結） |
+| `playlist` | `{ title, videos:[{url,title}] }` | YouTube 影片清單 |
+| `live-embed` | `{ platform:"youtube"\|"twitch", channelUrl, title, layout }` | 直播嵌入 |
+| `social-post` | `{ url, title, showFrame }` | 單則社群貼文嵌入（IG / X / Threads 貼文網址） |
+| `google-form` | `{ formUrl, height }` | Google 表單 iframe；height 預設 600 |
+| `booking` | `{ calendarUrl, height }` | cal.com / Calendly 預約頁 iframe；height 預設 700 |
+| `smart-link` | `{ title, artist, coverUrl, releaseDate, platforms:[{platform,url}], accentColor }` | 音樂 smart link（一首歌全平台按鈕） |
+| `music-player` | `{ title, tracks, visualizer, accentColor, autoNext, showLyrics, lyricsText }` | `tracks` 每行「標題 \| 音檔URL」；`lyricsText` LRC 格式；visualizer 有 wavesurfer/meyda 多款 |
+| `piano` | `{ title, keyRoot, highlightScale, autoChord, showLoop, bpm, loopBars, showLabels, accentColor }` | 可彈電子琴＋Loop Station；純前端互動 |
+| `pixel-paint` | `{ title, gridSize, pixelScale, bgColor, defaultColor, paletteText, showGrid, showDownload }` | 復古小畫家；**訪客塗鴉不持久化**（各自裝置） |
+| `object-3d` | `{ modelUrl, title, autoRotate, shadow, playAnimations, autoLoad, backgroundColor, … }` | 3D 模型展示；**modelUrl 需經 dashboard 上傳器**，MCP 難直建 |
+| `logo-wall` | `{ logos:[{imageUrl,name,url}], grayscale, marquee, marqueeSpeed, shadow, noFrame }` | 合作品牌牆；marquee 跑馬燈模式 |
+| `portfolio-featured` | `{ image, title, tags, description, url }` | 單件主打作品；tags 逗號分隔 |
+| `portfolio-gallery` | `{ title, description, images, columns:"2"\|"3"\|"4" }` | 作品圖牆；images 換行分隔公開 URL |
+| `picture-book` | `{ title, author, coverImage, description, pages:[{image,text}] }` | 翻頁繪本；pages 由編輯器管理（JSON） |
+| `resume-certificate` | `{ title, items:[{name,issuer,year,url,description,imageUrl}] }` | 證照與獎項 |
+| `user-manual` | `{ title, intro, likes, dislikes, redLines, howToGetAlong }` | 個人使用說明書；likes/dislikes 逗號分隔 |
+| `digital-card` | `{ name, title, email, phone, company, url }` | 數位名片卡 |
+| `hypelink-link` | `{ hypeId, title, name, avatar, note }` | 站內品牌頁互連卡；name/avatar 是選取時快照 |
+| `copy-text` | `{ title, items:[{label,text}] }` | 點擊複製（銀行帳號 / 折扣碼 / Discord ID） |
+| `flash` | `{ title, description, endTime, url }` | 限時快閃倒數；endTime ISO 且須未來時間 |
+| `follower-proof` | `{ title, showFollowers, items:[{platform,url,followers,handle,verified}] }` | 社群影響力數字牆；followers `null`=不顯示數字 |
+| `commission-info` | `{ title, status, description, tiers:[{name,price,description}], notes, contactUrl, contactLabel }` | 繪師/接案委託資訊；status 開放/暫停 |
+| `membership` | `{ planName, price, benefits, ctaLabel, url }` | **靜態**會員方案卡（benefits 每行一項）；真會員系統用 `member-recruit`＋會員功能 |
+| `sponsor` | `{ platform:"buymeacoffee"\|"patreon"\|"kofi"\|"other", url, label }` | 贊助平台按鈕 |
+| `tip-jar` | `{ title, amounts, currency:"TWD"\|"USD"\|"JPY", url }` | 打賞小費；amounts 逗號分隔金額 |
+
+### A-2. 互動模組（設定存 data；**訪客產生的資料存後端**，會自動累積）
+| moduleId | data 重點 | 備註 / 坑 |
+|---|---|---|
+| `guestbook` | `{ title, memberOnly, accentColor, placeholder }` | 訪客留言板（存 module-comments）；memberOnly 可鎖會員 |
+| `qna-box` | `{ title, intro, placeholder, answersText, accentColor }` | 匿名提問箱；`answersText` 每組兩行（問題/回覆）、空行分隔 |
+| `quick-poll` | `{ question, optionsText, allowMulti, showResults:"after-vote"\|"always"\|"never", closeAt, accentColor }` | 快速投票；optionsText 一行一選項；closeAt 到期鎖票 |
+| `email-capture` | `{ title, description, buttonText, placeholder, successMessage, url, layout }` | Email 訂閱名單（存 module-leads）；url 為訂閱後導引 |
+| `inquiry-form` | `{ title, description, buttonText, successMessage, fields, tag, accentColor, notifyEnabled }` | 諮詢/合作表單（存 module-leads）；`tag` 內部分類（booking/collab…）；notifyEnabled 填寫時寄 Email 通知 |
 
 ### B. 需要「後端先有資料」才會顯示（先建資料，再放模組；否則空白 / 不顯示）
-`brand-services`（服務目錄）、`mall-products`（商城商品）、`mall-reviews`（買家評價）、`news-list`（最新消息）、`articles-list`（專欄）、`course-list`（Mini 課程）、`coupon-claim`（需先建優惠券）、`reservation`（需先設預約）、`event-list` / `event-timeline`（需先建活動）。
+`brand-services`（服務目錄）、`mall-products`（商城商品）、`mall-reviews`（買家評價）、`news-list`（最新消息）、`articles-list`（專欄）、`course-list`（Mini 課程）、`coupon-claim`（需先建優惠券）、`reservation`（需先設預約）、`event-list` / `event-timeline`（需先建活動）、`team-members`（需先在 dashboard 建「成員資料」；data 只有顯示設定 `{ title, layout, avatarStyle, scope:"active"|"alumni"|"all", paginated, perPage }`）、`projects-list`（需先發布「作品專案」；data `{ title, maxItems, layout:"grid"|"list"}`）、`brand-points-status`（品牌點數 BP 狀態卡，需啟用品牌點數；data `{ title, description }`）、`digital-goods`（預設 `source:"tool"` 撈 Mini 商城 digital 商品，需先上架；`source:"manual"` 可退回手填 `{ title, description, price, url, imageUrl }` 單一商品＝A 類用法）、`file-vault`（檔案下載區；**檔案須經 dashboard 上傳**產生 assetId，data 的 files/accessMode 由編輯器管理，另支援密碼/會員解鎖）、`music-showcase`（音樂陳列室；貼歌曲連結後**自動解析各平台**，data 由自訂編輯器管理，MCP 只適合改 `customPlatformsText`）。
 
 > 這類模組**拉取其他系統的資料**。想用它們，先透過對應功能（商城 / 課程 / 活動 / 優惠券…）建立資料，模組才有東西可顯示。純展示用途時，改用 A 類（richtext 手寫菜單/服務也可以）。
 

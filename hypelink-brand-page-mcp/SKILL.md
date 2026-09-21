@@ -46,6 +46,19 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `profile.discovery_tags` | read | 品牌探索可用的內建標籤清單（slug / label / group） |
 | `profile.set_discovery` | write | 品牌探索設定：`{ enabled?, tags? }`，tags 最多 10 個，內建 slug（creator / food / travel…）或自訂 `#關鍵字`；省略 tags 保留既有 |
 
+### Projects（作品專案，品牌內容 → 作品專案；公開頁 `/@id/projects`）
+| Tool | Scope | 說明 |
+|---|---|---|
+| `projects.list` | read | 含草稿；可 `status` 過濾。回 uuid / slug / status / coverUrl / tags / blockCount（不含全文） |
+| `projects.get` | read | `{ uuid }` 完整內容（description、blocks） |
+| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生 |
+| `projects.update` | write | 部分更新；`blocks` 為整組取代；改 title 會重算 slug |
+| `projects.reorder` | write | `{ orderedUuids }`，未列入的排後面 |
+| `projects.delete` | write | 硬刪除，兩階段確認 |
+
+> `blocks` 依序渲染：`{ type:'image', url | assetId, caption? }`、`{ type:'video', embedUrl }`（YouTube / Vimeo）、`{ type:'audio', url }`、`{ type:'text', text }`。
+> 批次匯入作品的流程：每件先 `assets.upload` 取 assetId（封面與內容圖），再 `projects.create` 帶 `coverAssetId` 與 `blocks[].assetId`，最後 `projects.reorder` 排序。
+
 ### Assets（圖片上傳）
 | Tool | Scope | 說明 |
 |---|---|---|

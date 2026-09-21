@@ -184,3 +184,8 @@ LinkedIn  linear-gradient(135deg,#0A66C2 0%,#004182 100%)
 - 活動：`hypelink-event-mcp`
 
 > 名稱 / 分頁 / 模組 / 連結的任何寫入都與 dashboard 同一條 pipeline、立即反映公開頁，並寫 `mcp_audit_log`。
+
+## 作品集（作品專案）
+品牌內容 → 作品專案是 Behance 式的作品集（公開頁 `/@id/projects`），比在分頁堆 album-wall 更適合放大量作品：
+`assets.upload`（封面＋內容圖）→ `projects.create { title, coverAssetId, projectDate, client, tags, blocks }` → `projects.reorder`。
+分頁上只放精選幾件，或放一顆連結按鈕指向 `/@id/projects`。

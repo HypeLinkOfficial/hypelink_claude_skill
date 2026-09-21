@@ -42,7 +42,14 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `profile.get` | read | 完整 profile |
 | `profile.update` | write | `name / description / mail / isPublic / publicEnabled / stickyNote / prefer3dFirst / seoTitle / seoDescription / socialOgImageUrl / hideFooterBranding` 等任意子集 |
-| `profile.set_image` | write | 從**公開圖片 URL** 設定 avatar / socialOgImage / brandLogo（`{ target, url }`；後端下載並 re-host 到 R2，限 image/*、10MB） |
+| `profile.set_image` | write | 設定 avatar / socialOgImage / brandLogo / footerLogo：`{ target, url }`（公開圖片 URL，後端 re-host）或 `{ target, assetId }`（`assets.upload` 取得） |
+
+### Assets（圖片上傳）
+| Tool | Scope | 說明 |
+|---|---|---|
+| `assets.upload` | write | 把圖片上傳到品牌 R2，回 `{ assetId, url }`。來源二選一：`data`（base64，可含 `data:image/png;base64,` 前綴，≤ 8MB）或 `url`（公開網址，≤ 10MB）。支援 png / jpeg / gif / webp / svg / avif，後端以檔頭驗證。拿到的 `assetId` 給 `links.set_image` / `links.set_background` / `profile.set_image`；`url` 可放進 `design.put`、`modules.*` 任何吃圖片網址的欄位 |
+
+> 使用者直接在對話貼圖片時：把圖片轉 base64 丟給 `assets.upload` 即可，不需要先找公開網址。
 
 ### Folders（分頁 / 分類）
 | Tool | Scope | 主要參數 |
@@ -60,13 +67,16 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `links.list` | read | 支援 `?folderId` 過濾 |
-| `links.create` | write | 連結卡欄位（name / url / 描述 / size / backgroundType / buttonSize / **textPosition** 等） |
-| `links.update` | write | 部分更新 |
-| `links.set_image` | write | 從**公開圖片 URL** 設定連結卡封面（`{ id, url }`；`clear:true` 清除）—— 可搭配 AI 生圖或網路圖庫：取得公開圖片網址即可套用 |
+| `links.create` | write | 連結卡欄位：name / url / description / size / type / redirectType，加上樣式 `backgroundType`（color｜gradient｜image）/ `backgroundColor` / `backgroundGradient`（完整 CSS gradient 字串）/ `backgroundAssetId` / `imageAssetId` / `buttonSize`（small｜medium｜large）/ `textPosition`（九宮格）/ `textStyle`（showTitle、showDescription、titleSize、titleColor、descriptionSize、descriptionColor）。只給 `backgroundGradient` 沒給 `backgroundType` 會自動補成 gradient |
+| `links.update` | write | 部分更新（同上所有欄位） |
+| `links.set_background` | write | 一次設定卡片背景：`{ id, type:'color', color }`、`{ id, type:'gradient', gradient }`、`{ id, type:'image', url | assetId }`；可順帶 `textPosition` / `buttonSize` / `textStyle` |
+| `links.set_image` | write | 設定連結卡封面：`{ id, url }`（公開 URL）或 `{ id, assetId }`；`clear:true` 清除 |
 | `links.reorder` | write | `{ orderedIds }` |
 | `links.delete` | write | 兩階段 |
 
-> `textPosition` 可選 `top-left / top-right / bottom-left / bottom-right / center`（卡片標題文字位置，預設 `bottom-left`）。
+> `textPosition` 九宮格：`top-left / top-center / top-right / center-left / center / center-right / bottom-left / bottom-center / bottom-right`（預設 `bottom-left`）。
+> 漸層配方（直接抄）：一對一諮詢 `linear-gradient(135deg,#89CFF0 0%,#2563EB 100%)`、IG `linear-gradient(135deg,#F58529 0%,#DD2A7B 50%,#8134AF 100%)`、主持邀約 `linear-gradient(135deg,#F59E0B 0%,#7C2D12 100%)`；更多見 hypelink-rich-brand-page。
+> 回傳的 `image` / `backgroundAsset` 已是完整 URL 字串。
 
 ### Page Modules（首頁內容模組）
 | Tool | Scope | 說明 |

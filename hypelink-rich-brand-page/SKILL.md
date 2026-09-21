@@ -26,7 +26,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 1. **開場先讀** `homeinfo.get_overview` 看現況。
 2. **規劃分頁** `folders.create` / `folders.update`：依場景命名（如「關於 & 菜單」「行程 & 作品」「預約諮詢」）。至少保留一個分頁。
 3. **每個分頁放模組** `modules.add {folderId, moduleId, data}`：見下方「模組選型速查」。`data` 形狀隨 `moduleId` 變，不確定就先 `modules.list` 看既有模組或查 `tools/list`。
-4. **加連結按鈕** `links.create`（+ `links.set_image` 設圖片封面）。漸層背景見「連結按鈕」一節（MCP 有限制）。
+4. **加連結按鈕** `links.create`（可直接帶漸層／buttonSize／textPosition；圖片走 `assets.upload` → `links.set_background` / `links.set_image`）。配方見「連結按鈕」一節。
 5. **命名 + 標籤** `profile.update`（name/description）＋ discovery 設 tags。
 6. **發布 + 複查**：`profile.update { isPublic:true }`，再 `homeinfo.get_overview` 檢查。
 
@@ -72,9 +72,9 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 - `buttonSize`: `small` | `medium` | `large`（large ≈ 160px 高，最像 hero 按鈕）
 - `textPosition`: `top-left/top-right/bottom-left/bottom-right/center`
 
-> ⚠️ **MCP 限制**：MCP 的 `links.create` / `links.update` 目前只開放基本欄位（name/url/size/type/description/redirectType）。
-> **漸層與 buttonSize/textPosition 未在 MCP 開放** → 漸層按鈕請走 **dashboard**（或後端 REST）。
-> 圖片封面可用 MCP `links.set_image`（吃公開 URL，後端 re-host）。
+> ✅ **MCP 已全開**：`links.create` / `links.update` 可直接帶 `backgroundType / backgroundColor / backgroundGradient / backgroundAssetId / buttonSize / textPosition / textStyle`；
+> 或用 `links.set_background { id, type:'gradient', gradient }` 一步到位。
+> 圖片：使用者貼的圖用 `assets.upload { data: <base64> }` 上傳拿 `assetId`，再 `links.set_background { id, type:'image', assetId }` 或 `links.set_image { id, assetId }`；有公開網址則直接給 `url`。
 
 **可直接抄的漸層配方（backgroundType=gradient）：**
 ```

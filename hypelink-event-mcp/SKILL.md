@@ -93,7 +93,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `events.tickets.list` | read | `{ eventUuid }`，含 soldCount |
-| `events.tickets.create` | write | `{ eventUuid, name, ... }`；`quota` 省略=不限名額、`price` 省略=免費 |
+| `events.tickets.create` | write | `{ eventUuid, name, ... }`；`quota` 省略=不限名額、`price` 省略=免費。**同一活動內票種名稱不可重複**（不分大小寫），重複回 409 |
 | `events.tickets.update` | write | `{ eventUuid, uuid, ... }` |
 | `events.tickets.delete` | write | `{ eventUuid, uuid }` |
 
@@ -114,7 +114,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.attendees.get` | read | 取**單一**報名者完整資料（以 `attendeeUuid` 優先，否則 `email`）；欄位同 list 每筆 |
 | `events.attendees.patch_status` | write | 改報名狀態（核准 / 拒絕 / 取消…） |
 | `events.attendees.export_csv` | read | 匯出名單 |
-| `events.attendees.bulk_import` | write | 批次匯入 |
+| `events.attendees.bulk_import` | write | 批次匯入（每筆 `{ name, email, phone?, ticketTypeName? }`；票種以**名稱**對應、不分大小寫；`createMissingTicketTypes: true` 會把不存在的票種名稱自動建成免費、不限名額的票種；回傳 `inserted / skipped / errors / createdTicketTypes`） |
 | `events.attendees.invite_by_email` | write | Email 邀請 |
 | `events.attendees.gift_ticket` | write | 贈票 |
 | `events.checkin.summary` | read | 報到統計 |

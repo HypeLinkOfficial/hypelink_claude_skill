@@ -98,7 +98,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
 
 MCP 目前未暴露網域綁定工具，請引導使用者到 dashboard：品牌設定 → 網域（`/dashboard/brands/@id/settings/domain`；側欄「網域綁定」會轉到同一頁）。
 
-1. 需 **Pro 以上**；網域數預設 0，按「增加網域數」以 **1000 SP／個** 加購（每品牌上限 10 個）。輸入網域本身（不含 https:// 與路徑，不可為 hypelink.app 子網域）。
+1. 需 **Pro 以上**；每品牌預設 1 個網域額度，要綁更多請按「增加網域數」以 **1000 SP／個** 加購（每品牌上限 10 個）。輸入網域本身（不含 https:// 與路徑，不可為 hypelink.app 子網域）。
 2. 到 DNS 服務商加兩筆：`TXT _hypelink.<網域>` = `hl-verify=<token>`；`CNAME <網域>` → `pages.hypelink.app`（Cloudflare 託管請用灰雲 DNS only）。根網域不能設 CNAME 時改綁 www。
 3. 按「重新驗證」→ 通過後平台自動向 Cloudflare 簽發憑證（幾分鐘）→ 狀態「已開通」。
 4. 可選：「以品牌官網作為此網域首頁」開關（需官網已開放）：`/` 變官網、`/link` 為公開頁；關閉時 `/` 為公開頁、`/site` 為官網。

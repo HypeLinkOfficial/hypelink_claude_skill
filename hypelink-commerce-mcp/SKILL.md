@@ -1,12 +1,12 @@
 ---
 name: hypelink-commerce-mcp
-description: 透過 HypeLink MCP server 經營品牌的變現與成長功能——名單神器（投廣 Landing Page 與名單匣 leads）、Mini 商城（商品/庫存/訂單出貨 mall）、Mini 課程（課程/章節/單元/學員 courses）、聯盟行銷（夥伴/歸因訂單/出金查詢 affiliates）。當使用者要用 Claude 經 /mcp 操作某品牌的商品、訂單、課程、投廣頁名單或聯盟分潤時使用。（另含 PayConnect 唯讀查詢 payconnect:*：外部系統以 email 查會員資格／付款狀態、查商城／數位商品／訂閱訂單）
+description: 透過 HypeLink MCP server 經營品牌的變現與成長功能——名單神器（投廣 Landing Page 與名單匣 leads）、線上商店（商品/庫存/訂單出貨 mall）、線上課程（課程/章節/單元/學員 courses）、聯盟行銷（夥伴/歸因訂單/出金查詢 affiliates）。當使用者要用 Claude 經 /mcp 操作某品牌的商品、訂單、課程、投廣頁名單或聯盟分潤時使用。（另含 PayConnect 唯讀查詢 payconnect:*：外部系統以 email 查會員資格／付款狀態、查商城／數位商品／訂閱訂單）
 ---
 
 # Skill：HypeLink 變現與成長 MCP 操作
 
 透過 **HypeLink MCP server** 經營一個品牌的**變現與成長**功能：
-名單神器（`leads:*`）、Mini 商城（`mall:*`）、Mini 課程（`courses:*`）、聯盟行銷（`affiliates:*`）。
+名單神器（`leads:*`）、線上商店（`mall:*`）、線上課程（`courses:*`）、聯盟行銷（`affiliates:*`）。
 
 > 品牌頁（首頁資訊 / 設計主題 / Webhook）見 `hypelink-brand-page-mcp`；活動見 `hypelink-event-mcp`。
 
@@ -30,8 +30,8 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | Scope | 範圍 |
 |---|---|
 | `leads:read` / `leads:write` | 名單神器：投廣 Landing Page、A/B 變體、名單匣 |
-| `mall:read` / `mall:write` | Mini 商城：商品、庫存、訂單出貨 |
-| `courses:read` / `courses:write` | Mini 課程：課程/章節/單元、學員名單、數據 |
+| `mall:read` / `mall:write` | 線上商店：商品、庫存、訂單出貨 |
+| `courses:read` / `courses:write` | 線上課程：課程/章節/單元、學員名單、數據 |
 | `affiliates:read` / `affiliates:write` | 聯盟行銷：夥伴、歸因訂單、出金查詢 |
 | `payconnect:read` | PayConnect（唯讀）：訂單查詢、會員資格／付款狀態查詢；品牌需先在 dashboard「PayConnect」頁啟用 |
 
@@ -65,7 +65,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 ---
 
-## 二、Mini 商城（`mall:*`）
+## 二、線上商店（`mall:*`）
 
 | Tool | Scope | 說明 |
 |---|---|---|
@@ -84,7 +84,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 ---
 
-## 三、Mini 課程（`courses:*`）
+## 三、線上課程（`courses:*`）
 
 | Tool | Scope | 說明 |
 |---|---|---|

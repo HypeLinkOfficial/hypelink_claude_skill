@@ -34,6 +34,8 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 
 ## 模組選型速查（moduleId → data 形狀 → 重點）
 
+> 下表是速查；**權威 schema 用 `modules.catalog { q }` 取得**（含 options 與預設值）。品牌色與名稱／hypeID／簡介文字顏色用 `design.set_colors`。
+
 ### A. 內容直接存 data（可用 `modules.add` 直接建，最常用）
 | moduleId | data 重點 | 備註 / 坑 |
 |---|---|---|
@@ -71,6 +73,10 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `music-player` | `{ title, tracks, visualizer, accentColor, autoNext, showLyrics, lyricsText }` | `tracks` 每行「標題 \| 音檔URL」；`lyricsText` LRC 格式；visualizer 有 wavesurfer/meyda 多款 |
 | `piano` | `{ title, keyRoot, highlightScale, autoChord, showLoop, bpm, loopBars, showLabels, accentColor }` | 可彈電子琴＋Loop Station；純前端互動 |
 | `pixel-paint` | `{ title, gridSize, pixelScale, bgColor, defaultColor, paletteText, showGrid, showDownload }` | 復古小畫家；**訪客塗鴉不持久化**（各自裝置） |
+| `tetris` | `{ title, startLevel:"1"|"3"|"5", leaderboardSize:"5"|"10"|"20", showLeaderboard, accentColor }` | 小遊戲：俄羅斯方塊，鍵盤＋畫面左右下角按鈕；**排行榜持久化**（每人取最高分，訪客留暱稱即可） |
+| `snake` | `{ title, speed:"slow"|"normal"|"fast", wallWrap, leaderboardSize, showLeaderboard, accentColor }` | 小遊戲：貪食蛇，方向按鈕；排行榜同上 |
+| `basketball` | `{ title, duration:"30"|"60"|"90", movingHoop, leaderboardSize, showLeaderboard, accentColor }` | 小遊戲：籃球機（限時投籃、蓄力出手）；排行榜同上 |
+| `gameboy` | `{ title, game:"mario", shellColor:"classic"|"purple"|"yellow"|"teal", leaderboardSize, showLeaderboard, accentColor }` | 小遊戲：掌機外殼＋卡帶「超級瑪麗」（原創像素平台跳躍）；排行榜同上 |
 | `object-3d` | `{ modelUrl, title, autoRotate, shadow, playAnimations, autoLoad, backgroundColor, … }` | 3D 模型展示；**modelUrl 需經 dashboard 上傳器**，MCP 難直建 |
 | `logo-wall` | `{ logos:[{imageUrl,name,url}], grayscale, marquee, marqueeSpeed, shadow, noFrame }` | 合作品牌牆；marquee 跑馬燈模式 |
 | `portfolio-featured` | `{ image, title, tags, description, url }` | 單件主打作品；tags 逗號分隔 |
@@ -98,7 +104,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `inquiry-form` | `{ title, description, buttonText, successMessage, fields, tag, accentColor, notifyEnabled }` | 諮詢/合作表單（存 module-leads）；`tag` 內部分類（booking/collab…）；notifyEnabled 填寫時寄 Email 通知 |
 
 ### B. 需要「後端先有資料」才會顯示（先建資料，再放模組；否則空白 / 不顯示）
-`brand-services`（服務目錄）、`mall-products`（商城商品）、`mall-reviews`（買家評價）、`news-list`（最新消息）、`articles-list`（專欄）、`course-list`（Mini 課程）、`coupon-claim`（需先建優惠券）、`reservation`（需先設預約）、`event-list` / `event-timeline`（需先建活動）、`team-members`（需先在 dashboard 建「成員資料」；data 只有顯示設定 `{ title, layout, avatarStyle, scope:"active"|"alumni"|"all", paginated, perPage }`）、`projects-list`（需先發布「作品專案」；data `{ title, maxItems, layout:"grid"|"list", category?: 分類 slug }`）、`brand-points-status`（品牌點數 BP 狀態卡，需啟用品牌點數；data `{ title, description }`）、`digital-goods`（預設 `source:"tool"` 撈 Mini 商城 digital 商品，需先上架；`source:"manual"` 可退回手填 `{ title, description, price, url, imageUrl }` 單一商品＝A 類用法）、`file-vault`（檔案下載區；**檔案須經 dashboard 上傳**產生 assetId，data 的 files/accessMode 由編輯器管理，另支援密碼/會員解鎖）、`music-showcase`（音樂陳列室；貼歌曲連結後**自動解析各平台**，data 由自訂編輯器管理，MCP 只適合改 `customPlatformsText`）。
+`brand-services`（服務目錄）、`mall-products`（商城商品）、`mall-reviews`（買家評價）、`news-list`（最新消息）、`articles-list`（專欄）、`course-list`（線上課程）、`coupon-claim`（需先建優惠券）、`reservation`（需先設預約）、`event-list` / `event-timeline`（需先建活動）、`team-members`（需先在 dashboard 建「成員資料」；data 只有顯示設定 `{ title, layout, avatarStyle, scope:"active"|"alumni"|"all", paginated, perPage }`）、`projects-list`（需先發布「作品專案」；data `{ title, maxItems, layout:"grid"|"list", category?: 分類 slug }`）、`brand-points-status`（品牌點數 BP 狀態卡，需啟用品牌點數；data `{ title, description }`）、`digital-goods`（預設 `source:"tool"` 撈 線上商店 digital 商品，需先上架；`source:"manual"` 可退回手填 `{ title, description, price, url, imageUrl }` 單一商品＝A 類用法）、`file-vault`（檔案下載區；**檔案須經 dashboard 上傳**產生 assetId，data 的 files/accessMode 由編輯器管理，另支援密碼/會員解鎖）、`music-showcase`（音樂陳列室；貼歌曲連結後**自動解析各平台**，data 由自訂編輯器管理，MCP 只適合改 `customPlatformsText`）。
 
 > 這類模組**拉取其他系統的資料**。想用它們，先透過對應功能（商城 / 課程 / 活動 / 優惠券…）建立資料，模組才有東西可顯示。純展示用途時，改用 A 類（richtext 手寫菜單/服務也可以）。
 
@@ -139,8 +145,8 @@ LinkedIn  linear-gradient(135deg,#0A66C2 0%,#004182 100%)
 ---
 
 ## 進階：變現模組怎麼嵌
-- **Mini 商城**：先在商城建商品（`mall.*` 或 dashboard），再放 `mall-products` 模組；適合周邊 / 伴手禮 / 電子書。
-- **Mini 課程**：先建課程/章節/單元，再放 `course-list`。
+- **線上商店**：先在商城建商品（`mall.*` 或 dashboard），再放 `mall-products` 模組；適合周邊 / 伴手禮 / 電子書。
+- **線上課程**：先建課程/章節/單元，再放 `course-list`。
 - **會員**：`member-recruit` 招募 + 會員等級綁權益 / 會員價。
 - **名單神器**：投廣落地頁（`lead_pages.*`）搭配活動導流。
 > 金流敏感操作（結帳 / 退款 / 出金）走 dashboard，見 `hypelink-commerce-mcp`。

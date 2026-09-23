@@ -42,7 +42,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `profile.get` | read | 完整 profile |
 | `profile.update` | write | `name / description / mail / isPublic / publicEnabled / stickyNote / prefer3dFirst / seoTitle / seoDescription / socialOgImageUrl / hideFooterBranding` 等任意子集 |
-| `profile.set_image` | write | 設定 avatar / socialOgImage / brandLogo / footerLogo：`{ target, url }`（公開圖片 URL，後端 re-host）或 `{ target, assetId }`（`assets.upload` 取得） |
+| `profile.set_image` | write | 設定 avatar / socialOgImage / brandLogo / footerLogo / favicon（瀏覽器分頁圖示，正方形 PNG/SVG；未設定時公開頁退回大頭貼）：`{ target, url }`（公開圖片 URL，後端 re-host）或 `{ target, assetId }`（`assets.upload` 取得） |
 | `profile.discovery_tags` | read | 品牌探索可用的內建標籤清單（slug / label / group） |
 | `profile.set_discovery` | write | 品牌探索設定：`{ enabled?, tags? }`，tags 最多 10 個，內建 slug（creator / food / travel…）或自訂 `#關鍵字`；省略 tags 保留既有 |
 
@@ -106,20 +106,22 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 ### Page Modules（首頁內容模組）
 | Tool | Scope | 說明 |
 |---|---|---|
+| `modules.catalog` | read | 內建模組目錄：所有可用 `moduleId`、分類（含 `game` 小遊戲）與每個模組的 `data` 欄位 schema；可 `category` / `q` 過濾，`withSchema:false` 省 token |
 | `modules.list` | read | — |
-| `modules.add` | write | `{ folderId, moduleId, data }`；**`data` schema 隨 `moduleId` 動態變化** |
+| `modules.add` | write | `{ folderId, moduleId, data }`；**`data` schema 隨 `moduleId` 動態變化**，先 `modules.catalog` 查 |
 | `modules.update` | write | — |
 | `modules.reorder` | write | — |
 | `modules.delete` | write | — |
 
 > 常見 `moduleId`：`richtext`（`{ content }`）、`text-btn`（`{ text, url, style }`）、`bio`、`inquiry-form`、`video`、`logo-wall`…。
-> **不確定某模組的 `data` 形狀時，先 `tools/list` 拉最新 schema 或 `modules.list` 看既有模組的 data，不要憑記憶猜。**
+> **不確定某模組的 `data` 形狀時，先 `modules.catalog { q }` 查權威 schema，或 `modules.list` 看既有模組的 data，不要憑記憶猜。**
+> 小遊戲（`tetris` / `snake` / `basketball` / `gameboy`）自帶排行榜（訪客留暱稱即可上榜、每人取最高分），適合放在「互動」分頁當停留時間的鉤子。
 
 ### Socials（社群列）
 | Tool | Scope | 說明 |
 |---|---|---|
 | `socials.list` | read | — |
-| `socials.set` | write | 新增一筆（依 `type` + `data`） |
+| `socials.set` | write | 新增一筆（依 `type` + `data`）。type：0 Instagram、1 Facebook、2 YouTube、3 LINE、4 官網、5 TikTok、6 X、7 LinkedIn、8 Threads、9 Pinterest、10 Spotify、11 Podcast、12 GitHub、13 Behance、14 Dribbble、15 一般連結、16 自訂（customLabel/customIcon）、17 WhatsApp、18 WeChat；**功能性按鈕**：20 打電話（data=電話）、21 寄 Email（data=email）、22 傳簡訊（data=手機）、23 加入聯絡人（data=電話，公開頁下載 vCard）、24 加入 LINE 好友（data=LINE ID 含 @） |
 | `socials.update` | write | 編輯既有 `id` |
 | `socials.reorder` | write | — |
 | `socials.delete` | write | 兩階段確認 |
@@ -129,10 +131,11 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `design.get` | read | 取得目前 `designSettings` |
 | `design.put` | write | **整包替換** `designSettings`（`{ settings }`）—— 風險高，務必先 `design.get` 再做最小變更 |
-| `design.set_theme` | write | 套用內建主題（`{ themeId }`，例如 `builtin-original` / `builtin-dark` / `builtin-notion`…） |
+| `design.set_colors` | write | 只改顏色、其他設定不動：`{ brandColor?, titleColor?, handleColor?, bioColor? }`；`brandColor` 為 `#RRGGBB`，三個文字顏色可填 `#RRGGBB`（自訂）、`"brand"`（跟隨品牌色）或 `"auto"`（清除覆寫） |
+| `design.set_theme` | write | 套用內建主題（`{ themeId }`，例如 `builtin-original` / `builtin-dark` / `builtin-notion`…）；**換主題會保留品牌色與文字顏色覆寫** |
 | `themes.list` | read | 列出可用內建主題 |
 
-> 改主題色：選了內建主題後，主題色覆寫值（accentColor）會影響強調色與分頁 active 文字。`design.put` 是整包替換，請以 `design.get` 的結果為基底改最小子集，避免清掉其他設定。
+> 品牌色單一來源：`accentColor`（後端同時鏡射到 `brandColors[0]`），全站按鈕／分頁／模組主色／底部 dock／所有子頁都用它。要改顏色一律用 `design.set_colors`，不要為了一個顏色 `design.put` 整包。hypeID 的顏色就是 `handleColor`（使用者常問「hypeID 顏色在哪改」）。
 
 ### Webhook 出站事件（🪄 Max 方案，scope 仍為 `homeinfo:*`）
 讓 HypeLink 在事件發生時反向推 HTTP 給你的 endpoint（訂單、報名…）。**這是 Max 方案功能**。

@@ -36,6 +36,11 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `homeinfo.get_overview` | read | **對話開場第一支**：一次取回 profile + folders + module 計數 + socials 計數 |
+| `homeinfo.pulse_todos` | read | 待處理清單：過期倒數／限時、空的系統模組、沒看的留言／提問、超過 2 天沒跟進的留單、太久沒更新；每項附 `link` |
+| `homeinfo.module_activity` | read | 互動模組（留言板／Q&A／投票／快速 Pitch／洽詢／社交）自上次查看的新動態與最新 5 筆；`{ markSeen: "<實例id>" \| "all" }` 標已讀 |
+| `homeinfo.weekly_report` | read | 每週成效：不帶參數＝本週預覽；`{ week: "YYYY-MM-DD" }`＝已寄出那週；`{ list: true }`＝歷史列表 |
+
+> 使用者問「我的品牌頁最近怎樣」「有什麼要處理」「這週成效」時，先打 `pulse_todos` 與 `weekly_report`，把行動整理成待辦給他，並附 dashboard 連結。
 
 ### Profile（品牌基本資料）
 | Tool | Scope | 說明 |
@@ -115,6 +120,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 
 > 常見 `moduleId`：`richtext`（`{ content }`）、`text-btn`（`{ text, url, style }`）、`bio`、`inquiry-form`、`video`、`logo-wall`…。
 > **不確定某模組的 `data` 形狀時，先 `modules.catalog { q }` 查權威 schema，或 `modules.list` 看既有模組的 data，不要憑記憶猜。**
+> 各模組的中文名稱、後台說明與「什麼情境該用哪個」見 `hypelink-rich-brand-page` 的「展示模組總覽」一節（依後台分類：展示內容／蒐集互動／販售轉換／個人檔案／媒體嵌入／小遊戲／社交互動／HypeLink 系統模組／其他擴充）。
 > 小遊戲（`tetris` / `snake` / `basketball` / `gameboy`）自帶排行榜（訪客留暱稱即可上榜、每人取最高分），適合放在「互動」分頁當停留時間的鉤子。
 
 ### Socials（社群列）
@@ -153,6 +159,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `webhooks.redeliver` | write | 重送某筆投遞 |
 
 > 非 Max 方案：`list / list_deliveries / event_types` 仍可讀（只是不會有事件 fire）；`create / update(enable) / test` 會回 `SCOPE_DENIED`。
+> 事件共 13 種：活動 7 種（`event.*`）、連結／profile 4 種、以及 **`module.comment.created`**（留言板／Q&A 有新留言）與 **`module.lead.created`**（洽詢表單／E-mail 訂閱／快速 Pitch 有興趣，payload `tag` 區分）。想「有人留言就通知我」就訂這兩個。
 > 出站事件規格與簽名格式見官方文件 <https://hypelink.app/docs/ai/webhook>。
 
 ## Resources（自動上下文）

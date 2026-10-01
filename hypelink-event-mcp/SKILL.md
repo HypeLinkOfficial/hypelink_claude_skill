@@ -74,7 +74,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
     // id 可為：hero/about/body/highlights/agenda/speakers/faqs/
     //          sponsors/notes/album/tickets/venue/contact/offlinePayment
   ],
-  "highlights": [{ "icon": "lucide:Star", "title": "", "description": "" }],
+  "highlights": [{ "icon": "lucide:Star", "title": "", "description": "" }],   // icon 可用任何 lucide 圖示名（PascalCase，如 lucide:Brain、lucide:ShieldCheck）或 emoji；公開頁按需載入，載不到退回 ✦
   "agenda":     [{ "time": "09:00", "title": "", "speaker": "" }],
   "speakers":   [{ "name": "", "role": "", "avatar": "", "bio": "" }],
   "faqs":       [{ "question": "", "answer": "" }],

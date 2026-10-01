@@ -6,7 +6,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 # Skill：HypeLink 品牌頁 MCP 操作
 
 透過 **HypeLink MCP server** 製作與維護一個品牌的**公開頁內容與外觀**：
-首頁資訊（profile / folders / links / page modules / socials）＋ 設計主題（design / theme）。
+首頁資訊（profile / folders / links / page modules / socials）＋ 設計主題（design / theme）＋ **品牌官網（site：頁面、範本、頁尾、發佈）**。
 
 ## 何時使用
 
@@ -16,6 +16,9 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 - 「找出所有 dead link 並刪除」
 - 「把品牌頁套成深色主題 / 換主題色」
 - 「依『公司品牌』樣板把空品牌頁一次填好」
+- 「幫我的官網套一個深色的作品集範本，然後把文案改成我的」
+- 「官網多一頁『定價』，用 Lumina 範本的定價頁」
+- 「頁尾換成跑馬燈版型，放巡演日期」
 
 ## 重要前提與邊界
 
@@ -142,6 +145,30 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `themes.list` | read | 列出可用內建主題 |
 
 > 品牌色單一來源：`accentColor`（後端同時鏡射到 `brandColors[0]`），全站按鈕／分頁／模組主色／底部 dock／所有子頁都用它。要改顏色一律用 `design.set_colors`，不要為了一個顏色 `design.put` 整包。hypeID 的顏色就是 `handleColor`（使用者常問「hypeID 顏色在哪改」）。
+
+### 品牌官網（Brand Site，`/@id/site`；scope 仍為 `homeinfo:*`）
+官網是「頁面系統」：每頁是 **builder**（頁面編輯器頁，區塊陣列）／**content**（接後台資料：作品專案、商店、專欄、最新消息、課程、3D 展、關於、聯絡、會員中心）／**html**／**link**。所有寫入都是**存草稿**，要 `site.publish` 公開頁才會變。
+
+| Tool | Scope | 說明 |
+|---|---|---|
+| `site.get` | read | **官網開場第一支**：enabled／publishedAt／hasUnpublishedChanges／theme／footer／seo＋頁面摘要 |
+| `site.update` | write | 整站設定 merge：`{ enabled?, theme?, footer?, seo?, contact?, about?, home? }`。footer 可帶 `layout`（11 種：columns／mega／cta／minimal／newsletter／stacked／ticker／contact／index／panel／photo）與版型欄位 `headline／giantWord／marquee／hours／newsletter／showClock` |
+| `site.pages.list` | read | 頁面清單（＝Menu 順序）：id／slug／title／kind／sectionTypes／contentSource |
+| `site.pages.get` | read | `{ id | slug }` 單頁完整內容（builder 的 sections／theme） |
+| `site.pages.create` | write | `{ title, kind?, slug?, sections?, theme?, content?, link?, html?, showInMenu?, visibility?, position? }` |
+| `site.pages.update` | write | 部分更新；`sections` 整組取代；`content.style` 固定內容區樣式（null＝跟隨範本）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
+| `site.pages.delete` | write | 兩階段 confirmToken；首頁不可刪 |
+| `site.pages.reorder` | write | `{ orderedIds | orderedSlugs }` |
+| `site.templates.list` | read | 官網範本庫（72 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
+| `site.apply_template` | write | `{ key, mode?: replace|append, applyTheme?: true }`——跟 dashboard「使用官網範本」一樣：replace 取代所有 builder 頁（首頁保留 id／slug）、內容頁不動；applyTheme 連主色／字體／背景／Menu／內容頁設計／頁尾版型一起換 |
+| `site.apply_page_template` | write | `{ key, templateSlug, id | slug }` 把範本某一頁套到目前某一頁（只換區塊與頁面主題） |
+| `site.blocks.catalog` | read | 86 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts、footerLayouts。要自己組 sections 時先拿這個 |
+| `site.publish` | write | 發佈草稿到公開頁 |
+| `site.versions.list` / `site.versions.restore` | read / write | 版本紀錄與還原成草稿 |
+
+> **建議流程**：`site.get` → `site.templates.list { category }` → `site.apply_template { key, dry_run:true }` 給使用者看會變成哪些頁 → 正式套用 → 用 `site.pages.update` 改文案（取 `site.pages.get` 的 sections，改字後整組寫回）→ `site.publish`。
+> 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay?, textLight? }`。
+> 範本的圖片是 HypeLink 自有素材（R2 `library/site-templates/…`），可直接保留；要換成品牌自己的照片就改區塊裡的 `imageUrl`／`bg.imageUrl`。
 
 ### Webhook 出站事件（🪄 Max 方案，scope 仍為 `homeinfo:*`）
 讓 HypeLink 在事件發生時反向推 HTTP 給你的 endpoint（訂單、報名…）。**這是 Max 方案功能**。

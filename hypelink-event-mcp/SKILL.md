@@ -37,9 +37,9 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 |---|---|---|
 | `events.list` | read | 列出本品牌活動（可帶 status） |
 | `events.get` | read | `{ uuid }` 取完整活動 |
-| `events.create` | write | `{ name, startAt, endAt, slug?, description?, format?, location?, meetingUrl?, registration*?, pageContent?, discountCodes?[] }` |
+| `events.create` | write | `{ name, startAt, endAt, slug?, description?, format?, location?, meetingUrl?, registration*?, pageContent?, discountCodes?[] }`。`slug` 未給時由名稱自動產生，只保留 a-z0-9-（中文名稱會退回 `event-<yyyymmdd>-<隨機>`），建議中文活動自行帶英數 slug |
 | `events.update` | write | `{ uuid, ... }` 部分更新（`pageContent` 傳 null 物件即清空） |
-| `events.duplicate` | write | `{ uuid }` 複製活動 |
+| `events.duplicate` | write | `{ uuid, name?, slug? }` 複製活動（內容＋票種；副本為 draft、關閉報名）。可指定副本 `name` 與 `slug`（a-z0-9- 1-80 字、同品牌唯一，重複回 409）；未指定時名稱為「原名 (副本)」、slug 為「原 slug-copy-xxxxx」 |
 | `events.delete` | write | `{ uuid }` 軟刪除，**兩階段確認** |
 | `events.cancel` | write | `{ uuid }` 取消活動（會通知已報名者，不刪資料） |
 | `events.set_cover` | write | 從**公開圖片 URL** 設定活動封面（`{ uuid, url }`；`clear:true` 清除；後端下載 re-host）。可搭配 AI 生圖或網路圖庫；封面建議 **1200×900，4:3** |

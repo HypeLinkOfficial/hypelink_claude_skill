@@ -158,7 +158,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `site.pages.list` | read | 頁面清單（＝Menu 順序）：id／slug／title／kind／sectionTypes／contentSource |
 | `site.pages.get` | read | `{ id | slug }` 單頁完整內容（builder 的 sections／theme） |
 | `site.pages.create` | write | `{ title, kind?, slug?, sections?, theme?, content?, link?, html?, showInMenu?, visibility?, position? }` |
-| `site.pages.update` | write | 部分更新；`sections` 整組取代；`content.style` 固定內容區樣式（null＝跟隨範本）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
+| `site.pages.update` | write | 部分更新；`sections` 整組取代；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
 | `site.pages.delete` | write | 兩階段 confirmToken；首頁不可刪 |
 | `site.pages.reorder` | write | `{ orderedIds | orderedSlugs }` |
 | `site.templates.list` | read | 官網範本庫（72 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |

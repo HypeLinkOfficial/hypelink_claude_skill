@@ -167,6 +167,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `site.versions.list` / `site.versions.restore` | read / write | 版本紀錄與還原成草稿 |
 
 > **建議流程**：`site.get` → `site.templates.list { category }` → `site.apply_template { key, dry_run:true }` 給使用者看會變成哪些頁 → 正式套用 → 用 `site.pages.update` 改文案（取 `site.pages.get` 的 sections，改字後整組寫回）→ `site.publish`。
+> 要把品牌頁某分頁的模組放進官網：區塊 `{ type:"brandModules", folderId:<分頁 id 或 null＝全部>, layout:"bento"|"grid"|"two"|"stack"|"masonry", moduleIds?:[] }`，內容直接同步品牌頁（`folders.list` 取分頁 id）。
 > 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay?, textLight? }`。
 > 範本的圖片是 HypeLink 自有素材（R2 `library/site-templates/…`），可直接保留；要換成品牌自己的照片就改區塊裡的 `imageUrl`／`bg.imageUrl`。
 

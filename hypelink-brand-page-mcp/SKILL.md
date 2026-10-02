@@ -177,6 +177,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > 要把品牌頁某分頁的模組放進官網：區塊 `{ type:"brandModules", folderId:<分頁 id 或 null＝全部>, layout:"bento"|"grid"|"two"|"stack"|"masonry", moduleIds?:[] }`，內容直接同步品牌頁（`folders.list` 取分頁 id）。
 > 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay 0–0.9, overlayStyle: flat|left|right|top|bottom, focusX?, focusY?, textLight?, parallax? }`——亮照片配白字時用「文字所在側」的漸層（例：文字靠左＝`overlayStyle:"left"`），比整片加深好讀又不會把照片壓暗；直式照片放橫幅用 `focusY` 決定保留哪一段（0＝上緣）。
 > immersiveHero／ctaBand 的按鈕連結是 `ctaUrl`／`secondaryUrl`。hlContent 可帶 `category`（只顯示某分類）與 `sort: latest|oldest|title|random`。imageCompare 帶 `projectSlug` 會自動用該作品專案的施工前／後圖（`projects.update` 的 `beforeImageUrl`／`afterImageUrl`）。
+> **詢價單**：官網有 `content.source:"projects"` 或 `"services"`（服務項目，資料來自後台「服務報價」）的內容頁時，Menu 右上會出現「詢價」按鈕；訪客可把服務（含加購選項）與作品（當參考、可寫備註）放進同一張詢價單，留姓名＋電話或 Email 送出，品牌在後台「服務報價 › 詢價」收到（站內通知＋Email，可轉報價單）。服務報價設定關閉「接受詢價」時按鈕隱藏、送出也會被拒。
 > 動畫出問題要「先關掉先上線」：整站 `site.update { theme:{ motion:{ blocks:false } } }`，或單頁 `site.pages.update { theme:{ animation:{ blocksEnabled:false } } }`；關閉後所有標題與區塊直接顯示。
 > 範本的圖片是 HypeLink 自有素材（R2 `library/site-templates/…`），可直接保留；要換成品牌自己的照片就改區塊裡的 `imageUrl`／`bg.imageUrl`。
 

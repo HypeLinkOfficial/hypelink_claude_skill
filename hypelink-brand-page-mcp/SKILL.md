@@ -31,7 +31,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 
 - `homeinfo:read` → 可讀（profile / folders / links / modules / socials / design / themes / webhooks）
 - `homeinfo:write` → 才能寫（含 webhooks；Webhook 建立 / 啟用 / test 另需 **Max 方案**）
-- 寫入類工具大多支援 `dry_run: true`（回傳 changes 不執行）；`*.delete` 走兩階段 `confirmToken`。
+- 寫入類工具大多支援 `dry_run: true`：**會跑完整驗證**（錯了一樣回 `VALIDATION_FAILED`），並回傳將變更的欄位與 `ignoredFields`（會被伺服器忽略的欄位）；`*.delete` 走兩階段 `confirmToken`。
+- 所有寫入都**嚴格驗證**：傳了不存在的欄位或不合法的值會直接報錯並列出可用欄位／可用值，不會再回 ok:true 卻沒寫進去。
 
 ## 可用工具
 
@@ -39,6 +40,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `homeinfo.get_overview` | read | **對話開場第一支**：一次取回 profile + folders + module 計數 + socials 計數 |
+| `mcp.info` | read | 伺服器版本／gitSha／工具數與 `schemaHash`。工具 schema 看起來跟實際行為對不上時先打這支：hash 變了＝你手上的 schema 是舊的，請重新連線取得新工具清單 |
 | `homeinfo.pulse_todos` | read | 待處理清單：過期倒數／限時、空的系統模組、沒看的留言／提問、超過 2 天沒跟進的留單、太久沒更新；每項附 `link` |
 | `homeinfo.module_activity` | read | 互動模組（留言板／Q&A／投票／快速 Pitch／洽詢／社交）自上次查看的新動態與最新 5 筆；`{ markSeen: "<實例id>" \| "all" }` 標已讀 |
 | `homeinfo.weekly_report` | read | 每週成效：不帶參數＝本週預覽；`{ week: "YYYY-MM-DD" }`＝已寄出那週；`{ list: true }`＝歷史列表 |
@@ -60,8 +62,9 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `projects.list` | read | 含草稿；可 `status` / `categoryUuid`（`"none"`＝未分類）過濾。回 uuid / slug / status / coverUrl / tags / category{uuid,name,slug} / blockCount（不含全文） |
 | `projects.get` | read | `{ uuid }` 完整內容（description、blocks） |
 | `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生 |
-| `projects.update` | write | 部分更新；`blocks` 為整組取代；改 title 會重算 slug；`category: null` 或 `categoryUuid: null` 取消分類 |
+| `projects.update` | write | 部分更新；`blocks` 為整組取代；改 title 會重算 slug；分類四選一：`categoryUuids`／`categories`（多分類）或 `categoryUuid`／`category`（單一；null 取消）；`beforeImageUrl`／`afterImageUrl`（或 `beforeImageAssetId`／`afterImageAssetId`）＝施工前／後圖，官網 imageCompare 區塊可帶 `projectSlug` 自動使用 |
 | `projects.set_category` | write | **批次指派分類**：`{ uuids:[…≤200], categoryUuids | categories | categoryUuid | category, mode?: set|add|remove }`（set＝整組取代、add 加入、remove 拿掉；清除全部＝`set`＋`categoryUuids: []`）。整批分類用這支，不要打 N 次 update |
+| `projects.bulk_update` | write | **批次修改**：`{ items:[{ uuid \| slug, …projects.update 可改的欄位 }]（1–100）, dry_run? }`；先驗證全部，任何一筆有錯整批不寫並列出所有問題；回每筆 `{ uuid, ok, error? }`。大量改 tags／分類／狀態用這支，不要一件一件 update |
 | `projects.reorder` | write | `{ orderedUuids }`，未列入的排後面 |
 | `projects.delete` | write | 硬刪除，兩階段確認 |
 | `projects.categories.list` | read | 分類清單（品牌自訂、依排序）：uuid / name / slug / count |
@@ -81,6 +84,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `assets.upload` | write | 把圖片上傳到品牌 R2，回 `{ assetId, url }`。來源二選一：`data`（base64，可含 `data:image/png;base64,` 前綴，≤ 8MB）或 `url`（公開網址，≤ 10MB）。支援 png / jpeg / gif / webp / svg / avif，後端以檔頭驗證。拿到的 `assetId` 給 `links.set_image` / `links.set_background` / `profile.set_image`；`url` 可放進 `design.put`、`modules.*` 任何吃圖片網址的欄位 |
 
+| `assets.upload` 的 `transform` | — | 上傳時處理圖片：`{ crop?: { aspect: 1:1\|4:3\|16:9\|3:4\|9:16, focusX?, focusY? } \| { x,y,width,height }, maxWidth? ≤4096, blur? 0.3–100, brightness? 0.2–3, grayscale?, format?: webp\|jpeg\|png, quality? }`（依 EXIF 轉正）。做模糊背景、裁成橫幅不需要外部圖片服務 |
+| `assets.list` | read | 列出經 MCP 上傳過的檔案：`{ limit?, offset?, mimeType? }` → `assetId／url／mimeType／bytes／width／height／createdAt`（只含此功能上線後的上傳） |
 | `assets.inspect` | read | `{ assetId }`：從 R2 讀回檔案，回 `mimeType / bytes / sha256 / width / height / complete`；`complete:false` 表示被截斷 |
 
 > 使用者直接在對話貼圖片時：把圖片轉 base64 丟給 `assets.upload` 即可，不需要先找公開網址。
@@ -118,8 +123,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `modules.catalog` | read | 內建模組目錄：所有可用 `moduleId`、分類（含 `game` 小遊戲）與每個模組的 `data` 欄位 schema；可 `category` / `q` 過濾，`withSchema:false` 省 token |
 | `modules.list` | read | — |
-| `modules.add` | write | `{ folderId, moduleId, data }`；**`data` schema 隨 `moduleId` 動態變化**，先 `modules.catalog` 查 |
-| `modules.update` | write | — |
+| `modules.add` | write | `{ folderId, moduleId, data }`；**`data` schema 隨 `moduleId` 動態變化**，先 `modules.catalog` 查。`moduleId` 不存在、`data` 有未知欄位或不合法值都會直接 `VALIDATION_FAILED`（列出可用值）。預設只回新模組；要整份 profile 帶 `returnProfile:true` |
+| `modules.update` | write | 同上驗證；預設只回該模組（`returnProfile:true` 回整份） |
 | `modules.reorder` | write | — |
 | `modules.delete` | write | — |
 
@@ -154,23 +159,25 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `site.get` | read | **官網開場第一支**：enabled／publishedAt／hasUnpublishedChanges／theme／footer／seo＋頁面摘要 |
-| `site.update` | write | 整站設定 merge：`{ enabled?, theme?, footer?, seo?, contact?, about?, home? }`。footer 可帶 `layout`（11 種：columns／mega／cta／minimal／newsletter／stacked／ticker／contact／index／panel／photo）與版型欄位 `headline／giantWord／marquee／hours／newsletter／showClock` |
+| `site.update` | write | 整站設定 merge：`{ enabled?, logoUrl?, showMemberJoin?, theme?, footer?, seo?, contact?, about?, home?, modules?, tracking? }`（theme 內的 motion／loading／menu／contentDesign 也是 merge）。**嚴格驗證**：未知欄位或不合法值回 `VALIDATION_FAILED` 並列出可用值；寫入後若有欄位被正規化掉會回 `ignoredFields`。常用：`theme.motion.blocks:false`＝整站關閉區塊進場動畫；`theme.loading { enabled, style: spinner\|logo\|text\|dots, text }`＝載入指示器；`theme.contentWidth`。footer 可帶 `layout`（11 種：columns／mega／cta／minimal／newsletter／stacked／ticker／contact／index／panel／photo）與版型欄位 `headline／giantWord／marquee／hours／newsletter／showClock` |
 | `site.pages.list` | read | 頁面清單（＝Menu 順序）：id／slug／title／kind／sectionTypes／contentSource |
 | `site.pages.get` | read | `{ id | slug }` 單頁完整內容（builder 的 sections／theme） |
 | `site.pages.create` | write | `{ title, kind?, slug?, sections?, theme?, content?, link?, html?, showInMenu?, visibility?, position? }` |
-| `site.pages.update` | write | 部分更新；`sections` 整組取代；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
+| `site.pages.update` | write | 部分更新；`sections` 整組取代（區塊 type 不存在會被拒；沒見過的欄位列在 `warnings`）；`theme.animation { blocksEnabled, defaultEntrance, durationSec, transition }`＝這一頁的區塊動畫（blocksEnabled:false 關閉）；`theme.intro.style`＝進站動畫（none\|curtain\|counter\|wordmark）；`theme.layout.containerWidth`（narrow\|standard\|wide\|full；不設＝跟全站，預設 wide）；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
 | `site.pages.delete` | write | 兩階段 confirmToken；首頁不可刪 |
 | `site.pages.reorder` | write | `{ orderedIds | orderedSlugs }` |
 | `site.templates.list` | read | 官網範本庫（72 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
 | `site.apply_template` | write | `{ key, mode?: replace|append, applyTheme?: true }`——跟 dashboard「使用官網範本」一樣：replace 取代所有 builder 頁（首頁保留 id／slug）、內容頁不動；applyTheme 連主色／字體／背景／Menu／內容頁設計／頁尾版型一起換 |
 | `site.apply_page_template` | write | `{ key, templateSlug, id | slug }` 把範本某一頁套到目前某一頁（只換區塊與頁面主題） |
-| `site.blocks.catalog` | read | 86 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts、footerLayouts。要自己組 sections 時先拿這個 |
+| `site.blocks.catalog` | read | 87 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts／sorts、footerLayouts，以及 **`enums`＝所有可設定欄位的合法值**（字體、內容區樣式、intro.style、defaultEntrance、containerWidth、loading.style、overlayStyle…）。不確定值就先查這裡，不要猜 |
 | `site.publish` | write | 發佈草稿到公開頁 |
 | `site.versions.list` / `site.versions.restore` | read / write | 版本紀錄與還原成草稿 |
 
 > **建議流程**：`site.get` → `site.templates.list { category }` → `site.apply_template { key, dry_run:true }` 給使用者看會變成哪些頁 → 正式套用 → 用 `site.pages.update` 改文案（取 `site.pages.get` 的 sections，改字後整組寫回）→ `site.publish`。
 > 要把品牌頁某分頁的模組放進官網：區塊 `{ type:"brandModules", folderId:<分頁 id 或 null＝全部>, layout:"bento"|"grid"|"two"|"stack"|"masonry", moduleIds?:[] }`，內容直接同步品牌頁（`folders.list` 取分頁 id）。
-> 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay?, textLight? }`。
+> 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay 0–0.9, overlayStyle: flat|left|right|top|bottom, focusX?, focusY?, textLight?, parallax? }`——亮照片配白字時用「文字所在側」的漸層（例：文字靠左＝`overlayStyle:"left"`），比整片加深好讀又不會把照片壓暗；直式照片放橫幅用 `focusY` 決定保留哪一段（0＝上緣）。
+> immersiveHero／ctaBand 的按鈕連結是 `ctaUrl`／`secondaryUrl`。hlContent 可帶 `category`（只顯示某分類）與 `sort: latest|oldest|title|random`。imageCompare 帶 `projectSlug` 會自動用該作品專案的施工前／後圖（`projects.update` 的 `beforeImageUrl`／`afterImageUrl`）。
+> 動畫出問題要「先關掉先上線」：整站 `site.update { theme:{ motion:{ blocks:false } } }`，或單頁 `site.pages.update { theme:{ animation:{ blocksEnabled:false } } }`；關閉後所有標題與區塊直接顯示。
 > 範本的圖片是 HypeLink 自有素材（R2 `library/site-templates/…`），可直接保留；要換成品牌自己的照片就改區塊裡的 `imageUrl`／`bg.imageUrl`。
 
 #### 官網範本目錄（`site.templates.list` 的 72 個；選範本先看「特色與用途」再對品牌的產業與深淺偏好）
@@ -310,7 +317,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|
 | `SCOPE_DENIED` | token 缺 scope；請使用者重新產生 |
 | `RATE_LIMIT` | 約 60 req/min；等 30 秒重試 |
-| `VALIDATION_FAILED` | 看 message；多為欄位格式（URL / 長度 / enum） |
+| `VALIDATION_FAILED` | 看 message：會列出「未知欄位＋可用欄位」或「不是有效值＋可用值」，照著改即可；enum 也可查 `site.blocks.catalog` 的 `enums` |
 | `NOT_FOUND` | id 不存在；先 `list` 確認 |
 | `CONFLICT_DIRTY_BASELINE` | 後台被他人同時改；先 `get_overview` 重抓再試 |
 | `CONFIRM_REQUIRED` | delete 未帶 `confirmToken`；先 dry-run 取得 |

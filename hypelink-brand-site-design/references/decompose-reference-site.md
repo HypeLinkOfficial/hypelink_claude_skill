@@ -44,6 +44,12 @@
 | 深色圓角卡＋光暈的收尾 CTA | `glowCta`；滿版收尾 → `ctaBand` |
 | 一句宣言、滿版少字 | `bigStatement`／`statement` |
 | 申請／聯絡表單 | `form`（官網上可送出，進詢價收件匣＋CRM） |
+| 服務大類＋三個子項的白卡 | `serviceCategoryCards` |
+| 「當公司…您會需要…」情境對服務 | `serviceFinder` |
+| 我們 vs 一般業者的比較表 | `compareVsTable` |
+| 總所／分所多據點聯絡 | `officeDirectory` |
+| 合夥人／律師直式人像（含證照） | `partnerPortraits` |
+| 國稅局、商工登記等常用連結 | `resourceLinks` |
 | 一列式頁尾（logo · 連結 · 版權） | `footer.layout: "minimal"` |
 
 ### 3. 決定全站外觀
@@ -87,4 +93,4 @@
 - **定價方案**：`pricing`（三方案，依人數）→ `faq` → `glowCta`
 - **申請試用**：`form`（送出進詢價收件匣＋CRM）
 
-這個範本已收進範本庫（key `hl-crewly`），可直接 `site.apply_template { key:"hl-crewly" }` 參考成品。
+（這個示範範本後來沒有收進範本庫，五個區塊仍可在「SaaS 產品敘事」分類使用。）

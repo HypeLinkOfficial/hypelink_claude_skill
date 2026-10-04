@@ -60,9 +60,9 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `projects.list` | read | 含草稿；可 `status` / `categoryUuid`（`"none"`＝未分類）過濾。回 uuid / slug / status / coverUrl / tags / category{uuid,name,slug} / blockCount（不含全文） |
-| `projects.get` | read | `{ uuid }` 完整內容（description、blocks） |
-| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生 |
-| `projects.update` | write | 部分更新；`blocks` 為整組取代；改 title 會重算 slug；分類四選一：`categoryUuids`／`categories`（多分類）或 `categoryUuid`／`category`（單一；null 取消）；`beforeImageUrl`／`afterImageUrl`（或 `beforeImageAssetId`／`afterImageAssetId`）＝施工前／後圖，官網 imageCompare 區塊可帶 `projectSlug` 自動使用 |
+| `projects.get` | read | `{ uuid }` 完整內容（description、blocks、頁面編輯器 `sections`／`sectionsTheme`） |
+| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, sections?, sectionsTheme?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生。**作品內容建議用 `sections`**（與官網 builder 頁同一套區塊，`site.blocks.catalog` 可查；有 sections 時公開頁忽略 blocks）；`blocks` 為舊版線性區塊 |
+| `projects.update` | write | 部分更新；`sections`／`blocks` 為整組取代（sections 傳 null 清空，公開頁退回 blocks）；`sectionsTheme.projectDetail: { layout?, cover? }` 可覆寫這件作品的詳細頁版型／封面（官網作品頁的 `content.detail` 為預設，見 site.pages）；改 title 會重算 slug；分類四選一：`categoryUuids`／`categories`（多分類）或 `categoryUuid`／`category`（單一；null 取消）；`beforeImageUrl`／`afterImageUrl`（或 `beforeImageAssetId`／`afterImageAssetId`）＝施工前／後圖，官網 imageCompare 區塊可帶 `projectSlug` 自動使用 |
 | `projects.set_category` | write | **批次指派分類**：`{ uuids:[…≤200], categoryUuids | categories | categoryUuid | category, mode?: set|add|remove }`（set＝整組取代、add 加入、remove 拿掉；清除全部＝`set`＋`categoryUuids: []`）。整批分類用這支，不要打 N 次 update |
 | `projects.bulk_update` | write | **批次修改**：`{ items:[{ uuid \| slug, …projects.update 可改的欄位 }]（1–100）, dry_run? }`；先驗證全部，任何一筆有錯整批不寫並列出所有問題；回每筆 `{ uuid, ok, error? }`。大量改 tags／分類／狀態用這支，不要一件一件 update |
 | `projects.reorder` | write | `{ orderedUuids }`，未列入的排後面 |
@@ -166,10 +166,10 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `site.pages.update` | write | 部分更新；`sections` 整組取代（區塊 type 不存在會被拒；沒見過的欄位列在 `warnings`）；`theme.animation { blocksEnabled, defaultEntrance, durationSec, transition }`＝這一頁的區塊動畫（blocksEnabled:false 關閉）；`theme.intro.style`＝進站動畫（none\|curtain\|counter\|wordmark）；`theme.layout.containerWidth`（narrow\|standard\|wide\|full；不設＝跟全站，預設 wide）；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
 | `site.pages.delete` | write | 兩階段 confirmToken；首頁不可刪 |
 | `site.pages.reorder` | write | `{ orderedIds | orderedSlugs }` |
-| `site.templates.list` | read | 官網範本庫（73 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
+| `site.templates.list` | read | 官網範本庫（75 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
 | `site.apply_template` | write | `{ key, mode?: replace|append, applyTheme?: true }`——跟 dashboard「使用官網範本」一樣：replace 取代所有 builder 頁（首頁保留 id／slug）、內容頁不動；applyTheme 連主色／字體／背景／Menu／內容頁設計／頁尾版型一起換 |
 | `site.apply_page_template` | write | `{ key, templateSlug, id | slug }` 把範本某一頁套到目前某一頁（只換區塊與頁面主題） |
-| `site.blocks.catalog` | read | 99 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts／sorts、footerLayouts，以及 **`enums`＝所有可設定欄位的合法值**（字體、內容區樣式、intro.style、defaultEntrance、containerWidth、loading.style、overlayStyle…）。不確定值就先查這裡，不要猜 |
+| `site.blocks.catalog` | read | 105 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts／sorts、footerLayouts，以及 **`enums`＝所有可設定欄位的合法值**（字體、內容區樣式、intro.style、defaultEntrance、containerWidth、loading.style、overlayStyle…）。不確定值就先查這裡，不要猜 |
 | `site.publish` | write | 發佈草稿到公開頁 |
 | `site.versions.list` / `site.versions.restore` | read / write | 版本紀錄與還原成草稿 |
 
@@ -186,11 +186,12 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > **SaaS 產品敘事區塊（5 種，版面拆解自 kickflo.app）**：`floatingUiHero`（柔和漸層面板＋四周漂浮傾斜的產品 UI 卡；`cards[{kind: stat|list|progress|table, title, value, badge, tone: accent|ok|warn|danger, note, rows}]`，rows 每列以「｜」分欄，進度列＝`名稱｜說明｜68%｜右下字`，表格第一列是表頭）、`questionCards`（`eyebrow`＋副色 `eyebrowEn`、三張照片問句卡）、`featureTabsPanel`（淡色面板＋圖示膠囊分頁；`tabs[].icon`：calendar／clock／calculator／chart／alert／hourglass／wallet／users／file／bell／shield／zap／layers／sparkles）、`spotlightRoadmap`（去背人物＋光暈＋卡列、`badge` 如「即將推出」）、`glowCta`（深靛光暈卡）。雙色：頁面 `theme.primary`＝主色、`theme.accent`＝副色。
 > **區塊按鈕連到官網自己的頁**：`ctaUrl:"/site/<頁面 slug>"`（例 `/site/apply`）會換成實際官網網址（自訂網域也正確）、同分頁開；外部網址開新分頁。
 > **表單區塊 `form` 在官網可送出**：姓名、公司、Email／電話（至少一項）、需求說明 → 進「服務報價 › 詢價」收件匣（source=brand_site）＋站內通知＋Email＋自動建 CRM 潛在客戶；`title` 會附在留言前面區分是哪個表單。
+> **事務所區塊（6 種，拆解自台灣會計師／記帳事務所官網）**：`serviceCategoryCards`（服務大類卡：`items[{eyebrowEn, title, icon, imageUrl, subItems[], ctaUrl}]`，icon：audit／tax／calculator／registration／company／government／advisory／growth／legal／court／family／wealth／deal／global／team／compliance）、`serviceFinder`（「當公司…」情境→服務，`stages[]` 篩選膠囊、`items[{stage, situation, service, desc, ctaUrl}]`）、`compareVsTable`（我們 vs 一般做法：`usLabel／themLabel`、`rows[{group, item, us, them}]`）、`officeDirectory`（多據點：`offices[{tag, name, address, phone, fax, email, hours, mapUrl, imageUrl}]`＋`mainPhone／lineUrl`）、`partnerPortraits`（錯落直式人像：`members[{imageUrl, name, role, credential, bio}]`、`stagger`）、`resourceLinks`（常用連結：`groups[{title, links:["名稱｜網址"]}]`）。範本分類 `firm`（事務所）：`hl-meridian`、`hl-kite`、`hl-atlas`。
 > 官網的設計方法（氛圍三件事、七段骨架、拆解參考網站、產業藍圖）見 **`hypelink-brand-site-design`** skill。
 > 動畫出問題要「先關掉先上線」：整站 `site.update { theme:{ motion:{ blocks:false } } }`，或單頁 `site.pages.update { theme:{ animation:{ blocksEnabled:false } } }`；關閉後所有標題與區塊直接顯示。
 > 範本的圖片是 HypeLink 自有素材（R2 `library/site-templates/…`），可直接保留；要換成品牌自己的照片就改區塊裡的 `imageUrl`／`bg.imageUrl`。
 
-#### 官網範本目錄（`site.templates.list` 的 73 個；選範本先看「特色與用途」再對品牌的產業與深淺偏好）
+#### 官網範本目錄（`site.templates.list` 的 75 個；選範本先看「特色與用途」再對品牌的產業與深淺偏好）
 
 選法：先問使用者產業／想要深色或淺色／有沒有要賣東西或收名單，再從下表挑 1–2 個用 `site.apply_template { key, dry_run:true }` 給他看會變成哪些頁。每個範本都自帶：主色、字體、全站背景（部分是 3D／粒子場景）、內容頁設計（作品／商店等列表長相）與頁尾版型。
 
@@ -253,7 +254,6 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `hl-forge` | Forge 陶藝／手作職人 | 作品集／淺色 | 陶藝或手作職人：拉坯 hero、作品、窯燒紀錄、工作坊課程、線上購買。米白、陶土色。 | 淺色、陶藝、手作、工作坊 |
 | `hl-lumeo` | Lumeo UI／UX 設計師 | 作品集／淺色 | 產品設計師：工作桌 hero、案例研究卡、流程、工具、客戶聲音、聯絡。白底、薰衣草紫。 | 淺色、UI/UX、產品設計、案例 |
 | `hl-ledger` | Ledger 財務 SaaS | 軟體 / SaaS／淺色 | 中小企業財務／發票 SaaS：產品截圖 hero、信任帶、三個功能分頁、數字、客戶、三方案、FAQ。白底、翡翠綠。 | 淺色、SaaS、財務、B2B |
-| `hl-crewly` | Crewly 排班 SaaS | 軟體 / SaaS／淺色 | 柔和漸層面板 hero 四周漂浮的產品 UI 卡、痛點照片卡、圖示分頁功能面板、人物光暈＋即將推出卡列、光暈 CTA；首頁／功能／定價／申請試用四頁。靛紫＋青綠雙色。 | 淺色、SaaS、B2B、產品 UI |
 | `hl-beacon` | Beacon 客服 SaaS | 軟體 / SaaS／淺色 | 客服／Help desk SaaS：收件匣截圖 hero、整合磚、功能、數字、客戶、定價。白底、天藍。 | 淺色、SaaS、客服、B2B |
 | `hl-nimbus` | Nimbus 開發者工具 | 軟體 / SaaS／深色 | Developer tool／平台：終端機 hero、程式碼感跑馬、三個功能、工作流程 hero、用量定價滑桿、文件 CTA。黑底、紫色、等寬字。 | 深色、SaaS、開發者、等寬 |
 | `hl-canopy` | Canopy 團隊協作 SaaS | 軟體 / SaaS／淺色 | 專案／團隊協作工具：看板 hero、分類磚、三個功能、數字、團隊聲音、每人計價、FAQ。暖白、珊瑚。 | 淺色、SaaS、協作、團隊 |

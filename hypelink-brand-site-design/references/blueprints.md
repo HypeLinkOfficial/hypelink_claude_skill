@@ -9,6 +9,9 @@
 | **SaaS（產品敘事）** | 淺／靛紫＋青綠／產品 UI | floatingUiHero → questionCards → featureTabsPanel → spotlightRoadmap → glowCta | 產品功能、定價方案、申請試用（form） |
 | **SaaS（B2B 財務／工具）** | 淺／翡翠綠／產品截圖 | immersiveHero → marquee（合作夥伴）→ tabsShowcase → statBand → testimonialSwitch → pricing → faqList → ctaBand | 定價、客戶案例 |
 | **自動化／開發者工具** | 深／青檸／玻璃 | workflowHero → integrationTiles → bento → runMeter → signalsBoard → ctaBand | 文件、定價 |
+| **會計師事務所（傳統）** | 米白／香檳金／紙＋攝影、襯線 | immersiveHero（櫃台實拍＋年資數字）→ imageTextOverlap → serviceCategoryCards → bigStatement → partnerPortraits → hlContent（財稅新知）→ faqList → ctaBand；範本 `hl-meridian` | 服務項目（serviceFinder＋timeline）、關於、聯絡（officeDirectory＋form） |
+| **記帳／創業代辦** | 白／暖橘／產品感 | immersiveHero → serviceFinder（依階段）→ compareVsTable → timeline（設立流程）→ serviceCategoryCards → testimonialSwitch → ctaBand；範本 `hl-kite` | 收費方案（pricing＋pricingGuide＋faqList）、團隊（partnerPortraits＋resourceLinks）、免費諮詢（form） |
+| **大型所／跨境顧問** | 深海軍藍／冷藍／玻璃＋攝影 | immersiveHero → statBand → serviceCategoryCards（四服務線圖卡）→ bigStatement（洞察問句）→ partnerPortraits → hlContent → ctaBand；範本 `hl-atlas` | 服務與產業、據點與聯絡 |
 | **設計工作室／代理商** | 深／一個燒橙／攝影 | immersiveHero（colossal）→ marquee → portfolioCards → bigStatement → serviceRows → team → ctaBand | 作品專案（內容頁）、關於 |
 | **室內設計／裝修施工** | 灰米／陶土／空間攝影 | immersiveHero → categoryCards → compareWall → serviceArea → pricingGuide → reviewCards → faqList → form | 作品專案、服務項目（詢價單） |
 | **攝影／影像** | 近黑／琥珀／大幅攝影 | immersiveHero（center）→ beltSlider → polaroidWall → splitFeature → pricing（拍攝方案）→ ctaBand | 作品專案 |

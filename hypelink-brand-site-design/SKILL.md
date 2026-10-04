@@ -1,6 +1,6 @@
 ---
 name: hypelink-brand-site-design
-description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 99 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
+description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 105 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
 ---
 
 # Skill：品牌官網的設計與製作方法
@@ -22,8 +22,8 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | 品牌頁（link-in-bio，`/@id`）的分頁與模組 | `hypelink-rich-brand-page` |
 
 參考檔（需要時再讀）：
-- `references/blocks.md` — 99 種區塊：長什麼樣、建議項數、標籤字數（自動產生）
-- `references/templates.md` — 73 個範本：產業、深淺、醒目色、用途（自動產生）
+- `references/blocks.md` — 105 種區塊：長什麼樣、建議項數、標籤字數（自動產生）
+- `references/templates.md` — 75 個範本：產業、深淺、醒目色、用途（自動產生）
 - `references/decompose-reference-site.md` — 把參考網站拆成區塊與範本的流程＋完整範例
 - `references/blueprints.md` — 產業藍圖、內容頁設計與頁尾的搭配表
 
@@ -64,9 +64,9 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 |---|---|---|---|
 | 1 | **Hero**（約一屏） | 你是誰、能幫我什麼、下一步按哪裡 | `immersiveHero`、`floatingUiHero`、`workflowHero`、`bentoHero`、`modelHero`、`wordmarkBleed`、`kineticHeadline` |
 | 2 | **信任帶**（薄） | 有誰在用／合作過 | `marquee`、`logoGrid`、`integrationTiles`、`tileLinks`、`announcementBar`、`socialProof` |
-| 3 | **是什麼／痛點** | 解決什麼問題、有哪些功能或服務 | `questionCards`、`splitFeature`、`bento`、`featureTabsPanel`、`tabsShowcase`、`serviceRows`、`featureLedger` |
-| 4 | **證據** | 憑什麼相信你 | `statBand`、`statsPanel`、`portfolioCards`、`galleryTrack`、`imageCompare`、`compareWall`、`shoppableImage`、`catalogueList` |
-| 5 | **人** | 誰在做、客戶怎麼說 | `team`、`testimonialSwitch`、`reviewCards`、`proof` |
+| 3 | **是什麼／痛點** | 解決什麼問題、有哪些功能或服務 | `serviceCategoryCards`、`serviceFinder`、`questionCards`、`splitFeature`、`bento`、`featureTabsPanel`、`tabsShowcase`、`serviceRows`、`featureLedger` |
+| 4 | **證據** | 憑什麼相信你 | `compareVsTable`、`statBand`、`statsPanel`、`portfolioCards`、`galleryTrack`、`imageCompare`、`compareWall`、`shoppableImage`、`catalogueList` |
+| 5 | **人** | 誰在做、客戶怎麼說 | `partnerPortraits`、`team`、`testimonialSwitch`、`reviewCards`、`proof` |
 | 6 | **怎麼開始／怎麼買** | 流程、價格、常見疑問 | `steps`、`timeline`、`pricing`、`pricingGuide`、`runMeter`、`faqList`、`spotlightRoadmap`（即將推出） |
 | 7 | **收尾** | 現在就行動 | `glowCta`、`ctaBand`、`subscribeBar`、`form` ＋ 全站頁尾 |
 

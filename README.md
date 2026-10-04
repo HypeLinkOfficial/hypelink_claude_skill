@@ -15,6 +15,7 @@
 | **變現與成長**（`hypelink-commerce-mcp/`） | 「上架一個新商品 / 補庫存 / 把訂單標成已出貨並填單號」「幫我開一門課，加章節與單元」「看名單神器投廣頁的名單，把成交的標成 won」「新增一位聯盟 KOL 並寄邀請、給專屬折扣碼」「查這個月待出金的夥伴」 |
 | **CRM**（`hypelink-crm-mcp/`） | 「把丈量表單進來的名單建成客戶並標成已聯絡」「記一筆拜訪互動、階段改成報價中」「列出本週要跟進的客戶」「建一個高意向客戶的分群看有幾人」 |
 | **3D 空間**（`hypelink-space-mcp/`） | 「在展場中間放一張桌子和一台筆電」「把空間改成黃昏、下點雨」「開啟導覽手冊，第一站是入口看板」「用發光的紅色方塊做招牌」 |
+| **品牌官網設計**（`hypelink-brand-site-design/`） | 「幫我做一個 SaaS 官網」「我想要像 https://… 那樣的網站」「哪個範本適合我的餐廳？」「首頁要怎麼排比較專業？」 |
 | **內容豐富品牌頁**（`hypelink-rich-brand-page/`） | 「幫我把品牌頁做豐富一點、模組多加一點」「照偶像 / 餐飲 / 個人品牌的場景把整頁填好」「加幾個漸層 / 圖片背景的連結按鈕連到我的 Spotify / IG / 訂位」 |
 
 > **變現與成長** skill 涵蓋名單神器（`leads`）、線上商店（`mall`）、線上課程（`courses`）、聯盟行銷（`affiliates`）與 PayConnect 唯讀查詢（`payconnect`：外部系統以 email 查會員資格 / 付款狀態），皆為付費方案功能；結帳 / 退款 / 出金等金錢操作僅開放於後台，MCP 不提供。
@@ -71,7 +72,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    依官方文件把 MCP 設定加進你的 Claude（會用到上一步的 Token）。
    👉 <https://hypelink.app/docs/ai/mcp>
 3. **裝上這些 Skill**
-   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-space-mcp/`、`hypelink-crm-mcp/` 六個資料夾放到 Claude 會讀取 skill 的位置：
+   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-brand-site-design/`、`hypelink-space-mcp/`、`hypelink-crm-mcp/` 七個資料夾放到 Claude 會讀取 skill 的位置：
    - 個人全域：`~/.claude/skills/`
    - 或你專案的：`.claude/skills/`
 
@@ -81,6 +82,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    ln -s "$(pwd)/hypelink-event-mcp"       ~/.claude/skills/hypelink-event-mcp
    ln -s "$(pwd)/hypelink-commerce-mcp"    ~/.claude/skills/hypelink-commerce-mcp
    ln -s "$(pwd)/hypelink-rich-brand-page" ~/.claude/skills/hypelink-rich-brand-page
+   ln -s "$(pwd)/hypelink-brand-site-design" ~/.claude/skills/hypelink-brand-site-design
    ln -s "$(pwd)/hypelink-space-mcp"       ~/.claude/skills/hypelink-space-mcp
    ln -s "$(pwd)/hypelink-crm-mcp"         ~/.claude/skills/hypelink-crm-mcp
    ```
@@ -110,3 +112,11 @@ MCP 目前未暴露網域綁定工具，請引導使用者到 dashboard：品牌
 
 詳細規劃與故障排除：`document/HL-26-custom-domain-plan.md`、`infra/cloudflare/README.md`。
 
+
+## 維護：官網區塊／範本目錄
+
+`hypelink-brand-site-design/references/blocks.md` 與 `templates.md` 是自動產生的。主程式新增區塊或範本（並跑過 `hypelink/e2e/export-site-templates.mjs`）後，在 MainRepo 根目錄執行：
+
+```bash
+node hypelink_claude_skill/tools/gen-site-reference.mjs
+```

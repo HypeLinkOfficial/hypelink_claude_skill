@@ -1,6 +1,6 @@
 ---
 name: hypelink-brand-site-design
-description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 115 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
+description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 126 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
 ---
 
 # Skill：品牌官網的設計與製作方法
@@ -22,8 +22,8 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | 品牌頁（link-in-bio，`/@id`）的分頁與模組 | `hypelink-rich-brand-page` |
 
 參考檔（需要時再讀）：
-- `references/blocks.md` — 105 種區塊：長什麼樣、建議項數、標籤字數（自動產生）
-- `references/templates.md` — 81 個範本：產業、深淺、醒目色、用途（自動產生）
+- `references/blocks.md` — 126 種區塊：長什麼樣、建議項數、標籤字數（自動產生）
+- `references/templates.md` — 92 個範本：產業、深淺、醒目色、用途（自動產生）
 - `references/decompose-reference-site.md` — 把參考網站拆成區塊與範本的流程＋完整範例
 - `references/blueprints.md` — 產業藍圖、內容頁設計與頁尾的搭配表
 
@@ -119,6 +119,11 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - **細框線**：`sx: { borderWidth: 1, borderColor: "rgba(255,255,255,0.12)" }`。
 - **單段換醒目色**：`sx: { accent: "#E5241B" }`（只影響這個區塊）。
 - **錯位、傾斜**：`translateX/Y`、`rotate`（±15°）——少量使用，一頁一兩處就好。
+- **背景光效**：`backdrop: curtain`（直條光幕，AI／SaaS 深色站）、`aurora`、`spotlight`（裝置截圖下方的光暈）、`mesh`。
+- **直條紋玻璃／點陣**：`texture: flute | dots`（SaaS hero 背景）。
+- **藍圖導軌**：`guides: frame`（新創站的虛線導軌與段落交界）。
+- **巨字被下一段壓住**：下一段 `overlapTop: -80`，巨字段 `edgeFade: bottom`。
+- **漸層大數字**：`gradFrom`／`gradTo`。
 - **整段放大縮小**：`zoom`（字與元件一起）；字距 `letterSpacing`、行高 `lineHeight`、全大寫 `textTransform`。
 - 真的不夠再用 `customCss`（只作用在該區塊，`&` 代表區塊本身）。
 原則：`sx` 是微調，不是重做版面；同一頁的圓角、陰影、質感要一致。

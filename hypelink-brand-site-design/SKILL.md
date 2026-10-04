@@ -1,6 +1,6 @@
 ---
 name: hypelink-brand-site-design
-description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 105 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
+description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 115 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
 ---
 
 # Skill：品牌官網的設計與製作方法
@@ -23,7 +23,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 
 參考檔（需要時再讀）：
 - `references/blocks.md` — 105 種區塊：長什麼樣、建議項數、標籤字數（自動產生）
-- `references/templates.md` — 75 個範本：產業、深淺、醒目色、用途（自動產生）
+- `references/templates.md` — 81 個範本：產業、深淺、醒目色、用途（自動產生）
 - `references/decompose-reference-site.md` — 把參考網站拆成區塊與範本的流程＋完整範例
 - `references/blueprints.md` — 產業藍圖、內容頁設計與頁尾的搭配表
 
@@ -62,10 +62,10 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 ## 2. 首頁節奏：七段骨架（可刪，不要亂序）
 | # | 段落 | 要回答 | 常用區塊 |
 |---|---|---|---|
-| 1 | **Hero**（約一屏） | 你是誰、能幫我什麼、下一步按哪裡 | `immersiveHero`、`floatingUiHero`、`workflowHero`、`bentoHero`、`modelHero`、`wordmarkBleed`、`kineticHeadline` |
+| 1 | **Hero**（約一屏） | 你是誰、能幫我什麼、下一步按哪裡 | `immersiveHero`、`wordmarkCardHero`、`imageFillWordmark`、`floatingUiHero`、`workflowHero`、`bentoHero`、`modelHero`、`wordmarkBleed`、`kineticHeadline` |
 | 2 | **信任帶**（薄） | 有誰在用／合作過 | `marquee`、`logoGrid`、`integrationTiles`、`tileLinks`、`announcementBar`、`socialProof` |
-| 3 | **是什麼／痛點** | 解決什麼問題、有哪些功能或服務 | `serviceCategoryCards`、`serviceFinder`、`questionCards`、`splitFeature`、`bento`、`featureTabsPanel`、`tabsShowcase`、`serviceRows`、`featureLedger` |
-| 4 | **證據** | 憑什麼相信你 | `compareVsTable`、`statBand`、`statsPanel`、`portfolioCards`、`galleryTrack`、`imageCompare`、`compareWall`、`shoppableImage`、`catalogueList` |
+| 3 | **是什麼／痛點** | 解決什麼問題、有哪些功能或服務 | `expandServiceRows`、`riseCards`、`serviceCategoryCards`、`serviceFinder`、`questionCards`、`splitFeature`、`bento`、`featureTabsPanel`、`tabsShowcase`、`serviceRows`、`featureLedger` |
+| 4 | **證據** | 憑什麼相信你 | `cinemaCases`、`projectIndexGrid`、`caseResultCards`、`compareVsTable`、`statBand`、`statsPanel`、`portfolioCards`、`galleryTrack`、`imageCompare`、`compareWall`、`shoppableImage`、`catalogueList` |
 | 5 | **人** | 誰在做、客戶怎麼說 | `partnerPortraits`、`team`、`testimonialSwitch`、`reviewCards`、`proof` |
 | 6 | **怎麼開始／怎麼買** | 流程、價格、常見疑問 | `steps`、`timeline`、`pricing`、`pricingGuide`、`runMeter`、`faqList`、`spotlightRoadmap`（即將推出） |
 | 7 | **收尾** | 現在就行動 | `glowCta`、`ctaBand`、`subscribeBar`、`form` ＋ 全站頁尾 |
@@ -110,6 +110,18 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - **詢價單**：有作品專案或服務項目內容頁時，Menu 右上自動出現「詢價」。
 - **會員**：`site.update { memberPageEnabled }`（預設開）＝右上角登入／帳號選單＋官網內會員中心 `/site/member`；不做會員的品牌（純形象、B2B）可關掉。
 - **電話**：B2B 或電腦訪客多的站用 `contact.phoneLinkMode: "mobileOnly"`，電腦上不會跳 FaceTime。
+
+## 7.5 進階樣式 `sx`：最後一哩的微調
+任何區塊都能帶 `sx`，用來做出參考站的細節，而不必新開區塊：
+- **出血圓角卡**（深色段落浮在淺色頁上）：`sx: { inset: 8, radius: 28 }` 配深色 `bg`。
+- **只圓上緣的面板**（深色作品區蓋在淺段上）：`sx: { radius: 32, radiusMode: "top" }`。
+- **藍圖格線／底片顆粒**：`sx: { texture: "grid" | "grain", textureOpacity: 0.07–0.12 }`。
+- **細框線**：`sx: { borderWidth: 1, borderColor: "rgba(255,255,255,0.12)" }`。
+- **單段換醒目色**：`sx: { accent: "#E5241B" }`（只影響這個區塊）。
+- **錯位、傾斜**：`translateX/Y`、`rotate`（±15°）——少量使用，一頁一兩處就好。
+- **整段放大縮小**：`zoom`（字與元件一起）；字距 `letterSpacing`、行高 `lineHeight`、全大寫 `textTransform`。
+- 真的不夠再用 `customCss`（只作用在該區塊，`&` 代表區塊本身）。
+原則：`sx` 是微調，不是重做版面；同一頁的圓角、陰影、質感要一致。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

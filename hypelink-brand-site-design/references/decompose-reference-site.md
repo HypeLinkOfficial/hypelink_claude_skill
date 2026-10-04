@@ -47,6 +47,16 @@
 | 服務大類＋三個子項的白卡 | `serviceCategoryCards` |
 | 「當公司…您會需要…」情境對服務 | `serviceFinder` |
 | 我們 vs 一般業者的比較表 | `compareVsTable` |
+| 段落開頭超大單字＋上標數量（Projects.⁽²⁴⁾） | `giantWordHeader` |
+| 設計師專案索引（名稱, 類別, 年份＋瀑布圖） | `projectIndexGrid` |
+| 一案一屏、背景模糊、中央直式圖 | `cinemaCases` |
+| 編號服務列、點開變深色面板（含起價） | `expandServiceRows` |
+| 直式照片疊大編號、捲動升起 | `riseCards` |
+| 見證附兩格成效數字 | `caseResultCards` |
+| 兩行巨字＋中間浮人物預約卡 | `wordmarkCardHero` |
+| 字裡面填照片的大字 Hero | `imageFillWordmark` |
+| 活動票根條／多日議程 | `ticketStrip`／`agendaStairs` |
+| 出血圓角黑卡、只圓上緣面板、格線／顆粒、細框 | 任何區塊加 `sx`（見 SKILL.md 7.5） |
 | 總所／分所多據點聯絡 | `officeDirectory` |
 | 合夥人／律師直式人像（含證照） | `partnerPortraits` |
 | 國稅局、商工登記等常用連結 | `resourceLinks` |

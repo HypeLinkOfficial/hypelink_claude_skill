@@ -166,10 +166,10 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `site.pages.update` | write | 部分更新；`sections` 整組取代（區塊 type 不存在會被拒；沒見過的欄位列在 `warnings`）；`theme.animation { blocksEnabled, defaultEntrance, durationSec, transition }`＝這一頁的區塊動畫（blocksEnabled:false 關閉）；`theme.intro.style`＝進站動畫（none\|curtain\|counter\|wordmark）；`theme.layout.containerWidth`（narrow\|standard\|wide\|full；不設＝跟全站，預設 wide）；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
 | `site.pages.delete` | write | 兩階段 confirmToken；首頁不可刪 |
 | `site.pages.reorder` | write | `{ orderedIds | orderedSlugs }` |
-| `site.templates.list` | read | 官網範本庫（75 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
+| `site.templates.list` | read | 官網範本庫（81 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
 | `site.apply_template` | write | `{ key, mode?: replace|append, applyTheme?: true }`——跟 dashboard「使用官網範本」一樣：replace 取代所有 builder 頁（首頁保留 id／slug）、內容頁不動；applyTheme 連主色／字體／背景／Menu／內容頁設計／頁尾版型一起換 |
 | `site.apply_page_template` | write | `{ key, templateSlug, id | slug }` 把範本某一頁套到目前某一頁（只換區塊與頁面主題） |
-| `site.blocks.catalog` | read | 105 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts／sorts、footerLayouts，以及 **`enums`＝所有可設定欄位的合法值**（字體、內容區樣式、intro.style、defaultEntrance、containerWidth、loading.style、overlayStyle…）。不確定值就先查這裡，不要猜 |
+| `site.blocks.catalog` | read | 115 種區塊的 type／label／`blank`（含所有欄位的空白預設）；附 hlContent 的 sources／layouts／sorts、footerLayouts，以及 **`enums`＝所有可設定欄位的合法值**（字體、內容區樣式、intro.style、defaultEntrance、containerWidth、loading.style、overlayStyle…）。不確定值就先查這裡，不要猜 |
 | `site.publish` | write | 發佈草稿到公開頁 |
 | `site.versions.list` / `site.versions.restore` | read / write | 版本紀錄與還原成草稿 |
 
@@ -187,11 +187,13 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > **區塊按鈕連到官網自己的頁**：`ctaUrl:"/site/<頁面 slug>"`（例 `/site/apply`）會換成實際官網網址（自訂網域也正確）、同分頁開；外部網址開新分頁。
 > **表單區塊 `form` 在官網可送出**：姓名、公司、Email／電話（至少一項）、需求說明 → 進「服務報價 › 詢價」收件匣（source=brand_site）＋站內通知＋Email＋自動建 CRM 潛在客戶；`title` 會附在留言前面區分是哪個表單。
 > **事務所區塊（6 種，拆解自台灣會計師／記帳事務所官網）**：`serviceCategoryCards`（服務大類卡：`items[{eyebrowEn, title, icon, imageUrl, subItems[], ctaUrl}]`，icon：audit／tax／calculator／registration／company／government／advisory／growth／legal／court／family／wealth／deal／global／team／compliance）、`serviceFinder`（「當公司…」情境→服務，`stages[]` 篩選膠囊、`items[{stage, situation, service, desc, ctaUrl}]`）、`compareVsTable`（我們 vs 一般做法：`usLabel／themLabel`、`rows[{group, item, us, them}]`）、`officeDirectory`（多據點：`offices[{tag, name, address, phone, fax, email, hours, mapUrl, imageUrl}]`＋`mainPhone／lineUrl`）、`partnerPortraits`（錯落直式人像：`members[{imageUrl, name, role, credential, bio}]`、`stagger`）、`resourceLinks`（常用連結：`groups[{title, links:["名稱｜網址"]}]`）。範本分類 `firm`（事務所）：`hl-meridian`、`hl-kite`、`hl-atlas`。
+> **進階樣式 `sx`（每個區塊都可帶）**：外框 `inset`（左右外距 0–160，做成浮起卡片）、`radius` 0–64＋`radiusMode:"top"`（只圓上緣）、`borderWidth` 0–8＋`borderColor`、`shadow: sm|md|lg|glow`、`opacity` 0.1–1、`blend: multiply|screen|overlay|difference|luminosity`、`translateX/Y` ±200、`rotate` ±15、`scale` 0.6–1.4、`texture: grain|grid`＋`textureOpacity` 0.02–0.4；內容 `accent`（覆寫這個區塊的醒目色）、`textColor`、`textAlign`、`textTransform:"uppercase"`、`zoom` 0.7–1.4（字與元件一起縮放）、`letterSpacing` -0.05–0.3em、`lineHeight` 1–2.4、`maxWidth` 320–1800、`padX` 0–160；`customCss`（只作用在這個區塊；直接寫宣告或用 `&` 代表區塊本身）。超出範圍會被夾住、不合法的值會被丟掉。
+> **工作室／作品集／活動區塊（10 種，拆解自 Framer 範本）**：`giantWordHeader`（巨字段標 word＋count 上標＋sub＋aside、style plain|invert）、`projectIndexGrid`（設計師專案索引：projects[{name, category, year, description, images[], url}]、columns、densityToggle）、`ticketStrip`（票根：cells[{label, value, tone: light|dark|accent}]、ctaText、code）、`agendaStairs`（議程階梯：days[{tag, date, sessions:["時間｜場次｜講者"]}]）、`cinemaCases`（一案一屏：items[{imageUrl, title, date, location, client, tags[], url}]）、`expandServiceRows`（展開服務列：items[{title, tagline, body, imageUrl, price, metric, metricLabel, subItems[], ctaText, ctaUrl}]、defaultOpen）、`riseCards`（升起編號卡：items[{title, desc, imageUrl}]、tint）、`caseResultCards`（成果見證：items[{company, quote, metrics:["數值｜說明"], name, role, avatarUrl, url}]）、`wordmarkCardHero`（巨字＋人物預約卡：line1, line2, cardImageUrl, cardName, cardRole, availability, priceNote, ctaText, rating, statement）、`imageFillWordmark`（圖填大字：word, fillImageUrl, cornerLeft/Right, subheadline, stats[], tags[]）。新範本：`hl-index`、`hl-reel`（作品集）、`hl-fabrica`、`hl-mugen`、`hl-ember`（工作室）、`hl-tenora`（活動）。
 > 官網的設計方法（氛圍三件事、七段骨架、拆解參考網站、產業藍圖）見 **`hypelink-brand-site-design`** skill。
 > 動畫出問題要「先關掉先上線」：整站 `site.update { theme:{ motion:{ blocks:false } } }`，或單頁 `site.pages.update { theme:{ animation:{ blocksEnabled:false } } }`；關閉後所有標題與區塊直接顯示。
 > 範本的圖片是 HypeLink 自有素材（R2 `library/site-templates/…`），可直接保留；要換成品牌自己的照片就改區塊裡的 `imageUrl`／`bg.imageUrl`。
 
-#### 官網範本目錄（`site.templates.list` 的 75 個；選範本先看「特色與用途」再對品牌的產業與深淺偏好）
+#### 官網範本目錄（`site.templates.list` 的 81 個；選範本先看「特色與用途」再對品牌的產業與深淺偏好）
 
 選法：先問使用者產業／想要深色或淺色／有沒有要賣東西或收名單，再從下表挑 1–2 個用 `site.apply_template { key, dry_run:true }` 給他看會變成哪些頁。每個範本都自帶：主色、字體、全站背景（部分是 3D／粒子場景）、內容頁設計（作品／商店等列表長相）與頁尾版型。
 

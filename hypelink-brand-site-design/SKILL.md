@@ -125,8 +125,26 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - **巨字被下一段壓住**：下一段 `overlapTop: -80`，巨字段 `edgeFade: bottom`。
 - **漸層大數字**：`gradFrom`／`gradTo`。
 - **整段放大縮小**：`zoom`（字與元件一起）；字距 `letterSpacing`、行高 `lineHeight`、全大寫 `textTransform`。
+- **動態**（公開頁才動，訪客「減少動態」時自動關閉）：
+  - `delay`（0–2 秒）：讓並排的兩段錯開進場。
+  - `scrollFx: parallax | zoom | fade | tilt | recede`＋`scrollFxAmount`（0.2–2）：捲動連動。宣言段用 `fade`、作品大圖用 `zoom`、下一段要蓋上來的段落用 `recede`。
+  - `imgHover: zoom | gray | lift`：區塊內所有圖片的滑過效果；攝影／藝廊用 `gray`（黑白轉彩色），商品格用 `zoom`。
+  - `loop: float | breathe | sway`：圖片循環動態，只給去背物件或裝飾圖，一頁最多一處。
+- 進場種類（`section.entrance` 或 `theme.animation.defaultEntrance`）另有 `clip-up`／`clip-left`（布幕揭開，海報感、藝術祭）、`rise`（長距離緩升，高端）、`tilt`（3D 立起）、`drop`。
 - 真的不夠再用 `customCss`（只作用在該區塊，`&` 代表區塊本身）。
 原則：`sx` 是微調，不是重做版面；同一頁的圓角、陰影、質感要一致。
+
+## 7.6 Menu 與第一段的關係
+首段是滿版主視覺（immersiveHero／projectPlateHero／deviceHero…）或有背景圖時，`theme.menu.overlay: true` 讓 Menu 透明疊在上面（不在 hero 上方留白），捲動後才補回背景；孤島形式（`island`）預設就是疊加。其他選項：
+- `overlayText: "light" | "dark"`：透明時的文字色，深色首屏用 light。
+- `navAlign: "center"`：連結置中（建築、攝影、精品）。
+- `height: "compact" | "tall"`：攝影／藝術祭用 compact，高端住宅用 tall。
+- `hideOnScroll: true`：往下捲收起、往上捲出現，長篇作品頁更沉浸。
+
+## 7.7 進站載入畫面與切頁過場
+- 頁面 `theme.intro.style`：`curtain`／`counter`／`wordmark`／`split`（上下對開）／`stairs`（階梯升起）／`iris`（圓形收合）／`type`（打字機，`text` 填標語）／`logo`（字首圓標脈動）。通常只放首頁。
+- 站內切頁 `theme.animation`（站台層級）：`fade`／`slide`／`zoom`／`blur`（模糊聚焦）／`wipe`（醒目色幕上掀）／`columns`（直欄收合）／`slate`（顯示目的頁標題的字卡）。
+- 搭配建議見 document/site-template-design-guideline.md §10.8；一個站各選一種，別每頁不同。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

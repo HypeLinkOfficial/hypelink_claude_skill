@@ -51,10 +51,25 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `profile.get` | read | 完整 profile |
-| `profile.update` | write | `name / description / mail / isPublic / publicEnabled / stickyNote / prefer3dFirst / seoTitle / seoDescription / socialOgImageUrl / hideFooterBranding` 等任意子集 |
+| `profile.update` | write | `name / description / mail / isPublic / publicEnabled / stickyNote / prefer3dFirst / seoTitle / seoDescription / socialOgImageUrl / hideFooterBranding / avatarCarousel` 等任意子集；`avatarCarousel` 見下方「大頭照輪播」 |
 | `profile.set_image` | write | 設定 avatar / socialOgImage / brandLogo / footerLogo / favicon（瀏覽器分頁圖示，正方形 PNG/SVG；未設定時公開頁退回大頭貼）：`{ target, url }`（公開圖片 URL，後端 re-host）或 `{ target, assetId }`（`assets.upload` 取得） |
 | `profile.discovery_tags` | read | 品牌探索可用的內建標籤清單（slug / label / group） |
 | `profile.set_discovery` | write | 品牌探索設定：`{ enabled?, tags? }`，tags 最多 10 個，內建 slug（creator / food / travel…）或自訂 `#關鍵字`；省略 tags 保留既有 |
+
+#### 大頭照輪播（`profile.update { avatarCarousel }`）
+公開頁的大頭照可以多張自動輪播。**主頭貼永遠是第一張**（用 `profile.set_image { target: "avatar" }` 設定），`avatarCarousel.images` 只放之後的圖片。
+```json
+{ "avatarCarousel": {
+    "images": [{ "url": "https://cdn…/a.jpg", "assetId": 123 }, { "url": "https://cdn…/b.jpg" }],
+    "intervalMs": 4000,
+    "effect": "fade" } }
+```
+- `images`：≤ 10 張；`url` 建議先 `assets.upload` 拿回的 `url`（`assetId` 選填，僅記錄）。
+- `intervalMs`：切換間隔 1500～15000 毫秒，預設 4000。
+- `effect`：`fade` 淡入淡出（預設）／`slide` 滑動插入／`rotate` 翻轉旋轉／`zoom` 縮放。
+- 關閉輪播：`{ "avatarCarousel": null }`（或 `images: []`）。
+- 流程：`profile.get` 看目前 `avatarCarousel` → `assets.upload` 每張新圖 → `profile.update` 帶**整組** images（整組取代，不是 append）→ 建議先 `dry_run: true`。
+- 外掛主題：主題會收到 `profile.avatarImages`（含主頭貼的完整序列）與 `profile.avatarCarousel`，官方範本 Hero 已支援交叉淡入。
 
 ### Projects（作品專案，品牌內容 → 作品專案；公開頁 `/@id/projects`）
 | Tool | Scope | 說明 |

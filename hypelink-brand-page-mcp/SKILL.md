@@ -171,6 +171,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 ### 品牌官網（Brand Site，`/@id/site`；scope 仍為 `homeinfo:*`）
 
 > **方案門檻：所有 `site.*` 工具限 Max 方案（含 Enterprise）。** 依品牌擁有者的方案判定；未達時 tools/call 回 `PLAN_REQUIRED`（工具仍會出現在 tools/list，描述開頭標【Max 方案】）。遇到這個錯誤不要重試，請使用者（品牌擁有者）到 HypeLink「方案與帳單」升級；官網仍可在後台頁面編輯器手動製作。
+> **範本可能被平台限制：** 平台可設定某些範本／分類只開放給特定方案或帳號。`site.templates.list` 只會列出這個品牌看得到的範本；套用沒開放的範本會回 `NOT_FOUND`（「未開放給此品牌的方案」），改挑清單裡的範本即可。
 官網是「頁面系統」：每頁是 **builder**（頁面編輯器頁，區塊陣列）／**content**（接後台資料：作品專案、商店、專欄、最新消息、課程、3D 展、關於、聯絡、會員中心）／**html**／**link**。所有寫入都是**存草稿**，要 `site.publish` 公開頁才會變。
 
 | Tool | Scope | 說明 |

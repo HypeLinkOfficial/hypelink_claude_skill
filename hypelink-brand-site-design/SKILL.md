@@ -8,6 +8,8 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 把官網做得「像一套」而不是區塊拼貼。這份是**怎麼想、怎麼排、怎麼驗**的手冊；
 每支工具的參數在 `hypelink-brand-page-mcp`（官網那一節：`site.*`）。
 
+> **先確認方案：用 MCP 製作官網（`site.*`）限 Max 方案（含 Enterprise）。** 第一支 `site.get` 若回 `PLAN_REQUIRED`，就停下來告訴使用者需升級 Max，別繼續規劃整套官網。
+
 ## 何時使用
 - 「幫我做一個官網」「把官網改得專業／好看一點」
 - 「我想要像 https://… 那樣的網站」→ 走〈拆解參考網站〉

@@ -169,6 +169,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > 品牌色單一來源：`accentColor`（後端同時鏡射到 `brandColors[0]`），全站按鈕／分頁／模組主色／底部 dock／所有子頁都用它。要改顏色一律用 `design.set_colors`，不要為了一個顏色 `design.put` 整包。hypeID 的顏色就是 `handleColor`（使用者常問「hypeID 顏色在哪改」）。
 
 ### 品牌官網（Brand Site，`/@id/site`；scope 仍為 `homeinfo:*`）
+
+> **方案門檻：所有 `site.*` 工具限 Max 方案（含 Enterprise）。** 依品牌擁有者的方案判定；未達時 tools/call 回 `PLAN_REQUIRED`（工具仍會出現在 tools/list，描述開頭標【Max 方案】）。遇到這個錯誤不要重試，請使用者（品牌擁有者）到 HypeLink「方案與帳單」升級；官網仍可在後台頁面編輯器手動製作。
 官網是「頁面系統」：每頁是 **builder**（頁面編輯器頁，區塊陣列）／**content**（接後台資料：作品專案、商店、專欄、最新消息、課程、3D 展、關於、聯絡、會員中心）／**html**／**link**。所有寫入都是**存草稿**，要 `site.publish` 公開頁才會變。
 
 | Tool | Scope | 說明 |

@@ -106,6 +106,12 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - 作品集用 `list: editorial` 或 `masonry`（作品要大），文字類用 `rows`，產品／SaaS 用 `card: lift`＋`radius: xl`＋`header: band`。
 - **首尾呼應**：深色滿版 hero 配 `mega`／`photo` 頁尾；淺色紙感配 `minimal`／`stacked`；SaaS 配 `minimal`／`newsletter`／`panel`。
 
+## 6.5 頁面種類怎麼配：內容頁、小工具頁、子頁面
+
+- **內容頁**（`kind:"content"`）撈系統資料，不用自己拼區塊：作品專案、商店、專欄、最新消息、課程、3D 展、服務項目、**活動**（`content.source:"events"`，公開中＋已結束的活動牆，卡片連到活動頁；活動多的品牌把它放進 Menu，首頁再用 `hlContent` 區塊只露 3 張）。內容頁的頁首帶、卡片、列表排法跟著全站 `theme.contentDesign`，單頁可用 `content.style` 固定一種。
+- **小工具頁**（`kind:"widget"`）是 HypeLink 管理員做好的現成工具（試算器、表單、特殊互動版面），品牌在後台「頁面設計 › 新增頁面／新增子頁面 › 小工具」挑；MCP 建不了它，但可以 **用 `site.pages.get` 讀到完整原始碼，再用 `site.pages.update { widgetCss }` 寫覆蓋 CSS** 讓它跟官網材質一致——改色用 `var(--site-accent)`、圓角對齊 `theme.contentDesign.radius`、字體跟 `--site-font`，不要整份重寫。
+- **子頁面**：官網 Menu 只有一層下拉。把「相關但不值得佔 Menu 一格」的頁面（活動攻略、計算機、FAQ、小工具）用 `parentId` 掛到主題頁底下；內容頁也可以用 `categoriesInMenu` 讓分類自動變子目錄。原則：Menu 一排 5–7 個主項，其餘收進下拉。
+
 ## 7. 讓訪客「做事」：連結、表單、會員
 - **站內連結**：區塊按鈕的網址寫 `/site/<頁面 slug>`（例：`/site/apply`、`/site/pricing`），會自動換成官網實際網址（自訂網域也正確），同分頁開啟。外部網址會開新分頁。
 - **表單區塊** `form`：官網上可直接送出（姓名、公司、Email／電話至少一項、需求說明），進後台「服務報價 › 詢價」收件匣、寄站內通知＋Email、自動建立 CRM 潛在客戶。`title` 會附在留言前面，讓品牌分得出是哪個表單（例：「申請試用」「預約丈量」）。品牌在服務報價設定關閉「接受詢價」時表單會被拒。

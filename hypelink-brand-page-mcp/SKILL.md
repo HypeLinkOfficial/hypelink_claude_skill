@@ -178,10 +178,10 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `site.get` | read | **官網開場第一支**：enabled／publishedAt／hasUnpublishedChanges／theme／footer／seo＋頁面摘要 |
 | `site.update` | write | 整站設定 merge：`{ enabled?, logoUrl?, memberPageEnabled?, theme?, footer?, seo?, contact?, about?, home?, modules?, tracking? }`（theme 內的 motion／loading／menu／contentDesign 也是 merge）。**嚴格驗證**：未知欄位或不合法值回 `VALIDATION_FAILED` 並列出可用值；寫入後若有欄位被正規化掉會回 `ignoredFields`。常用：`theme.motion.blocks:false`＝整站關閉區塊進場動畫；`theme.loading { enabled, style: spinner\|logo\|text\|dots, text }`＝載入指示器；`theme.contentWidth`；`memberPageEnabled`（預設 true）＝右上角登入／帳號選單＋官網內會員中心 `/site/member`，false 則都不顯示（舊的 `showMemberJoin` 已停用）。footer 可帶 `layout`（11 種：columns／mega／cta／minimal／newsletter／stacked／ticker／contact／index／panel／photo）與版型欄位 `headline／giantWord／marquee／hours／newsletter／showClock` |
-| `site.pages.list` | read | 頁面清單（＝Menu 順序）：id／slug／title／kind／sectionTypes／contentSource |
-| `site.pages.get` | read | `{ id | slug }` 單頁完整內容（builder 的 sections／theme） |
-| `site.pages.create` | write | `{ title, kind?, slug?, sections?, theme?, content?, link?, html?, showInMenu?, visibility?, position? }` |
-| `site.pages.update` | write | 部分更新；`sections` 整組取代（區塊 type 不存在會被拒；沒見過的欄位列在 `warnings`）；`theme.animation { blocksEnabled, defaultEntrance, durationSec, transition }`＝這一頁的區塊動畫（blocksEnabled:false 關閉）；`theme.intro.style`＝進站動畫（none\|curtain\|counter\|wordmark）；`theme.layout.containerWidth`（narrow\|standard\|wide\|full；不設＝跟全站，預設 wide）；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
+| `site.pages.list` | read | 頁面清單（＝Menu 順序）：id／slug／title／kind／sectionTypes／contentSource／parentId（子頁面的上層 id）／widgetUuid |
+| `site.pages.get` | read | `{ id | slug }` 單頁完整內容（builder 的 sections／theme）；kind=widget 的小工具頁多回 `widget`（小工具完整原始碼 html／css／js 或 sections，唯讀）與 `widgetCss`（品牌樣式覆蓋） |
+| `site.pages.create` | write | `{ title, kind?, slug?, sections?, theme?, content?, link?, html?, showInMenu?, visibility?, position?, parentId? }`（`parentId`＝掛在某上層頁面底下成為子頁面，只允許一層；首頁不能當上層） |
+| `site.pages.update` | write | 部分更新；可帶 `parentId`（改掛到別的上層或 null 升回上層頁面）；kind=widget 可帶 `widgetCss`（覆蓋 CSS，接在小工具 CSS 之後，null＝清空；先用 site.pages.get 看原始碼找 selector）；`sections` 整組取代（區塊 type 不存在會被拒；沒見過的欄位列在 `warnings`）；`theme.animation { blocksEnabled, defaultEntrance, durationSec, transition }`＝這一頁的區塊動畫（blocksEnabled:false 關閉）；`theme.intro.style`＝進站動畫（none\|curtain\|counter\|wordmark）；`theme.layout.containerWidth`（narrow\|standard\|wide\|full；不設＝跟全站，預設 wide）；`content.style` 固定內容區樣式（null＝跟隨範本）；`content.loadMode` 更多內容載入方式（`pagination` 頁碼＝預設／`infinite` 捲動載入／`loadmore` 載入更多按鈕）＋`content.pageSize`（3–60，預設 12）；`kind:"builder"` 把內容頁轉成頁面編輯器頁；`password`（null 移除） |
 | `site.pages.delete` | write | 兩階段 confirmToken；首頁不可刪 |
 | `site.pages.reorder` | write | `{ orderedIds | orderedSlugs }` |
 | `site.templates.list` | read | 官網範本庫（92 個）：`category`／`q` 過濾；回每頁 slug 與區塊型別 |
@@ -191,6 +191,10 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `site.publish` | write | 發佈草稿到公開頁 |
 | `site.versions.list` / `site.versions.restore` | read / write | 版本紀錄與還原成草稿 |
 
+> **頁面種類與結構（2026-10-13 起）**：
+> - `kind` 四種可用 MCP 建立：`builder`（區塊頁）／`content`（撈系統資料；`content.source` 可選 projects／services／mall／articles／news／courses／spaces／**events（活動：公開中與已結束的活動牆，卡片連到活動頁）**／about／contact／member／home）／`html`／`link`。
+> - **小工具頁 `kind:"widget"`**：由 HypeLink 管理員維護的現成小工具（計算機、表單、特殊版面…），品牌在後台「頁面設計 › 新增頁面／新增子頁面 › 小工具」挑選；MCP **不能建立**小工具頁，但 `site.pages.get` 會回它的完整原始碼（`widget.html.{html,css,js}` 或 `widget.sections`），`site.pages.update { widgetCss }` 可寫品牌自己的覆蓋 CSS（接在小工具 CSS 之後，用同樣或更高權重的 selector 覆蓋；`null` 清空）。要改小工具外觀的標準流程：`site.pages.get` 讀原始碼找 selector → 寫 `widgetCss` → `site.publish`。
+> - **子頁面**：任何非首頁的頁面（含小工具頁）都可用 `parentId` 掛到一個上層頁面底下（只允許一層），Menu 會收成上層的下拉；內容頁另可用 `content.categoriesInMenu` 把分類做成子目錄。
 > **建議流程**：`site.get` → `site.templates.list { category }` → `site.apply_template { key, dry_run:true }` 給使用者看會變成哪些頁 → 正式套用 → 用 `site.pages.update` 改文案（取 `site.pages.get` 的 sections，改字後整組寫回）→ `site.publish`。
 > 要把品牌頁某分頁的模組放進官網：區塊 `{ type:"brandModules", folderId:<分頁 id 或 null＝全部>, layout:"bento"|"grid"|"two"|"stack"|"masonry", moduleIds?:[] }`，內容直接同步品牌頁（`folders.list` 取分頁 id）。
 > 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay 0–0.9, overlayStyle: flat|left|right|top|bottom, focusX?, focusY?, textLight?, parallax? }`——亮照片配白字時用「文字所在側」的漸層（例：文字靠左＝`overlayStyle:"left"`），比整片加深好讀又不會把照片壓暗；直式照片放橫幅用 `focusY` 決定保留哪一段（0＝上緣）。

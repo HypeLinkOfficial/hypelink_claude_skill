@@ -1,6 +1,6 @@
-# 官網範本目錄（118 個）
+# 官網範本目錄（119 個）
 
-> 自動產生於 2026-10-05。套用：`site.apply_template { key, mode: "replace"|"append", applyTheme: true, dry_run: true }`；只拿一頁：`site.apply_page_template`。
+> 自動產生於 2026-10-13。套用：`site.apply_template { key, mode: "replace"|"append", applyTheme: true, dry_run: true }`；只拿一頁：`site.apply_page_template`。
 
 ## 作品集
 
@@ -173,5 +173,6 @@
 | `hl-pulse` | Pulse 音樂人 | 深 | `#C84BFF` | 1 | 獨立音樂人／製作人：夜間工作室 hero、最新發行、演出行程倒數、作品牆、合作洽詢。近黑、紫紅。 |
 | `hl-bloom` | Bloom 插花老師 | 淺 | `#D9808F` | 1 | 花藝老師／工作室：工作桌 hero、課程、作品、季節花材、報名。奶白、腮紅粉。 |
 | `hl-pixel` | Pixel 獨立開發者 | 深 | `#4EF0FC` | 1 | 獨立開發者／indie hacker：夜間桌面 hero、產品清單、數字、開發日誌訂閱、聯絡。深色、青色、等寬字。 |
+| `hl-shiwen` | 拾問書房 說書頻道 | 淺 | `#1C1C1C` | 5 | 說書人／讀書會的安靜書房官網：置中襯線大標＋斜體導言的 Hero、YouTube 影片書架（16:9 影片格與 9:16 Shorts 橫列，站內燈箱播放）、深色加入社群收尾帶。內頁有左文右黑白照的關於頁、細線編號欄、紙感卡、分類閱讀筆記、讀書會紀錄、讀者引言、約定清單與三種參與方式。黑白灰一色、直角細框。 |
 | `personal-brand` | Voice 個人品牌 | 淺 | `#0b6e97` | 2 | 顧問／講者／創作者的個人官網：關於、服務、專欄與訂閱。清爽淺色。 |
 

@@ -162,15 +162,60 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 
 ---
 
+## 9. SEO 與 GEO：讓搜尋引擎和 AI 找得到、說得對
+
+官網上線前一定要把 SEO 寫好。系統會自動處理 canonical（含自訂網域）、sitemap、會員限定頁不索引；**能寫的內容要由你寫**，不要留預設值。
+
+### 9.1 系統怎麼組出每一頁的 SEO（先懂規則再寫）
+| 項目 | 來源（左邊優先） |
+|---|---|
+| 首頁標題 | `seo.title` → 首頁 Hero 標題（`home.heroTitle`）→「@id 品牌官網」 |
+| 其他頁標題 | 該頁 `seo.title`（**整串取代**）→ 自動組成「全站 `seo.title` · 頁面名稱」 |
+| 描述 | 該頁 `seo.description` → 全站 `seo.description` → `seo.geoSummary` → 首頁副標 → 系統預設句 |
+| 分享圖 | 全站 `seo.ogImageUrl` → 品牌頁分享圖 → 品牌頭像（**沒有單頁分享圖**，所以全站這張一定要做好） |
+| 關鍵字 | `seo.keywords`（逗號分隔） |
+| 結構化資料 | 首頁自動輸出 Organization（描述優先用 `geoSummary`、logo 用 `ogImageUrl`）；`seo.faq` 有內容時再輸出 FAQPage |
+| 作品／文章詳情頁 | 標題＝「項目標題｜全站 seo.title」，描述＝項目摘要（summary），分享圖＝封面 |
+| 不索引 | 官網未啟用、`visibility:"member"` 的頁面（自動 noindex） |
+
+### 9.2 全站 `site.update { seo }` 怎麼寫
+- **`title`**：品牌名＋一句定位，20–30 個中文字以內。例：「拾問書房｜說書影片與線上讀書會」。**不要**只寫品牌名，也不要塞一串關鍵字。它也是其他頁標題的前綴，太長會讓每頁標題都被截斷。
+- **`description`**：70–110 字，寫「為誰、提供什麼、有什麼不同、在哪裡」，帶一個行動。例：「拾問書房用說書影片和每月線上讀書會，陪你把一本書讀深、把煩惱想清楚。從台中出發，和書友、圖書館一起共讀。」
+- **`keywords`**：5–10 個，逗號分隔，寫使用者真的會搜的詞（「台中 讀書會」「說書 YouTube」），不要重複品牌名。
+- **`ogImageUrl`**：1200×630 橫圖，主體放中間（LINE 會裁成接近正方形），圖上不要放小字。用 `assets.upload` 上傳後填網址。
+- **`geoSummary`**（給 AI 搜尋引擎引用的品牌摘要，GEO）：150–400 字、第三人稱、事實句，像百科條目第一段。包含：品牌全名與別名、做什麼、服務對象、地區、成立時間或規模（數字）、代表作品或服務、聯絡方式所在頁。**不要寫口號和形容詞**。例：「拾問書房是由說書人阿拾經營的閱讀社群，2022 年起在 YouTube 發布說書影片，至今 164 支；每月與台中在地圖書館合辦線上讀書會，已舉辦 26 場……」
+- **`faq`**（最多 20 題）：寫潛在客戶真的會問的問題，一題一個重點，答案 40–120 字、直接回答。會被輸出成 FAQPage 結構化資料；再放一個 `faqList` 區塊（`source:"seoFaq"`）讓訪客也看得到，內容才一致。
+
+### 9.3 每一頁 `site.pages.create／update { seo }`
+- 首頁以外的每一頁都填 `seo.description`（70–110 字，講這一頁有什麼）；預設會沿用全站描述，結果每頁描述都一樣，搜尋結果分不出來。
+- 頁面標題要特別吸引點擊時才填 `seo.title`（整串取代，記得自己帶品牌名，例「線上讀書會紀錄與報名｜拾問書房」）；一般情況讓系統自動組「全站標題 · 頁面名稱」即可。
+- **slug** 用短的英文小寫與連字號，描述內容（`salon`、`about`、`notes`），不要用拼音長串或日期；上線後不要改 slug（舊網址會失效）。
+- 頁面名稱（`title`）同時是 Menu 文字與標題後綴，用 2–6 字的清楚名詞（「讀書會」比「閱讀星世界讀書會活動」好）。
+
+### 9.4 頁面內容本身
+- **一頁只放一個 Hero 類區塊**：Hero 會輸出這頁的主標（H1），同一頁放兩個會出現兩個 H1。頁中的段落改用其他區塊的標題（輸出 H2）。
+- 主標寫出這頁「是什麼」，含一個核心詞（「台中線上讀書會」），不要只有氣氛句；氣氛句放副標。
+- 每頁至少有一段 120 字以上的實質文字（服務說明、方法、地點、價格範圍），只有大圖和短句的頁面很難排上去。
+- **圖片的標題／名稱欄位就是替代文字**（例如影片書架的影片標題、作品專案名稱），寫清楚內容，不要寫「圖1」。
+- 內部連結：各頁互相連（`/site/<slug>`），首頁連到每個重要頁；作品、文章、讀書會紀錄要有自己的詳情頁（用作品專案／專欄內容，不要全部塞在區塊裡），每一篇才有獨立網址被收錄。
+- 作品專案、專欄文章的 **摘要（summary）一定要填**，它就是詳情頁的搜尋描述。
+- 在地生意：聯絡頁寫完整地址、電話、營業時間（`site.update { contact }`），並和 Google 商家資料一致。
+
+### 9.5 上線後
+- `site.publish` 後用 LINE 或 Facebook 分享首頁和一個內頁，確認標題、描述、縮圖正確（爬蟲有快取，改圖要換檔名）。
+- 綁自訂網域後，canonical 會自動改用自訂網域，不需另外設定。
+- 提醒使用者到 Google Search Console 提交 sitemap：`https://hypelink.app/@<id>/sitemap.xml`（含品牌頁、官網各頁與專欄文章）。
+
 ## MCP 施作流程
 1. `site.get` → 了解現況；`site.blocks.catalog` 的 `enums` 是所有可設定值（字體、內容頁設計、頁尾、動畫…），**不確定的值先查，不要猜**。
 2. 走 A：`site.templates.list { category }` → `site.apply_template { key, mode, applyTheme:true, dry_run:true }` → 使用者同意後正式套用。
    走 B／C：`site.pages.create { title, slug, sections, theme }`；區塊從 `site.blocks.catalog { q:"<type>" }` 的 `blank` 起手改內容。
 3. 改文案：`site.pages.get { slug }` 取 sections → 改字 → `site.pages.update { slug, sections }`（**sections 是整組取代**，務必帶回全部區塊）。
 4. 換圖：`assets.upload { url }` → 用回傳的網址填進區塊或 `bg.imageUrl`。
-5. 全站外觀：`site.update { theme, footer, seo }`（merge）。SEO：`seo.title／description／ogImageUrl`，分享圖建議 1200×630 橫圖。
-6. 寫入都先 `dry_run:true` 看 `ignoredFields`／`warnings`，有被忽略的欄位就照訊息修正。
-7. 給使用者看草稿（後台「品牌官網 › 頁面設計」即時預覽）→ 確認後 `site.publish`。改壞了用 `site.versions.list`／`site.versions.restore`。
+5. 全站外觀：`site.update { theme, footer }`（merge）。
+6. SEO：`site.update { seo: { title, description, keywords, ogImageUrl, geoSummary, faq } }`，再逐頁 `site.pages.update { slug, seo: { description } }`。寫法見 §9，不要留預設值。
+7. 寫入都先 `dry_run:true` 看 `ignoredFields`／`warnings`，有被忽略的欄位就照訊息修正。
+8. 給使用者看草稿（後台「品牌官網 › 頁面設計」即時預覽）→ 確認後 `site.publish`。改壞了用 `site.versions.list`／`site.versions.restore`。
 
 ## 上線前檢查
 - [ ] 三件事一致（深淺／一個醒目色／一種材質），沒有混搭
@@ -180,7 +225,10 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - [ ] 項目數在建議範圍內、標籤沒超過字數
 - [ ] 文案是繁中改寫、數字具體、標題在標點換行
 - [ ] 手機看過（漂浮卡、表格、大字在 390px 寬是否正常）
-- [ ] 內容頁設計與頁尾跟材質一致；SEO 標題／描述／分享圖填了
+- [ ] 內容頁設計與頁尾跟材質一致
+- [ ] SEO：全站 title／description／keywords／ogImageUrl（1200×630）／geoSummary 都填了，faq 至少 5 題（見 §9）
+- [ ] 每個非首頁頁面都有自己的 `seo.description`；slug 是短英文；每頁只有一個 Hero
+- [ ] 作品／文章都有摘要（詳情頁的搜尋描述）
 - [ ] `site.publish` 後打開公開頁確認，分享到 LINE／FB 看預覽
 
 ## 常見坑

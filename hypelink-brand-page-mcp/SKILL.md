@@ -195,6 +195,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > - `kind` 四種可用 MCP 建立：`builder`（區塊頁）／`content`（撈系統資料；`content.source` 可選 projects／services／mall／articles／news／courses／spaces／**events（活動：公開中與已結束的活動牆，卡片連到活動頁）**／about／contact／member／home）／`html`／`link`。
 > - **小工具頁 `kind:"widget"`**：由 HypeLink 管理員維護的現成小工具（計算機、表單、特殊版面…），品牌在後台「頁面設計 › 新增頁面／新增子頁面 › 小工具」挑選；MCP **不能建立**小工具頁，但 `site.pages.get` 會回它的完整原始碼（`widget.html.{html,css,js}` 或 `widget.sections`），`site.pages.update { widgetCss }` 可寫品牌自己的覆蓋 CSS（接在小工具 CSS 之後，用同樣或更高權重的 selector 覆蓋；`null` 清空）。要改小工具外觀的標準流程：`site.pages.get` 讀原始碼找 selector → 寫 `widgetCss` → `site.publish`。
 > - **子頁面**：任何非首頁的頁面（含小工具頁）都可用 `parentId` 掛到一個上層頁面底下（只允許一層），Menu 會收成上層的下拉；內容頁另可用 `content.categoriesInMenu` 把分類做成子目錄。
+> **SEO 欄位**：`site.update { seo: { title, description, keywords（逗號分隔）, ogImageUrl（1200×630）, geoSummary（給 AI 搜尋引用的品牌摘要，150–400 字事實句）, faq:[{q,a}]（≤20，輸出 FAQPage） } }`；單頁 `site.pages.update { slug, seo: { title?, description? } }`（`seo.title` 會整串取代該頁標題，沒填則自動組「全站標題 · 頁面名稱」）。沒有單頁分享圖。寫法與字數見 `hypelink-brand-site-design` §9。
+>
 > **建議流程**：`site.get` → `site.templates.list { category }` → `site.apply_template { key, dry_run:true }` 給使用者看會變成哪些頁 → 正式套用 → 用 `site.pages.update` 改文案（取 `site.pages.get` 的 sections，改字後整組寫回）→ `site.publish`。
 > 要把品牌頁某分頁的模組放進官網：區塊 `{ type:"brandModules", folderId:<分頁 id 或 null＝全部>, layout:"bento"|"grid"|"two"|"stack"|"masonry", moduleIds?:[] }`，內容直接同步品牌頁（`folders.list` 取分頁 id）。
 > 要自己拼頁面：`site.blocks.catalog { q:"hero" }` 拿 blank，改內容後放進 `sections`。圖片先 `assets.upload`。區塊可帶 `bg: { color?, imageUrl?, overlay 0–0.9, overlayStyle: flat|left|right|top|bottom, focusX?, focusY?, textLight?, parallax? }`——亮照片配白字時用「文字所在側」的漸層（例：文字靠左＝`overlayStyle:"left"`），比整片加深好讀又不會把照片壓暗；直式照片放橫幅用 `focusY` 決定保留哪一段（0＝上緣）。

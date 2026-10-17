@@ -37,6 +37,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 |---|---|---|
 | `events.list` | read | 列出本品牌活動（可帶 status） |
 | `events.get` | read | `{ uuid }` 取完整活動 |
+| `events.content_modules` | read | `{ id? }` 列出活動頁 **內容模組目錄**：每個模組的 sections id、資料欄位名（dataKey）、欄位型別／說明／必填、範例，以及頁面層級欄位（themeId、background、sections…）。**寫 pageContent 前先查**，避免猜錯欄位名造成前台空白 |
 | `events.create` | write | `{ name, startAt, endAt, slug?, description?, format?, location?, meetingUrl?, registration*?, pageContent?, discountCodes?[] }`。`slug` 未給時由名稱自動產生，只保留 a-z0-9-（中文名稱會退回 `event-<yyyymmdd>-<隨機>`），建議中文活動自行帶英數 slug |
 | `events.update` | write | `{ uuid, ... }` 部分更新（`pageContent` 傳 null 物件即清空） |
 | `events.duplicate` | write | `{ uuid, name?, slug? }` 複製活動（內容＋票種；副本為 draft、關閉報名）。可指定副本 `name` 與 `slug`（a-z0-9- 1-80 字、同品牌唯一，重複回 409）；未指定時名稱為「原名 (副本)」、slug 為「原 slug-copy-xxxxx」 |
@@ -48,42 +49,58 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 
 ### `pageContent` 結構（EventContent）
 
-`events.create` 與 `events.update` 的 `pageContent` 使用結構化 **EventContent** JSON（非舊版 Puck 格式）：
+`events.create` 與 `events.update` 的 `pageContent` 使用結構化 **EventContent** JSON（非舊版 Puck 格式）。
+完整欄位格式與範例以 **`events.content_modules`** 回傳為準（inputSchema 也帶了每個模組的 properties）；寫入後若有猜錯的欄位名，回傳會多一個 `warnings` 陣列，請依提示修正。
+
+#### 內容模組一覽（sections id → 資料欄位）
+
+| sections id | 模組 | 資料欄位（dataKey） | 形狀 | 欄位 |
+|---|---|---|---|---|
+| `hero` | 主視覺 | `hero` | object | `title`（留空用活動名）, `subtitle`, `accentColor`, `bgGradient`(hype\|sunset\|ocean\|aurora\|forest\|midnight) |
+| `about` | 活動介紹 | `about` | string | 純文字，保留換行 |
+| `body` | 富文字內容 | `body` | string | HTML |
+| `highlights` | 活動亮點 | `highlights` | array | `icon`(emoji 或 `lucide:Star`), `title`*, `description` |
+| `agenda` | 議程 | `agenda` | array | `time`*(自由文字), `endTime`, `title`*, `speaker`, `description`, `ctaLabel`+`ctaUrl` |
+| `speakers` | 講者 | `speakers` | array | `name`*, `role`, `avatar`(URL), `bio`, `hypeId`(@handle), `linkUrl`, `socials[{label,url}]` |
+| `faqs` | 常見問題 | `faqs` | array | **`q`\*, `a`\***（不是 question／answer） |
+| `sponsors` | 贊助商 | `sponsors` | array | `name`*, `logo`, `url`, `tier`(platinum\|gold\|silver\|partner) |
+| `coOrganizers` | 協辦方 | `coOrganizers` | array | `name`*, `logo`, `url` |
+| `notes` | 注意事項 | `notes` | string | 純文字 |
+| `album` | 活動相簿 | `album` | object | `images[{ url*, caption? }]` |
+| `venue` | 場地與交通 | `venue` | object | `address`, `mapEmbedUrl`, `directions` |
+| `contact` | 聯絡方式 | **`contactChannels`** | array | `type`*(line\|telegram\|discord\|email\|phone\|other), `value`*, `label` |
+| `offlinePayment` | 線下付款 | `offlinePayment` | object | `methods[cash\|linepay\|bank_transfer]`, `bankName`, `accountNumber`, `accountHolder`, `linePayId`, `instructions` |
+| `quickLinks` | 快速連結 | `quickLinks` | object | `items[{ id, enabled, label, url }]` |
+| `imageWall` | 圖片連結牆 | `imageWall` | object | `columns`(2–6), `items[{ id, bgType: image\|gradient, imageUrl?, gradient?{from,to,angle?}, url? }]` |
+| `tickets` | 票種 | — | live | 由 `events.tickets.*` 渲染，只用 sections 控制顯隱 |
+| `announcements` | 公告 | — | live | 由 `events.announcements.*` 渲染 |
+
+> `sections` 決定順序與顯隱；**不在 sections 裡的模組不會顯示**（即使有資料）。新增模組資料時記得一併把 `{ "id": "...", "visible": true }` 加進 sections。
+
+#### 頁面層級欄位
+
+`themeId`（gradient\|minimal\|editorial\|conference\|workshop\|concert\|midnight\|cyber）、`primaryColor`、`baseBg`、`baseInk`、`glassTone`(dark\|light)、`coverAspectRatio`、`background`（`{ type: none|color|gradient|animated|image|library, … }`）、`sections`、`sectionTitles`（自訂模組標題）、`showQa`、`hideRegistrationCount`、`postRegFields`、`completion`（報名完成頁）、`share`（分享預覽）。
+
+#### 範例
 
 ```jsonc
 {
-  "themeId": "gradient",        // gradient|minimal|editorial|conference|workshop|concert|midnight|cyber
-  "hero": {
-    "title": "",                // 留空時用 event.name
-    "subtitle": "",             // 副標 / tagline
-    "bgGradient": "hype"        // hype|sunset|ocean|aurora|forest|midnight（官方漸層配色）
-                                // 或省略讓主題自帶漸層
-  },
-  "about": "長文介紹（純文字）",
-  "body": "<p>富文字 HTML</p>",
-  "primaryColor": "#7c3aed",    // 全頁 CTA / 通知信主色
-  "background": {
-    "type": "animated",         // none|color|gradient|animated
-    "animatedVariant": "iridescence",
-    "accent": "#8B5CF6"
-  },
-  "sections": [                 // 內容模組排序＋顯隱（hero 也可排序）
-    { "id": "hero",    "visible": true },
-    { "id": "about",   "visible": true },
-    { "id": "tickets", "visible": true }
-    // id 可為：hero/about/body/highlights/agenda/speakers/faqs/
-    //          sponsors/notes/album/tickets/venue/contact/offlinePayment
+  "themeId": "gradient",
+  "hero": { "subtitle": "亞洲街頭藝術年度盛會", "bgGradient": "sunset" },
+  "about": "長文介紹…",
+  "primaryColor": "#7c3aed",
+  "sections": [
+    { "id": "hero" }, { "id": "about" }, { "id": "highlights" }, { "id": "agenda" },
+    { "id": "speakers" }, { "id": "tickets" }, { "id": "venue" }, { "id": "offlinePayment" },
+    { "id": "faqs" }, { "id": "contact" }
   ],
-  "highlights": [{ "icon": "lucide:Star", "title": "", "description": "" }],   // icon 可用任何 lucide 圖示名（PascalCase，如 lucide:Brain、lucide:ShieldCheck）或 emoji；公開頁按需載入，載不到退回 ✦
-  "agenda":     [{ "time": "09:00", "title": "", "speaker": "" }],
-  "speakers":   [{ "name": "", "role": "", "avatar": "", "bio": "" }],
-  "faqs":       [{ "question": "", "answer": "" }],
-  "contactChannels": [
-    { "type": "line",     "value": "@handle", "label": "" },
-    { "type": "telegram", "value": "@user" },
-    { "type": "discord",  "value": "invite-code" },
-    { "type": "email",    "value": "hi@example.com" }
-  ]
+  "highlights": [{ "icon": "lucide:Mic", "title": "三組國際藝術家", "description": "日本、法國、台灣" }],
+  "agenda":     [{ "time": "13:00", "endTime": "14:30", "title": "開幕論壇", "speaker": "王小明" }],
+  "speakers":   [{ "name": "王小明", "role": "街頭藝術家", "avatar": "https://…/a.jpg" }],
+  "venue":      { "address": "台北市中正區八德路一段1號", "directions": "捷運忠孝新生站 1 號出口步行 5 分鐘" },
+  "offlinePayment": { "methods": ["bank_transfer"], "bankName": "國泰世華 013", "accountNumber": "1234567890", "accountHolder": "XX 協會", "instructions": "匯款後請回報末五碼" },
+  "faqs":       [{ "q": "需要事先報名嗎？", "a": "需要。" }],
+  "contactChannels": [{ "type": "email", "value": "hi@example.com" }, { "type": "line", "value": "@stracd", "label": "官方 LINE" }]
 }
 ```
 

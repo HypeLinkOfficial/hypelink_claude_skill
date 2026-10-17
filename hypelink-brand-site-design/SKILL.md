@@ -153,6 +153,16 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - 頁面 `theme.intro.style`：`curtain`／`counter`／`wordmark`／`split`（上下對開）／`stairs`（階梯升起）／`iris`（圓形收合）／`type`（打字機，`text` 填標語）／`logo`（字首圓標脈動）。通常只放首頁。
 - 站內切頁 `theme.animation`（站台層級）：`fade`／`slide`／`zoom`／`blur`（模糊聚焦）／`wipe`（醒目色幕上掀）／`columns`（直欄收合）／`slate`（顯示目的頁標題的字卡）。
 - 搭配建議見 document/site-template-design-guideline.md §10.8；一個站各選一種，別每頁不同。
+- 頁面 intro 另有 `lift`（巨大品牌字逐字升起、整片帶弧上掀）；整站版本＝`site.update { theme:{ motion:{ enter:"wordmark", wordmarkText, wordmarkBg } } }`（整個官網每次造訪只播一次，比逐頁 intro 更適合工作室／作品集）。
+
+## 7.8 工作室感的互動細節（bkhole／beardbt 那種）
+- **全螢幕覆蓋選單**：`menu { alwaysMobile:true, burgerStyle:"lines" }`＋`mobileMenu { preset:"stage", footerNote:"hello@…", footerNoteRight:"© 2026 …" }`——桌機也只留兩線漢堡，打開白幕落下、巨大置中連結＋右上編號、滑過翻字。
+- **桌機連結**：`menu { linkHover:"roll", linkNumbers:true }`（文字上下翻＋右上 01／02）。
+- **跟隨游標**：`effects { cursor:"follow", followLabel:"View" }`；觸控裝置自動不顯示。只配作品型網站，電商／事務所別用。
+- **底部漸進模糊**：`effects { bottomBlur:true }`，長頁捲動時內容沉進霧裡；到頁底自動淡出。
+- **頁尾**：`footer.layout:"monolith"`（超大底線信箱＋右半巨型品牌字＋黑色版權列，`headline` 是信箱上方小字）／`"hatch"`（斜紋面板＋`footer.imageUrl` 橫幅、編號導覽、`giantWord` 跑馬）。品牌 email 要先填在 contact，信箱才會出現。
+- **區塊**：`objectHero { scene:"smoke", sceneColor }` WebGL 煙霧（滑鼠拖出煙流）；黑底 3D 渲染圖用 `objectBlend:"screen"` 免去背。`windowWorks { source:"projects", category, limit, filterChips:true }` 直接讀作品專案＋分類篩選籤。
+- 這些一個站挑 2–3 個就好；全開會吵，也拖慢手機。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

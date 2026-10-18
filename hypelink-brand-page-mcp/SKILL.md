@@ -177,7 +177,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `site.get` | read | **官網開場第一支**：enabled／publishedAt／hasUnpublishedChanges／theme／footer／seo＋頁面摘要 |
-| `site.update` | write | 整站設定 merge：`{ enabled?, logoUrl?, memberPageEnabled?, theme?, footer?, seo?, contact?, about?, home?, modules?, tracking? }`（theme 內的 motion／loading／menu／contentDesign 也是 merge）。**嚴格驗證**：未知欄位或不合法值回 `VALIDATION_FAILED` 並列出可用值；寫入後若有欄位被正規化掉會回 `ignoredFields`。常用：`theme.motion.blocks:false`＝整站關閉區塊進場動畫；`theme.loading { enabled, style: spinner\|logo\|text\|dots, text }`＝載入指示器；`theme.contentWidth`；`memberPageEnabled`（預設 true）＝右上角登入／帳號選單＋官網內會員中心 `/site/member`，false 則都不顯示（舊的 `showMemberJoin` 已停用）。footer 可帶 `layout`（11 種：columns／mega／cta／minimal／newsletter／stacked／ticker／contact／index／panel／photo）與版型欄位 `headline／giantWord／marquee／hours／newsletter／showClock` |
+| `site.update` | write | 整站設定 merge：`{ enabled?, logoUrl?, memberPageEnabled?, theme?, footer?, seo?, contact?, about?, home?, modules?, tracking? }`（theme 內的 motion／loading／menu／contentDesign 也是 merge）。**嚴格驗證**：未知欄位或不合法值回 `VALIDATION_FAILED` 並列出可用值；寫入後若有欄位被正規化掉會回 `ignoredFields`。常用：`theme.motion.blocks:false`＝整站關閉區塊進場動畫；`theme.loading { enabled, style: spinner\|logo\|text\|dots, text }`＝載入指示器；`theme.contentWidth`；`theme.a11y { level: off|A|AA|AAA }`＝**無障礙模式**（公開官網自動隱藏 `site.blocks.catalog` 裡 `a11y.level` 未達的區塊；AAA 另關閉進站／視差／區塊進場／轉場動畫與游標特效、動態預設暫停）；`memberPageEnabled`（預設 true）＝右上角登入／帳號選單＋官網內會員中心 `/site/member`，false 則都不顯示（舊的 `showMemberJoin` 已停用）。footer 可帶 `layout`（11 種：columns／mega／cta／minimal／newsletter／stacked／ticker／contact／index／panel／photo）與版型欄位 `headline／giantWord／marquee／hours／newsletter／showClock` |
 | `site.pages.list` | read | 頁面清單（＝Menu 順序）：id／slug／title／kind／sectionTypes／contentSource／parentId（子頁面的上層 id）／widgetUuid |
 | `site.pages.get` | read | `{ id | slug }` 單頁完整內容（builder 的 sections／theme）；kind=widget 的小工具頁多回 `widget`（小工具完整原始碼 html／css／js 或 sections，唯讀）與 `widgetCss`（品牌樣式覆蓋） |
 | `site.pages.create` | write | `{ title, kind?, slug?, sections?, theme?, content?, link?, html?, showInMenu?, visibility?, position?, parentId? }`（`visibility: "member"`＝會員限定頁，搭配 `allowedTiers` 限定會員等級、`password` 密碼鎖——鎖頁前要使用者明確同意；`parentId`＝掛在某上層頁面底下成為子頁面，只允許一層；首頁不能當上層） |
@@ -366,3 +366,14 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 MCP 對首頁資訊 / 設計的任何寫入都會：寫入既有 entities、觸發 `revalidateBrandPublicCache`（與 dashboard 儲存同 pipeline）、寫一筆 `mcp_audit_log`（owner 可在後台查）。CLI / AI 與 dashboard 的修改會**立即互相反映**。
 
 > 活動（events）相關操作見另一支 skill：`hypelink_claude_skill/hypelink-event-mcp/SKILL.md`。
+
+## 無障礙設計（WCAG 2.2）
+
+客戶想讓官網「符合無障礙 A／AA／AAA」時，全程都能用 MCP 完成：
+
+1. `site.blocks.catalog`（可 `includeBlank:false`）：每個區塊有 `a11y: { level: A|AA|AAA|none, note }`，note 說明擋住下一級的原因（例如「文字壓在照片上」「固定高度放大會裁字」）。挑區塊時選 `a11y.level` ≥ 目標等級的。`code`（自訂 HTML）為 none。
+2. 每張圖片補替代文字：在區塊上加 `alts: { "<圖片原始網址>": "替代文字" }`，`""` ＝裝飾性圖片（螢幕報讀略過）。網址要跟區塊欄位裡的原始網址完全一致（不是 /_next/image）。描述「圖片傳達的內容」，不要寫「圖片」「照片」字樣；Logo 寫品牌名。
+3. `site.update` 設 `theme.a11y.level`，再 `site.publish`。公開頁會隱藏未達等級的區塊（編輯器資料不刪，關閉模式就恢復）。
+4. 平台已自動處理、不必設定：鍵盤焦點框、「暫停動態」按鈕（2.2.2）、減少動態、跳到主要內容、表單可見標籤。
+5. 內容層仍需配合：自訂顏色對比（AA 4.5:1、AAA 7:1）、連結文字避免「點此」、影片字幕。
+

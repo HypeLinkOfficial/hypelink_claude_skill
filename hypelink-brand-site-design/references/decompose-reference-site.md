@@ -63,6 +63,7 @@
 | 一列式頁尾（logo · 連結 · 版權） | `footer.layout: "minimal"` |
 
 ### 3. 決定全站外觀
+- **Menu 與載入畫面**：Menu 是否固定、是否透明疊在首屏、往下捲會不會收起、桌機是否只有漢堡鈕；進站時有沒有載入畫面、長什麼樣、怎麼離場。判斷方法與對應設定見 `migrate-existing-site.md` §1「Menu 與載入畫面」。
 - 找 `references/templates.md` 裡氛圍最接近的範本，`site.apply_template { key, applyTheme:true, mode:"append", dry_run:true }` 只為了拿外觀，或直接 `site.update { theme, footer }` 設。
 - 雙色系統（主色＋副色）：頁面 `theme.primary`＝主色、`theme.accent`＝副色；`floatingUiHero`／`questionCards`／`featureTabsPanel`／`spotlightRoadmap`／`glowCta` 會用副色做眉標、副標與漸層按鈕。
 - 字體：參考站用思源黑體就選 `Noto Sans TC`；英文幾何感選 `Inter`／`Space Grotesk`。

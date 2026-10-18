@@ -242,6 +242,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - [ ] SEO：全站 title／description／keywords／ogImageUrl（1200×630）／geoSummary 都填了，faq 至少 5 題（見 §9）
 - [ ] 每個非首頁頁面都有自己的 `seo.description`；slug 是短英文；每頁只有一個 Hero
 - [ ] 作品／文章都有摘要（詳情頁的搜尋描述）
+- [ ] 照參考／原站確認過 Menu（固定、透明疊首屏、捲動收起、桌機漢堡）與進站載入畫面（有沒有、長相、離場方式）
 - [ ] AI 補寫的內容（FAQ 答案、擴充描述、問不到的數字）已逐條標出，請使用者確認
 - [ ] `site.publish` 後打開公開頁確認，分享到 LINE／FB 看預覽
 
@@ -259,3 +260,5 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | 中文出現莫名錯字（「狀牛盾」） | 用了 `\uXXXX` 跳脫又打錯；中文直接寫字元，寫完從 API 回傳抽查 |
 | 套範本後版面變窄／Hero 捲動會縮小 | 範本預設 `containerWidth: wide`、`sx.scrollFx: recede`；依需求改 `full`、拿掉 recede |
 | Logo 列寫著「合作夥伴 1」 | 佔位文字沒換；問使用者真實客戶名稱，或先拿掉這段 |
+| SVG 圖示在官網破圖 | 2026-10-19 前上傳的 SVG 網址沒有 `.svg`，被送去圖片壓縮；重新 `assets.upload`（不帶 transform），不要轉 PNG |
+| `site.publish`／`folders.list` 被權限擋 | 不要重試；請使用者在後台自己按「更新發布」、確認分頁 |

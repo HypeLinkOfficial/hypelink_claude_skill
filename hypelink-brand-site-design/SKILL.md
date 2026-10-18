@@ -1,6 +1,6 @@
 ---
 name: hypelink-brand-site-design
-description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 126 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」的流程與產業藍圖。當使用者要做／改版官網、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
+description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法手冊 — 先定氛圍三件事（深淺／一個醒目色／材質），再用七段骨架排首頁、從 126 種區塊挑對的、背景三層規則、繁中文案、圖片提示詞、內容頁與頁尾、站內連結與表單、動畫與上線檢查；含「拆解參考網站變成範本」與「把現有網站搬進來」的流程與產業藍圖。當使用者要做／改版官網、要搬家、想要「像某某網站那樣」、要挑範本或排版、或覺得官網不好看時使用。工具參數見 hypelink-brand-page-mcp。
 ---
 
 # Skill：品牌官網的設計與製作方法
@@ -28,6 +28,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - `references/templates.md` — 92 個範本：產業、深淺、醒目色、用途（自動產生）
 - `references/decompose-reference-site.md` — 把參考網站拆成區塊與範本的流程＋完整範例
 - `references/blueprints.md` — 產業藍圖、內容頁設計與頁尾的搭配表
+- `references/migrate-existing-site.md` — 把客戶現有網站搬進來：讀原站的工具與備案、Framer 特性、圖片轉存、套範本陷阱、AI 補寫要標註
 
 ---
 
@@ -45,6 +46,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | **A. 套範本再改字**（最快） | 使用者沒有特定參考、要快速上線 | `site.templates.list { category }` 挑 1–2 個 → `site.apply_template { key, dry_run:true }` 給他看會變成哪些頁 → 正式套用 → 逐頁改文案、換圖 |
 | **B. 拆解參考網站** | 使用者給了想模仿的網址 | 讀 `references/decompose-reference-site.md`：逐段對到區塊、改寫文案與圖片，結構可微調 |
 | **C. 從零拼** | 範本都不對、或只要加一兩頁 | 依下面的方法挑區塊，`site.blocks.catalog { q }` 拿 `blank` 改內容，`site.pages.create／update` 寫入 |
+| **D. 搬家** | 客戶要把**自己現有的網站**（Framer／Wix／WordPress…）搬進來 | 讀 `references/migrate-existing-site.md`：先建作品／文章資料再做頁面、用瀏覽器擷取原站（不要用 WebFetch 搬）、圖片轉存 webp、AI 補寫的內容要標出來 |
 
 就算走 C，也先找一個「氛圍最接近的範本」用 `applyTheme` 只拿外觀（主色、字體、背景、Menu、內容頁設計、頁尾），比自己調十個設定一致得多。
 
@@ -217,7 +219,8 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - 提醒使用者到 Google Search Console 提交 sitemap：`https://hypelink.app/@<id>/sitemap.xml`（含品牌頁、官網各頁與專欄文章）。
 
 ## MCP 施作流程
-1. `site.get` → 了解現況；`site.blocks.catalog` 的 `enums` 是所有可設定值（字體、內容頁設計、頁尾、動畫…），**不確定的值先查，不要猜**。
+1. `site.get` → 了解現況；`site.blocks.catalog` 的 `enums` 是所有可設定值（字體、內容頁設計、頁尾、動畫、區塊 `sx` 的 `section.sx.*`…），**不確定的值先查，不要猜**。
+   有作品專案、專欄文章要放上官網時，**先把資料建好**，列表區塊一開始就用 `hlContent` 讀資料（`filterTabs:true` 可加分類切換標籤），不要先寫死卡片。
 2. 走 A：`site.templates.list { category }` → `site.apply_template { key, mode, applyTheme:true, dry_run:true }` → 使用者同意後正式套用。
    走 B／C：`site.pages.create { title, slug, sections, theme }`；區塊從 `site.blocks.catalog { q:"<type>" }` 的 `blank` 起手改內容。
 3. 改文案：`site.pages.get { slug }` 取 sections → 改字 → `site.pages.update { slug, sections }`（**sections 是整組取代**，務必帶回全部區塊）。
@@ -239,6 +242,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - [ ] SEO：全站 title／description／keywords／ogImageUrl（1200×630）／geoSummary 都填了，faq 至少 5 題（見 §9）
 - [ ] 每個非首頁頁面都有自己的 `seo.description`；slug 是短英文；每頁只有一個 Hero
 - [ ] 作品／文章都有摘要（詳情頁的搜尋描述）
+- [ ] AI 補寫的內容（FAQ 答案、擴充描述、問不到的數字）已逐條標出，請使用者確認
 - [ ] `site.publish` 後打開公開頁確認，分享到 LINE／FB 看預覽
 
 ## 常見坑
@@ -251,3 +255,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | 一頁好幾個 3D／游標效果，很卡 | 一頁只留一個重互動區塊，其他換成靜態區塊 |
 | 按鈕連到 hypelink.app 首頁 | 站內頁要寫 `/site/<slug>`，不是 `/<slug>` |
 | 換了圖但畫面還是舊的 | 圖片網址有長期快取，換圖要用新網址（重新 `assets.upload`），不要覆蓋同一個檔 |
+| 套範本後出現 `contact-2` 這種 slug | `apply_template` 的 replace 不會刪舊的 content 頁；先停用或改掉舊頁 slug 再套 |
+| 中文出現莫名錯字（「狀牛盾」） | 用了 `\uXXXX` 跳脫又打錯；中文直接寫字元，寫完從 API 回傳抽查 |
+| 套範本後版面變窄／Hero 捲動會縮小 | 範本預設 `containerWidth: wide`、`sx.scrollFx: recede`；依需求改 `full`、拿掉 recede |
+| Logo 列寫著「合作夥伴 1」 | 佔位文字沒換；問使用者真實客戶名稱，或先拿掉這段 |

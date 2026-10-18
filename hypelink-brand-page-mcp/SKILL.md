@@ -170,7 +170,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 
 ### 品牌官網（Brand Site，`/@id/site`；scope 仍為 `homeinfo:*`）
 
-> **方案門檻：所有 `site.*` 工具限 Max 方案（含 Enterprise）。** 看的是**帳號**方案：品牌擁有者帳號或建立這個 token 的操作者帳號，任一為 Max 即可（Max 帳號替免費客戶的品牌做官網也能用）；都未達時 tools/call 回 `PLAN_REQUIRED`（工具仍會出現在 tools/list，描述開頭標【Max 方案】）。遇到這個錯誤不要重試，請使用者到 HypeLink「方案與帳單」升級；官網仍可在後台頁面編輯器手動製作。
+> **方案門檻：所有 `site.*` 工具限 Enterprise 方案（2026-10-19 自 Max 上移）。** 看的是**帳號**方案：品牌擁有者帳號或建立這個 token 的操作者帳號，任一為 Enterprise 即可（Enterprise 帳號替其他方案客戶的品牌做官網也能用）；都未達時 tools/call 回 `PLAN_REQUIRED`。另外品牌官網本體全方案可用；`site.apply_template`／`site.apply_page_template` 另限品牌擁有者 Creator（含）以上（Free 回 `CREATOR_PLAN_REQUIRED`）。遇到這個錯誤不要重試，請使用者到 HypeLink「方案與帳單」升級；官網仍可在後台頁面編輯器手動製作。
 > **範本可能被平台限制：** 平台可設定某些範本／分類只開放給特定方案或帳號。`site.templates.list` 只會列出這個品牌看得到的範本；套用沒開放的範本會回 `NOT_FOUND`（「未開放給此品牌的方案」），改挑清單裡的範本即可。
 官網是「頁面系統」：每頁是 **builder**（頁面編輯器頁，區塊陣列）／**content**（接後台資料：作品專案、商店、專欄、最新消息、課程、3D 展、關於、聯絡、會員中心）／**html**／**link**。所有寫入都是**存草稿**，要 `site.publish` 公開頁才會變。
 
@@ -371,9 +371,12 @@ MCP 對首頁資訊 / 設計的任何寫入都會：寫入既有 entities、觸�
 
 客戶想讓官網「符合無障礙 A／AA／AAA」時，全程都能用 MCP 完成：
 
-1. `site.blocks.catalog`（可 `includeBlank:false`）：每個區塊有 `a11y: { level: A|AA|AAA|none, note }`，note 說明擋住下一級的原因（例如「文字壓在照片上」「固定高度放大會裁字」）。挑區塊時選 `a11y.level` ≥ 目標等級的。`code`（自訂 HTML）為 none。
-2. 每張圖片補替代文字：在區塊上加 `alts: { "<圖片原始網址>": "替代文字" }`，`""` ＝裝飾性圖片（螢幕報讀略過）。網址要跟區塊欄位裡的原始網址完全一致（不是 /_next/image）。描述「圖片傳達的內容」，不要寫「圖片」「照片」字樣；Logo 寫品牌名。
-3. `site.update` 設 `theme.a11y.level`，再 `site.publish`。公開頁會隱藏未達等級的區塊（編輯器資料不刪，關閉模式就恢復）。
-4. 平台已自動處理、不必設定：鍵盤焦點框、「暫停動態」按鈕（2.2.2）、減少動態、跳到主要內容、表單可見標籤。
-5. 內容層仍需配合：自訂顏色對比（AA 4.5:1、AAA 7:1）、連結文字避免「點此」、影片字幕。
-
+1. `site.blocks.catalog`（可 `includeBlank:false`）：每個區塊有 `a11y: { level, aaa, note }`。`level`＝預設呈現的等級（幾乎都是 AA；`code` 自訂 HTML 為 none）；`aaa: true`＝AAA 模式下會切換成該區塊的 AAA 版本。
+2. **圖片替代文字**：區塊加 `alts: { "<圖片原始網址>": "替代文字" }`，`""` ＝裝飾性圖片。網址要跟區塊欄位裡的原始網址完全一致（不是 /_next/image）。描述圖片傳達的內容；Logo 寫品牌名。
+3. **影音字幕／逐字稿**（有人聲的影片是 A 級必要）：區塊加 `mediaA11y: { "<影音原始網址>": { captionsUrl, captionsLang, transcript, audioDescUrl, signUrl } }`。`captionsUrl` 要是 WebVTT 的 https 網址（.srt 檔請客戶在前台上傳，會自動轉 vtt）；沒有字幕檔時至少填 `transcript`（逐字稿純文字）。YouTube／Vimeo 字幕在該平台開啟，這裡補逐字稿。
+4. **內容語言**：`site.update` 的 `theme.lang`（zh-Hant、en、ja…）→ `<html lang>`（3.1.1）。
+5. **模式**：`site.update` 的 `theme.a11y.level`，再 `site.publish`。
+   - `A`／`AA`：隱藏 `a11y.level` 未達的區塊。
+   - `AAA`：區塊切換成 AAA 版本（不隱藏）——無自動動態（輪播全部列出、3D 改靜態圖）、按鈕 44px、對比 7:1、子頁麵包屑、表單送出前確認；只有 `aaa:false` 的區塊被隱藏。
+6. 平台已自動處理：焦點框、「暫停動態」按鈕、減少動態、跳到主要內容、表單標籤、主色按鈕對比（不足時自動微調主色明度）。
+7. 內容層仍需配合：自訂文字／背景色對比、連結文字避免「點此」、richtext 可用 `<abbr title>`（縮寫）、`<ruby>`（讀音）、`<span lang="en">`（外語段落）。

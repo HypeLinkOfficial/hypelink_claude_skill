@@ -37,7 +37,7 @@
 - 圖片網址帶很多 query（`?scale-down-to=…`），**拿掉 query 再去重**，同一張圖只搬一次。
 
 ### 圖片
-- 一律 `assets.upload { url, maxWidth: 1600, format: "webp" }` 轉存到 HypeLink，不要直接引用原站網址（原站下架就破圖）。通常能壓到原本的一成左右。
+- 一律 `assets.upload { url, transform: { maxWidth: 1600, format: "webp" } }` 轉存到 HypeLink，不要直接引用原站網址（原站下架就破圖）。通常能壓到原本的一成左右。
 - 去重後再上傳；上傳回來的網址才填進區塊或作品。
 
 ---

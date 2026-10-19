@@ -95,12 +95,13 @@
 ## 4. MCP 寫入注意
 
 - `site.pages.update` 的 `sections` 是**整組取代**：只改一個區塊也要先 `site.pages.get` 取回全部、改那一個、整組寫回。一頁區塊很多時，改完用回傳結果比對區塊數有沒有少。
-- `projects.create` 目前不能指定 slug，網址由標題自動產生（中文標題會變成 `project-xxxx`、`vr`、`2020` 這類），和原站網址對不上。先告訴使用者，請他在後台改成原站的網址。
-- `projects.list` 作品多時回傳會超過上限：分批讀（用分類或狀態篩選），不要一次全取。
+- **作品網址照原站**：`projects.create { title, slug: "<原站網址最後一段>" }`（例：原站 `/work/brand-film` → `slug: "brand-film"`）。不帶 slug 的話中文標題會變成 `project-xxxx`。slug 撞名會回錯誤（不會自動加 -2），照訊息換一個。之後改標題不會動到手動指定的 slug。
+- `projects.list` 是分頁的：`limit`（預設 50）＋`offset`，照 `nextOffset` 一頁頁讀到 `null`；預設只回精簡欄位，要全文用 `projects.get`。
 
 ## 4.5 品牌頁（/@id 首頁）一起搬時
 
-- 內容一律放進**系統預設的「連結」分頁**（每個品牌都有一個；先 `folders.list` 找它的 id，不同品牌 id 不同）。不要新開分頁——新開會多出一個空的「連結」分頁排在前面。`folders.list` 被權限擋住讀不到時，停下來請使用者在後台確認，不要自己猜 id。
+- 內容一律放進**系統預設的「連結」分頁**（每個品牌都有一個；先 `folders.list` 找它的 id，不同品牌 id 不同）。不要新開分頁——新開會多出一個空的「連結」分頁排在前面。`folders.list` 讀不到時，停下來請使用者在後台確認，不要自己猜 id。
+- Logo 牆模組 `logo-wall` 的 `logos` 項目是 `{ imageUrl, name, url }`；其他模組的陣列項目格式查 `modules.catalog` 的 `itemFields`，不要猜。
 - 品牌頁改完，公開頁有幾分鐘快取，看不到變化先等一下再看。
 
 ## 4.6 法律頁（隱私權政策、服務條款）

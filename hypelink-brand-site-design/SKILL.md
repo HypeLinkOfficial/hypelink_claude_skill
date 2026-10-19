@@ -261,4 +261,4 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | 套範本後版面變窄／Hero 捲動會縮小 | 範本預設 `containerWidth: wide`、`sx.scrollFx: recede`；依需求改 `full`、拿掉 recede |
 | Logo 列寫著「合作夥伴 1」 | 佔位文字沒換；問使用者真實客戶名稱，或先拿掉這段 |
 | SVG 圖示在官網破圖 | 2026-10-19 前上傳的 SVG 網址沒有 `.svg`，被送去圖片壓縮；重新 `assets.upload`（不帶 transform），不要轉 PNG |
-| `site.publish`／`folders.list` 被權限擋 | 不要重試；請使用者在後台自己按「更新發布」、確認分頁 |
+| `site.publish`／`folders.list` 被擋下 | 是 MCP 客戶端（Claude）的工具確認擋的，不是 HypeLink 拒絕（HypeLink 拒絕會回 `SCOPE_DENIED`／`PLAN_REQUIRED` 錯誤碼）。不要重試；發布請使用者在後台自己按「更新發布」，或請他在客戶端允許該工具 |

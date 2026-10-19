@@ -74,10 +74,10 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 ### Projects（作品專案，品牌內容 → 作品專案；公開頁 `/@id/projects`）
 | Tool | Scope | 說明 |
 |---|---|---|
-| `projects.list` | read | 含草稿；可 `status` / `categoryUuid`（`"none"`＝未分類）過濾。回 uuid / slug / status / coverUrl / tags / category{uuid,name,slug} / blockCount（不含全文） |
+| `projects.list` | read | 含草稿；可 `status`／`categoryUuid`（`"none"`＝未分類）／`q`（標題或 slug）過濾。**分頁**：`limit`（預設 50、最多 200）＋`offset`，回 `{ items, total, offset, limit, nextOffset }`（`nextOffset: null`＝最後一頁）。預設精簡欄位（uuid／title／slug／status／coverUrl／summary／日期／客戶／分類／區塊數）；`fields:"full"` 多標籤、團隊、前後對比圖等。全文與 sections 用 `projects.get` |
 | `projects.get` | read | `{ uuid }` 完整內容（description、blocks、頁面編輯器 `sections`／`sectionsTheme`） |
-| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, sections?, sectionsTheme?, blocks?, sortOrder? }`；預設 draft，slug 由標題自動產生。**作品內容建議用 `sections`**（與官網 builder 頁同一套區塊，`site.blocks.catalog` 可查；有 sections 時公開頁忽略 blocks）；`blocks` 為舊版線性區塊 |
-| `projects.update` | write | 部分更新；`sections`／`blocks` 為整組取代（sections 傳 null 清空，公開頁退回 blocks）；`sectionsTheme.projectDetail: { layout?, cover? }` 可覆寫這件作品的詳細頁版型／封面（官網作品頁的 `content.detail` 為預設，見 site.pages）；改 title 會重算 slug；分類四選一：`categoryUuids`／`categories`（多分類）或 `categoryUuid`／`category`（單一；null 取消）；`beforeImageUrl`／`afterImageUrl`（或 `beforeImageAssetId`／`afterImageAssetId`）＝施工前／後圖，官網 imageCompare 區塊可帶 `projectSlug` 自動使用 |
+| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, sections?, sectionsTheme?, blocks?, sortOrder?, slug? }`；預設 draft。**`slug`**＝網址（搬家照原站填，例 `brand-film`；轉小寫、空白轉 -、可含中文；撞名回 `VALIDATION_FAILED` 不自動加 -2），不帶由標題自動產生（中文標題會變 `project-xxxx`）。**作品內容建議用 `sections`**（與官網 builder 頁同一套區塊，`site.blocks.catalog` 可查；有 sections 時公開頁忽略 blocks）；`blocks` 為舊版線性區塊 |
+| `projects.update` | write | 部分更新；`sections`／`blocks` 為整組取代（sections 傳 null 清空，公開頁退回 blocks）；`sectionsTheme.projectDetail: { layout?, cover? }` 可覆寫這件作品的詳細頁版型／封面（官網作品頁的 `content.detail` 為預設，見 site.pages）；可帶 `slug` 改網址（舊網址不轉址）；改 title 時只有自動產生的 slug 會重算，手動指定的不變；分類四選一：`categoryUuids`／`categories`（多分類）或 `categoryUuid`／`category`（單一；null 取消）；`beforeImageUrl`／`afterImageUrl`（或 `beforeImageAssetId`／`afterImageAssetId`）＝施工前／後圖，官網 imageCompare 區塊可帶 `projectSlug` 自動使用 |
 | `projects.set_category` | write | **批次指派分類**：`{ uuids:[…≤200], categoryUuids | categories | categoryUuid | category, mode?: set|add|remove }`（set＝整組取代、add 加入、remove 拿掉；清除全部＝`set`＋`categoryUuids: []`）。整批分類用這支，不要打 N 次 update |
 | `projects.bulk_update` | write | **批次修改**：`{ items:[{ uuid \| slug, …projects.update 可改的欄位 }]（1–100）, dry_run? }`；先驗證全部，任何一筆有錯整批不寫並列出所有問題；回每筆 `{ uuid, ok, error? }`。大量改 tags／分類／狀態用這支，不要一件一件 update |
 | `projects.reorder` | write | `{ orderedUuids }`，未列入的排後面 |
@@ -136,7 +136,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 ### Page Modules（首頁內容模組）
 | Tool | Scope | 說明 |
 |---|---|---|
-| `modules.catalog` | read | 內建模組目錄：所有可用 `moduleId`、分類（含 `game` 小遊戲）與每個模組的 `data` 欄位 schema；可 `category` / `q` 過濾，`withSchema:false` 省 token |
+| `modules.catalog` | read | 內建模組目錄：所有可用 `moduleId`、分類（含 `game` 小遊戲）與每個模組的 `data` 欄位 schema；陣列欄位附 `itemFields`（每個項目的欄位，例 `logo-wall` 的 `logos` 項目是 `{ imageUrl, name, url }`）；可 `category` / `q` 過濾，`withSchema:false` 省 token |
 | `modules.list` | read | — |
 | `modules.add` | write | `{ folderId, moduleId, data }`；**`data` schema 隨 `moduleId` 動態變化**，先 `modules.catalog` 查。`moduleId` 不存在、`data` 有未知欄位或不合法值都會直接 `VALIDATION_FAILED`（列出可用值）。預設只回新模組；要整份 profile 帶 `returnProfile:true` |
 | `modules.update` | write | 同上驗證；預設只回該模組（`returnProfile:true` 回整份） |

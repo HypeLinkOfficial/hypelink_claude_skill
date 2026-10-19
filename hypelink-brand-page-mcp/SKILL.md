@@ -98,7 +98,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `assets.upload` | write | 把圖片上傳到品牌 R2，回 `{ assetId, url }`。來源二選一：`data`（base64，可含 `data:image/png;base64,` 前綴，≤ 8MB）或 `url`（公開網址，≤ 10MB）。支援 png / jpeg / gif / webp / svg / avif，後端以檔頭驗證。拿到的 `assetId` 給 `links.set_image` / `links.set_background` / `profile.set_image`；`url` 可放進 `design.put`、`modules.*` 任何吃圖片網址的欄位 |
-
+| `assets.upload_video` | write | 影片網址轉存（原檔直存、不轉檔），回 `{ uuid, assetId, url, mimeType, bytes, warnings? }`；`url` 填官網影片欄位（`mediaUrl`／video 區塊 `url`／`videoUrl`）、作品或模組。只收 https 直連網址（不是 YouTube 頁）；格式以檔頭判斷 mp4（建議 H.264）／webm／mov，HEVC 會回 `warnings`。單支上限（原始檔）依品牌擁有者方案：Free 10MB、Creator 30MB、Pro 50MB、Max 以上 100MB，超過回 `VALIDATION_FAILED`。一次呼叫完成（下載逾時 60 秒） |
+| `assets.list_videos` | read | 品牌的影片（後台上傳與轉存的都在內，新到舊），另回目前方案單支上限 `maxBytes` |
 | `assets.upload` 的 `transform` | — | 上傳時處理圖片：`{ crop?: { aspect: 1:1\|4:3\|16:9\|3:4\|9:16, focusX?, focusY? } \| { x,y,width,height }, maxWidth? ≤4096, blur? 0.3–100, brightness? 0.2–3, grayscale?, format?: webp\|jpeg\|png, quality? }`（依 EXIF 轉正）。做模糊背景、裁成橫幅不需要外部圖片服務 |
 | `assets.list` | read | 列出經 MCP 上傳過的檔案：`{ limit?, offset?, mimeType? }` → `assetId／url／mimeType／bytes／width／height／createdAt`（只含此功能上線後的上傳） |
 | `assets.inspect` | read | `{ assetId }`：從 R2 讀回檔案，回 `mimeType / bytes / sha256 / width / height / complete`；`complete:false` 表示被截斷 |

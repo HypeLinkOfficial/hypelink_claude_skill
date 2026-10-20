@@ -298,7 +298,7 @@ LinkedIn  linear-gradient(135deg,#0A66C2 0%,#004182 100%)
 - **線上商店**：先在商城建商品（`mall.*` 或 dashboard），再放 `mall-products` 模組；適合周邊 / 伴手禮 / 電子書。
 - **線上課程**：先建課程/章節/單元，再放 `course-list`。
 - **會員**：`member-recruit` 招募 + 會員等級綁權益 / 會員價。
-- **名單神器**：投廣落地頁（`lead_pages.*`）搭配活動導流。
+- **名單神器**：投廣落地頁（`lead_pages.*`）搭配活動導流（測試中功能，MCP 只開給內部帳號；一般使用者請在 dashboard 建）。
 > 金流敏感操作（結帳 / 退款 / 出金）走 dashboard，見 `hypelink-commerce-mcp`。
 
 ---

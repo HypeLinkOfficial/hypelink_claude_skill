@@ -23,6 +23,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 - **操作對象是「已存在的品牌」**；token 綁定該品牌（呼叫工具**不需**自帶 hypeId）。
 - Server：`POST https://api.hypelink.app/mcp`，`Authorization: Bearer hl_pat_<token>`（HTTP transport）。
 - 這些是 **Pro / 付費方案** 功能；token 需含對應 scope，缺 scope 會回 `SCOPE_DENIED` 且工具從 `tools/list` 隱藏。
+- **名單神器（`lead_pages.*`／`leads.*`）與 PayConnect（`payconnect.*`）目前在側欄「測試」分類，MCP 只開給內部帳號**：其他人建立的 token 在 `tools/list` 看不到、呼叫回 `Unknown tool`（`NOT_FOUND`），與 scope 無關。遇到時告訴使用者「此功能尚在測試、暫不開放 MCP」，改用 dashboard。
 - **金錢敏感操作一律不開放 API**（見下方各節），請引導使用者到 dashboard 完成。
 
 ## Scope
@@ -157,7 +158,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `SCOPE_DENIED` | token 缺對應 scope（或非付費方案）；請使用者重新產生 |
 | `RATE_LIMIT` | 約 60 req/min；等 30 秒重試 |
 | `VALIDATION_FAILED` | 看 message；多為欄位格式（價格 / 庫存 / URL / enum） |
-| `NOT_FOUND` | product/order/course/affiliate id 不存在；先對應 `list` 確認 |
+| `NOT_FOUND` | product/order/course/affiliate id 不存在；先對應 `list` 確認。訊息是 `Unknown tool` 且工具屬名單神器／PayConnect → 測試中功能，非內部帳號不開放 |
 | `CONFIRM_REQUIRED` | delete 未帶 `confirmToken`；先 dry-run 取得 |
 
 ## 與 dashboard 的關係

@@ -165,4 +165,4 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 MCP 的寫入與 dashboard 對應後台共用同一套 entities 與快取失效 pipeline，並寫 `mcp_audit_log`；AI 與後台的修改**立即互相反映**、可在審計頁追溯。
 
-> 完整 tool schema：client 端 `tools/list`（MCP）或 `GET /api/v1/openapi.json`（REST）。官方文件：<https://hypelink.app/docs/ai/tools>
+> 完整 tool schema：client 端 `tools/list`（MCP）。REST（`/api/v1/tools/*`）自 2026-10-21 全平台只開放 `payconnect.*` 查詢，其他工具回 410 `REST_DISABLED`，一律改走 MCP。官方文件：<https://hypelink.app/docs/ai/tools>

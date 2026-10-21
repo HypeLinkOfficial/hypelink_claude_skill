@@ -51,6 +51,10 @@
 
 原站沒有載入畫面就不要加；有的話顏色、文字、節奏照原站。這些都要寫進回報，讓使用者確認。
 
+### 角落固定按鈕、頁尾地圖
+- 原站右下（或左下）有固定的 FB／IG／LINE／電話圓鈕 → `site.update { theme:{ floatingActions:{ enabled:true, items:[{ kind, url }], position, style } } }`（後台「品牌官網 › 小工具」），網址照原站的社群連結。
+- 頁尾嵌了 Google 地圖 → `footer { layout:"contact", mapQuery:"<地址>" }`；版權列文字照原站 → `footer.copyright`（`{year}` 會換成今年）。
+
 ### Framer 站的特性
 - 作品內頁的正文都在「More Works」區之前結束，用它當擷取截止點，避免把其他作品的卡片當正文。
 - 圖片網址帶很多 query（`?scale-down-to=…`），**拿掉 query 再去重**，同一張圖只搬一次。

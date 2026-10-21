@@ -61,6 +61,18 @@
 | 合夥人／律師直式人像（含證照） | `partnerPortraits` |
 | 國稅局、商工登記等常用連結 | `resourceLinks` |
 | 一列式頁尾（logo · 連結 · 版權） | `footer.layout: "minimal"` |
+| 段落交界是波浪／一排半圓（扇貝）／拱形 | 任何區塊加 `sx.edgeBottom`／`edgeTop`（wave／waves／scallop／arch／curve／tilt） |
+| 圖片裁成不規則有機形、拱門、圓、橢圓（＋細金框） | `sx.imgShape`（＋`imgRing`）；列表卡片用 `hlContent.style.imageShape` |
+| 標題左右兩片葉子、標題下一條波浪線 | `sx.headingDeco: leaf`／`squiggle`（或 `headingDecoUrl` 放自己的裝飾圖） |
+| 紙張紋理底、上下兩色底 | `sx.texture: "paper"`、`sx.splitColor`＋`splitAt` |
+| 左標語＋右側色塊上輪播去背商品、後方淡色英文大字 | `spotlightCarousel`（白底照片開 `knockoutWhite`） |
+| 內頁頂端「About／關於我們」大字＋右側有機形圖 | `ornamentHeader`＋`sx.edgeBottom:"scallop"` |
+| 一張超寬圓角照片輪播，箭頭在下緣 | `photoSlider` |
+| 圓形徽章（麻布紋圓環裡放 service＋標題＋線稿） | `badgeCards` |
+| 每間店一張卡：地圖＋地址／時間／電話＋社群 | `storeLocator` |
+| 商品型錄左側直排分類 | `hlContent { filterTabs:true, filterLayout:"sidebar" }` |
+| 右下角固定的 FB／IG／LINE 圓鈕 | `theme.floatingActions`（小工具） |
+| 頁尾嵌地圖、自訂版權字 | `footer { layout:"contact", mapQuery, copyright }` |
 
 ### 3. 決定全站外觀
 - **Menu 與載入畫面**：Menu 是否固定、是否透明疊在首屏、往下捲會不會收起、桌機是否只有漢堡鈕；進站時有沒有載入畫面、長什麼樣、怎麼離場。判斷方法與對應設定見 `migrate-existing-site.md` §1「Menu 與載入畫面」。
@@ -105,3 +117,26 @@
 - **申請試用**：`form`（送出進詢價收件匣＋CRM）
 
 （這個示範範本後來沒有收進範本庫，五個區塊仍可在「SaaS 產品敘事」分類使用。）
+
+---
+
+## 完整範例：法式甜點店官網 → 「Sucré 糖霜甜點」範本（`hl-sucre`）
+
+參考站：Duda 架的甜點品牌站。粉膚色底、金棕醒目色、明體＋黑體，**所有段落交界都是柔邊**（波浪、扇貝），圖片多裁成有機形或橢圓。Menu 是白色圓角膠囊、不固定；沒有進站載入畫面；右下角固定 FB／IG 圓鈕。
+改寫：品牌、店名、地址、文案全部原創；照片用 Pexels（可商用）＋自繪線稿插圖（來源記在 `Assets/GetLayers/templates/hl-sucre/CREDITS.md`）。
+
+| 參考站的段落 | 區塊／設定 |
+|---|---|
+| Hero：左標語＋細框鈕，右側粉色色塊上輪播去背甜點，後方白色襯線大字、星芒 | `spotlightCarousel`（`knockoutWhite`）＋`sx.edgeBottom:"wave"` |
+| EVENT 最新活動：四張橢圓金框圖卡、置中明體標題 | `hlContent { source:"articles", eyebrow:"EVENT", style:{ imageShape:"oval", imageRing, textAlign:"center", titleFont:"serif", titleAccent:true, columns:4 } }`＋`sx.headingDeco:"leaf"` |
+| STORE 店內環境：紙紋底＋下半粉色，一張圓角大圖輪播 | `photoSlider`＋`sx { texture:"paper", splitColor, splitAt:48, headingDeco:"leaf" }` |
+| TEAM：不規則形照片＋右文 | `splitFeature`＋`sx.imgShape:"blob1"` |
+| 立即預約：滿版甜點照上一張霧面卡 | `glassPanel`（不放 `imageUrl` 就只排文字、置中）＋背景圖＋`sx.edgeTop:"wave"` |
+| 頁尾：logo＋聯絡＋社群＋地圖＋版權列 | `footer { layout:"contact", mapQuery, copyright, bgColor }` |
+| 內頁頂端 About／Dessert／Locations 大字＋扇貝下緣 | `ornamentHeader`＋`sx.edgeBottom:"scallop"` |
+| 關於：五個圓形服務徽章 | `badgeCards`（3＋2） |
+| 甜品專區：左側分類欄＋圓形商品圖 | `hlContent { source:"projects", filterTabs:true, filterLayout:"sidebar", sidebarImageUrl, style:{ imageShape:"circle", … } }` |
+| 門市據點：每間店地圖卡 | `storeLocator` |
+| 右下浮動社群鈕 | `theme.floatingActions` |
+
+參考站本身的問題順手修掉：Menu 連結太多時在 HypeLink 會自動收成漢堡；甜點牆用作品專案資料（不寫死）、活動用專欄文章，之後新增不用改頁面。

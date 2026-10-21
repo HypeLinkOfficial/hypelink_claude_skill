@@ -141,7 +141,13 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
   - `imgHover: zoom | gray | lift`：區塊內所有圖片的滑過效果；攝影／藝廊用 `gray`（黑白轉彩色），商品格用 `zoom`。
   - `loop: float | breathe | sway`：圖片循環動態，只給去背物件或裝飾圖，一頁最多一處。
 - 進場種類（`section.entrance` 或 `theme.animation.defaultEntrance`）另有 `clip-up`／`clip-left`（布幕揭開，海報感、藝術祭）、`rise`（長距離緩升，高端）、`tilt`（3D 立起）、`drop`。
+- **造型邊緣**（2026-10-21）：`edgeTop`／`edgeBottom: wave | waves | scallop | arch | curve | tilt`＋`edgeSize`（12–160px，預設 56）。凹下去的地方露出**頁面底色**；相鄰區塊底色不同時加 `edgeOverlap: true`（疊進相鄰區塊、露出它的底色，相鄰區塊內距要大於邊緣高度）；`edgeFlip` 左右鏡像。甜點／花藝常用：hero 下緣 `wave`、內頁標頭下緣 `scallop`（一排半圓）。內距會自動多留邊緣高度，內容不會被切到。和 `edgeFade` 二選一（有造型邊緣時 edgeFade 不作用）。
+- **圖片形狀**：`imgShape: circle | oval | arch | blob1 | blob2 | blob3`（區塊內**所有** `img` 都套用，挑主圖區塊用：splitFeature、image、imageTextOverlap）；圓／橢圓／拱門可加細框線 `imgRing:"#C9A27E"`＋`imgRingWidth`（1–4）。
+- **標題裝飾**：`headingDeco: leaf`（h2 兩側葉飾）／`squiggle`（下方波浪線）／`line`（下方短線）／`sparkle`（兩側星芒），顏色＝醒目色；自訂兩側圖用 `headingDecoUrl`（https 的 SVG／PNG）。
+- **手工紙質感**：`texture: "paper"`（multiply，搭淺色底；`textureOpacity` 0.2–0.35）。
+- **上下兩色底**：`splitColor`＋`splitAt`（10–90%）＋`splitFrom: top|bottom`——例：上半紙紋、下半粉色，中間壓一張大圖輪播。
 - 真的不夠再用 `customCss`（只作用在該區塊，`&` 代表區塊本身）。
+- 列舉值以 `site.blocks.catalog` 的 `enums.page["section.sx.*"]` 為準（`section.sx.edgeTop`／`imgShape`／`headingDeco`／`texture`）。
 原則：`sx` 是微調，不是重做版面；同一頁的圓角、陰影、質感要一致。
 
 ## 7.6 Menu 與第一段的關係
@@ -165,6 +171,19 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - **頁尾**：`footer.layout:"monolith"`（超大底線信箱＋右半巨型品牌字＋黑色版權列，`headline` 是信箱上方小字）／`"hatch"`（斜紋面板＋`footer.imageUrl` 橫幅、編號導覽、`giantWord` 跑馬）。品牌 email 要先填在 contact，信箱才會出現。
 - **區塊**：`objectHero { scene:"smoke", sceneColor }` WebGL 煙霧（滑鼠拖出煙流）；黑底 3D 渲染圖用 `objectBlend:"screen"` 免去背。`windowWorks { source:"projects", category, limit, filterChips:true }` 直接讀作品專案＋分類篩選籤。
 - 這些一個站挑 2–3 個就好；全開會吵，也拖慢手機。
+
+## 7.9 柔和手作（甜點、烘焙、花藝、手作品牌）
+範本 `hl-sucre`（Sucré 糖霜甜點）是完整示範：粉膚色＋金棕、柔邊造型。拆解自法式甜點店官網，區塊都是通用的：
+- **`spotlightCarousel`**（商品聚焦 Hero）：左標語＋細框膠囊鈕（`buttonStyle: outline|solid`），右側有機形色塊（`blobColor`）上輪播商品，`slides[{ imageUrl, watermark, caption, url }]`，`watermark` 是商品後方的白色襯線大字（換行分行，例 `Berry\nGarden tart`）。**沒有去背 PNG 時開 `knockoutWhite:true`**：白底／淺灰底商品照會自動去白融進色塊。`ornament`（光圈＋星芒，預設開）、`autoplay`／`interval`。配 `sx.edgeBottom:"wave"`。
+- **`ornamentHeader`**（內頁標頭）：`word`（英文大字 About／Dessert）＋`subtitle`（中文）＋`icon: leaf|sparkle|none`＋右側 `imageUrl`（`imageShape: blob|circle|arch`）。配 `sx: { edgeBottom:"scallop", edgeSize:34 }`。
+- **`photoSlider`**（單張圓角輪播）：`images[{ url, caption }]`、`ratio: wide|cinema|classic`、`radius`，圓形箭頭壓在下緣中央；店內環境、場地照。
+- **`badgeCards`**（圓形徽章卡）：`items[{ label:"service", title, imageUrl（線稿插圖）, text }]`、`ringStyle: linen|line|dashed`、`ringColor`；五個會排成 3＋2 置中。
+- **`storeLocator`**（門市據點）：`stores[{ name, address, hours, phone, mapQuery, lineUrl, instagramUrl, facebookUrl }]`、`layout: stack|tabs`、`cardColor`、`decoImageUrl`（卡片右上角插圖）。每間店一張卡：左 Google 地圖、右店名膠囊與資訊、社群圓鈕。
+- **`hlContent` 圖形卡片**：`style.imageShape: circle|oval|arch`＋`imageRing`（金色細框）、`textAlign:"center"`、`titleFont:"serif"`、`titleAccent:true`、`columns: 2|3|4`；區塊加 `eyebrow`（例 EVENT），置中時標題列也置中。
+- **左側分類欄**：`hlContent { filterTabs:true, filterLayout:"sidebar", sidebarImageUrl }`——桌機左側直排分類（頂端小插圖、分類間短線、目前分類醒目色），手機自動改成上方橫排。商品／甜點／作品型錄用。
+- **浮動快捷按鈕（小工具）**：`site.update { theme:{ floatingActions:{ enabled:true, items:[{ kind:"facebook", url }, { kind:"instagram", url }, { kind:"line", url }], position:"right", style:"outline" } } }`——全站右下（或左下）固定的社群／聯絡圓鈕，自動疊在「回到頂端」上方；`kind` 還有 threads／youtube／tiktok／whatsapp／phone（填號碼）／email（填信箱）／map／custom（＋`iconUrl`）；`collapsed:true` 收成一顆、`mobile:false` 手機不顯示、`hideOn:[slug]`。後台在「品牌官網 › 小工具」。
+- **頁尾地圖與版權**：`footer { layout:"contact", mapQuery:"地址或店名", copyright:"Copyright © {year} 品牌. All rights reserved." }`（地圖只在 contact 版型右欄；`{year}` 自動換今年）。
+- 頁尾底色要夠深（白字在淺棕底上會看不到），`bgColor` 用 `#7A5A43` 這類深棕。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

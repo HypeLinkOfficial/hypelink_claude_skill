@@ -68,7 +68,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `notes` | 注意事項 | `notes` | string | 純文字 |
 | `album` | 活動相簿 | `album` | object | `images[{ url*, caption? }]` |
 | `venue` | 場地與交通 | `venue` | object | `address`, `mapEmbedUrl`, `directions` |
-| `contact` | 聯絡方式 | **`contactChannels`** | array | `type`*(line\|telegram\|discord\|email\|phone\|other), `value`*, `label` |
+| `contact` | 聯絡方式 | **`contactChannels`** | array | `type`*(line＝官方 LINE ID\|line_personal＝個人 LINE ID（點擊複製）\|link＝一般連結\|telegram\|discord\|email\|phone\|other), `value`*, `label` |
 | `offlinePayment` | 線下付款 | `offlinePayment` | object | `methods[cash\|linepay\|bank_transfer]`, `bankName`, `accountNumber`, `accountHolder`, `linePayId`, `instructions` |
 | `quickLinks` | 快速連結 | `quickLinks` | object | `items[{ id, enabled, label, url }]` |
 | `imageWall` | 圖片連結牆 | `imageWall` | object | `columns`(2–6), `items[{ id, bgType: image\|gradient, imageUrl?, gradient?{from,to,angle?}, url? }]` |

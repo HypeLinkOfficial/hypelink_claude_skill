@@ -40,7 +40,7 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 
 | Tool | Scope | 說明 |
 |---|---|---|
-| `crm.members.list` | read | 分頁列表；`q` 關鍵字、`status`、`kind`(person/company)、`careLevel`、`stage`、`category`、`tag`、`followUp`(overdue/today/due/week/scheduled/none)、`fanLevel`(potential/light/loyal/super/ultra/none)、`fanMin`(0~100)、`sort`（含 `fan_desc` 粉絲指數高→低）；每筆帶 `fanScore`／`fanLevel` |
+| `crm.members.list` | read | 分頁列表；`q` 關鍵字、`status`、`kind`(person/company)、`careLevel`、`stage`、`category`、`tag`、`followUp`(overdue/today/due/week/scheduled/none)、`fanLevel`(normal/regular/super/ultra/none)、`fanMin`(0~100)、`sort`（含 `fan_desc` 鐵粉指數高→低）；每筆帶 `fanScore`／`fanLevel` |
 | `crm.members.get` | read | `{ memberUuid }` 完整資料：標籤、分類、自訂欄位、備註、互動紀錄、活動時間軸、購買紀錄、關係人 |
 | `crm.members.create` | write | `{ name, email?, phone?, lineId?, instagram?, kind?, description?, preferences?, birthday?, careLevel?, salesStage?, tags?, categories?, customFields?, nextFollowUpAt?, nextFollowUpReason? }` |
 | `crm.members.update` | write | `{ memberUuid, ...同上, status? }` 部分更新；`tags` / `categories` 整組取代；`salesStage: null` 清除；`customFields` 只更新給定 key |
@@ -77,8 +77,8 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 | `{ type:'sales_stage', stages:['quoting','won'] }` | 銷售階段 |
 | `{ type:'care_level', levels:['high'] }` | 關心程度 |
 | `{ type:'category', categories:['老客戶'] }` | CRM 分類 |
-| `{ type:'fan_score', op:'>=', value:60 }` | 粉絲指數 0~100（尚未計算的客戶不符合；條件用到粉絲指數時會先自動補算過期分數） |
-| `{ type:'fan_level', levels:['super','ultra'] }` | 粉絲等級：potential／light／loyal／super（鐵粉）／ultra（超級鐵粉） |
+| `{ type:'fan_score', op:'>=', value:60 }` | 鐵粉指數 0~100（尚未計算的客戶不符合；條件用到鐵粉指數時會先自動補算過期分數） |
+| `{ type:'fan_level', levels:['super','ultra'] }` | 粉絲等級：normal（普通）／regular（常客）／super（鐵粉）／ultra（超級鐵粉） |
 | `{ type:'days_since_last_purchase', op:'>=', days:180, includeNeverPurchased? }` | **沉睡喚醒**：多久沒再買 |
 | `{ type:'days_since_last_interaction', op:'>=', days:90, includeNeverInteracted? }` | 多久沒互動 |
 | `{ type:'purchase_item_like', keyword:'窗簾', withinDays? }` | 買過什麼（品名模糊比對） |
@@ -116,16 +116,16 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 | `crm.goals.get` | read | `{ month? }`（YYYY-MM，省略＝本月）目標／實際／達成率；沒設定過回 `null` |
 | `crm.goals.set` | write | `{ month, targetAmount, actualAmount? }`；`actualAmount` 省略時不動既有值 |
 
-## 七、粉絲指數（活動 × 商城交叉分析）
+## 七、鐵粉指數（活動 × 商城交叉分析）
 
-粉絲指數 0~100＝活動參與 25＋消費貢獻 25＋回購忠誠 20＋近期活躍 15＋交叉黏著 15（參與與消費以品牌平均的 2 倍為滿分）。
-等級：`potential` 潛在粉絲 <20、`light` 輕度 20+、`loyal` 忠實 40+、`super` 鐵粉 60+、`ultra` 超級鐵粉 80+。
+鐵粉指數 0~100＝活動參與 25＋消費貢獻 25＋回購忠誠 20＋近期活躍 15＋交叉黏著 15（參與與消費以品牌平均的 2 倍為滿分）。
+等級：`normal` 普通 <30、`regular` 常客 30+、`super` 鐵粉 60+、`ultra` 超級鐵粉 80+（2026-10-24 由五級鐵粉指數改為四級鐵粉指數；舊鍵 potential/light→normal、loyal→regular 仍接受）。
 客戶 ↔ 紀錄的對應：活動報名比 email／電話末 9 碼；商城訂單比 email／平台帳號。只算已付款訂單、已開始的活動。
 
 | Tool | Scope | 說明 |
 |---|---|---|
-| `crm.members.analysis` | read | `{ memberUuid }` 這位客戶參加過的活動（次數、出席）、買過的商城商品與訂單、活動後 30 天內購買率、活動帶動消費、活動到下單天數、偏好類別、近 12 個月趨勢、與品牌平均比較，以及粉絲指數明細與洞察建議 |
-| `crm.fan_scores.recompute` | write | `{ dry_run? }` 立即重算整個品牌的粉絲指數快取（平常每晚自動重算；`crm.members.list` 用粉絲指數排序／篩選時若超過 6 小時未更新也會自動重算） |
+| `crm.members.analysis` | read | `{ memberUuid }` 這位客戶參加過的活動（次數、出席）、買過的商城商品與訂單、活動後 30 天內購買率、活動帶動消費、活動到下單天數、偏好類別、近 12 個月趨勢、與品牌平均比較，以及鐵粉指數明細與洞察建議 |
+| `crm.fan_scores.recompute` | write | `{ dry_run? }` 立即重算整個品牌的鐵粉指數快取（平常每晚自動重算；`crm.members.list` 用鐵粉指數排序／篩選時若超過 6 小時未更新也會自動重算） |
 
 ## 八、名單匣 → 客戶
 

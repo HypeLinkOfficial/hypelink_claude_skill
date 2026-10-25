@@ -81,6 +81,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `mall.orders.update_fulfillment` | write | 更新出貨狀態（可帶物流單號）；**買家會收到通知信** |
 
 - **結帳、金流與退款不開放於 API**（金錢敏感）—— 請走 dashboard「收款管理」。
+- 商品文字欄位分工：`description`＝**簡介**（1–3 句純文字摘要，「商品介紹」區塊開頭的導言，不要放 HTML）；`intro`＝**詳細介紹**（HTML 富文字，接在簡介後）。description 帶 HTML 時工具會回 `warnings` 提醒改放 intro。
 - `mall.orders.update_fulfillment` 會**對外寄通知信**：先 `dry_run` 摘要、使用者確認後再送。
 
 ---

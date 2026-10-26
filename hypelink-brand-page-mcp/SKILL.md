@@ -76,7 +76,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `projects.list` | read | 含草稿；可 `status`／`categoryUuid`（`"none"`＝未分類）／`q`（標題或 slug）過濾。**分頁**：`limit`（預設 50、最多 200）＋`offset`，回 `{ items, total, offset, limit, nextOffset }`（`nextOffset: null`＝最後一頁）。預設精簡欄位（uuid／title／slug／status／coverUrl／summary／日期／客戶／分類／區塊數）；`fields:"full"` 多標籤、團隊、前後對比圖等。全文與 sections 用 `projects.get` |
 | `projects.get` | read | `{ uuid }` 完整內容（description、blocks、頁面編輯器 `sections`／`sectionsTheme`） |
-| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], tags?, category? | categoryUuid?, sections?, sectionsTheme?, blocks?, sortOrder?, slug? }`；預設 draft。**`slug`**＝網址（搬家照原站填，例 `brand-film`；轉小寫、空白轉 -、可含中文；撞名回 `VALIDATION_FAILED` 不自動加 -2），不帶由標題自動產生（中文標題會變 `project-xxxx`）。**作品內容建議用 `sections`**（與官網 builder 頁同一套區塊，`site.blocks.catalog` 可查；有 sections 時公開頁忽略 blocks）；`blocks` 為舊版線性區塊 |
+| `projects.create` | write | `{ title, summary?, description?, coverUrl? | coverAssetId?, status?: draft|published, projectDate?, client?, team?: [{role,name}], teamGroups?: [{name,members:[{role,name,url?,icon?}]}], carousel?: {autoplay?,intervalSec?}, tags?, category? | categoryUuid?, sections?, sectionsTheme?, blocks?, sortOrder?, slug? }`；預設 draft。**`slug`**＝網址（搬家照原站填，例 `brand-film`；轉小寫、空白轉 -、可含中文；撞名回 `VALIDATION_FAILED` 不自動加 -2），不帶由標題自動產生（中文標題會變 `project-xxxx`）。**作品內容建議用 `sections`**（與官網 builder 頁同一套區塊，`site.blocks.catalog` 可查；有 sections 時公開頁忽略 blocks）；`blocks` 為舊版線性區塊 |
 | `projects.update` | write | 部分更新；`sections`／`blocks` 為整組取代（sections 傳 null 清空，公開頁退回 blocks）；`sectionsTheme.projectDetail: { layout?, cover? }` 可覆寫這件作品的詳細頁版型／封面（官網作品頁的 `content.detail` 為預設，見 site.pages）；可帶 `slug` 改網址（舊網址不轉址）；改 title 時只有自動產生的 slug 會重算，手動指定的不變；分類四選一：`categoryUuids`／`categories`（多分類）或 `categoryUuid`／`category`（單一；null 取消）；`beforeImageUrl`／`afterImageUrl`（或 `beforeImageAssetId`／`afterImageAssetId`）＝施工前／後圖，官網 imageCompare 區塊可帶 `projectSlug` 自動使用 |
 | `projects.set_category` | write | **批次指派分類**：`{ uuids:[…≤200], categoryUuids | categories | categoryUuid | category, mode?: set|add|remove }`（set＝整組取代、add 加入、remove 拿掉；清除全部＝`set`＋`categoryUuids: []`）。整批分類用這支，不要打 N 次 update |
 | `projects.bulk_update` | write | **批次修改**：`{ items:[{ uuid \| slug, …projects.update 可改的欄位 }]（1–100）, dry_run? }`；先驗證全部，任何一筆有錯整批不寫並列出所有問題；回每筆 `{ uuid, ok, error? }`。大量改 tags／分類／狀態用這支，不要一件一件 update |
@@ -93,19 +93,35 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > **分類 vs 標籤**：`category` 是品牌事先定義的固定清單（一件作品一個分類），公開頁 `/@id/projects` 上方有分類篩選列（`?category=slug`）；`tags` 是自由關鍵字，只顯示在卡片上。幫使用者整理作品集時先建分類（`projects.categories.create`）再指派，或在 `projects.create` 直接給 `category` 名稱自動建立。
 > 展示：分頁放 `modules.add { slug:'projects-list' }`（作品專案（自動同步））即可自動列出已發布作品；`data.category` 填分類 slug 可只列該分類。不要再用手動的 portfolio-gallery / album-wall 重複貼同一批圖。
 > 批次匯入作品的流程：每件先 `assets.upload` 取 assetId（封面與內容圖），再 `projects.create` 帶 `coverAssetId` 與 `blocks[].assetId`，最後 `projects.reorder` 排序。
+> **多團隊（2026-10-26）**：一件作品可掛多個團隊（例：設計團隊／開發團隊各自成員）——用 `teamGroups: [{ name, members: [{role,name,url?,icon?}] }]`（≤10 組，整組取代；寫入時 `team` 會自動同步為成員攤平，舊消費端不壞）。單一團隊沿用 `team` 即可。
+> **作品輪播牆（2026-10-26）**：快速模式的媒體清單在公開詳細頁以輪播牆呈現——`carousel: { autoplay?: boolean（預設 true）, intervalSec?: 2–30（預設 5） }`；瀏覽者手動切換後自動輪播即停（重新整理才恢復）。
 
 ### Assets（圖片上傳）
 | Tool | Scope | 說明 |
 |---|---|---|
-| `assets.upload` | write | 把圖片上傳到品牌 R2，回 `{ assetId, url }`。來源二選一：`data`（base64，可含 `data:image/png;base64,` 前綴，≤ 8MB）或 `url`（公開網址，≤ 10MB）。支援 png / jpeg / gif / webp / svg / avif，後端以檔頭驗證。拿到的 `assetId` 給 `links.set_image` / `links.set_background` / `profile.set_image`；`url` 可放進 `design.put`、`modules.*` 任何吃圖片網址的欄位 |
+| `assets.upload` | write | 把圖片上傳到品牌 R2，回 `{ assetId, url }`。來源二選一：`data`（base64，可含 `data:image/png;base64,` 前綴，**≤ 2MB**；大檔改 `url` 或直傳）或 `url`（公開網址，≤ 10MB）。支援 png / jpeg / gif / webp / svg / avif，後端以檔頭驗證。拿到的 `assetId` 給 `links.set_image` / `links.set_background` / `profile.set_image`；`url` 可放進 `design.put`、`modules.*` 任何吃圖片網址的欄位 |
 | `assets.upload_video` | write | 影片網址轉存（原檔直存、不轉檔），回 `{ uuid, assetId, url, mimeType, bytes, warnings? }`；`url` 填官網影片欄位（`mediaUrl`／video 區塊 `url`／`videoUrl`）、作品或模組。只收 https 直連網址（不是 YouTube 頁）；格式以檔頭判斷 mp4（建議 H.264）／webm／mov，HEVC 會回 `warnings`。單支上限（原始檔）依品牌擁有者方案：Free 10MB、Creator 30MB、Pro 50MB、Max 以上 100MB，超過回 `VALIDATION_FAILED`。一次呼叫完成（下載逾時 60 秒） |
+| `assets.create_upload_url` | write | **直傳第 1 步**（給能發 HTTP 請求的 agent：Claude Code／腳本／n8n）：`{ kind: image\|video, mimeType, bytes, fileName? }` → `{ uploadUrl, key, method:'PUT', headers, maxBytes, expiresAt }`。拿到後把檔案原始 bytes 直接 `PUT` 到 `uploadUrl`（1 小時內有效，**Content-Type 必須與 mimeType 相同**），大檔不經 base64、幾十 MB 也只要幾秒。image ≤16MB；video 上限依方案（同 `assets.upload_video`） |
+| `assets.confirm_upload` | write | **直傳第 2 步**：`{ kind, key, fileName?, sha256?, expectedBytes? }`。後端讀回 R2 實際檔案驗證（檔頭格式／大小／圖片完整性與 sha256），合格才入庫：image 回 `{ assetId, url, bytes, sha256, width, height }`（用法同 `assets.upload`）；video 回 `{ uuid, url, mimeType, bytes, warnings? }`（用法同 `assets.upload_video`）。不合格會刪檔並回 `VALIDATION_FAILED`；`sha256`／`expectedBytes` 僅 image 支援、強烈建議帶 |
 | `assets.list_videos` | read | 品牌的影片（後台上傳與轉存的都在內，新到舊），另回目前方案單支上限 `maxBytes` |
 | `assets.upload` 的 `transform` | — | 上傳時處理圖片：`{ crop?: { aspect: 1:1\|4:3\|16:9\|3:4\|9:16, focusX?, focusY? } \| { x,y,width,height }, maxWidth? ≤4096, blur? 0.3–100, brightness? 0.2–3, grayscale?, format?: webp\|jpeg\|png, quality? }`（依 EXIF 轉正）。做模糊背景、裁成橫幅不需要外部圖片服務 |
 | `assets.list` | read | 列出經 MCP 上傳過的檔案：`{ limit?, offset?, mimeType? }` → `assetId／url／mimeType／bytes／width／height／createdAt`（只含此功能上線後的上傳） |
 | `assets.inspect` | read | `{ assetId }`：從 R2 讀回檔案，回 `mimeType / bytes / sha256 / width / height / complete`；`complete:false` 表示被截斷 |
 
 > 使用者直接在對話貼圖片時：把圖片轉 base64 丟給 `assets.upload` 即可，不需要先找公開網址。
-> **base64 傳輸完整性**：自己產生的圖先算 `sha256` 與 bytes，上傳時帶 `expectedSha256` / `expectedBytes`，後端不符會拒絕儲存（也會擋掉缺結尾標記的截斷檔）。回傳的 `sha256 / width / height / complete` 可直接比對，**不需要**把檔案下載回來驗證；已上傳的舊 asset 用 `assets.inspect` 回頭檢查。大圖（>1MB）建議先縮到 1600px 內或改用公開 URL 路徑，base64 字串越長越容易在複製時斷掉。
+> **base64 傳輸完整性**：自己產生的圖先算 `sha256` 與 bytes，上傳時帶 `expectedSha256` / `expectedBytes`，後端不符會拒絕儲存（也會擋掉缺結尾標記的截斷檔）。回傳的 `sha256 / width / height / complete` 可直接比對，**不需要**把檔案下載回來驗證；已上傳的舊 asset 用 `assets.inspect` 回頭檢查。**base64 上限 2MB**（超過直接回 `VALIDATION_FAILED`）：base64 是把檔案當文字輸出，越大越慢也越容易截斷——大圖先縮到 1600px 內，或改走 `url` 模式／`assets.create_upload_url` 直傳。
+
+> **直傳（presigned PUT，推薦給有執行能力的 agent）**：在 Claude Code、自動化腳本、n8n 等能發 HTTP 請求的環境，大檔一律走 `assets.create_upload_url` → `PUT` → `assets.confirm_upload`，不要用 base64。範例：
+>
+> ```bash
+> # 1. 先算好大小與 sha256
+> BYTES=$(wc -c < photo.png); SHA=$(shasum -a 256 photo.png | cut -d' ' -f1)
+> # 2. assets.create_upload_url { kind:'image', mimeType:'image/png', bytes:$BYTES } → uploadUrl, key
+> curl -sS -X PUT -H 'Content-Type: image/png' --data-binary @photo.png "$UPLOAD_URL"
+> # 3. assets.confirm_upload { kind:'image', key, sha256:$SHA, expectedBytes:$BYTES } → assetId, url
+> ```
+>
+> 影片同理（`kind:'video'`、mimeType 為 video/mp4|webm|quicktime；confirm 不收 sha256）。PUT 的 Content-Type 一定要和申請時相同，否則簽章驗證會失敗；`uploadUrl` 一小時過期，過期重新申請即可，未 confirm 的檔案不會進素材庫。
 
 ### Folders（分頁 / 分類）
 | Tool | Scope | 主要參數 |

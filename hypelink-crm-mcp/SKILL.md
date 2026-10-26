@@ -131,7 +131,7 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 
 | Tool | Scope | 說明 |
 |---|---|---|
-| `leads.convert_to_member` | `crm:write` | `{ leadUuid }` 以 email 比對建立或連結客戶，回 `{ memberUuid, created }`；名單需有 email（名單本身用 `leads.list` 查，見 commerce skill）。**名單神器在「測試」分類，`leads.*` 只開給內部帳號**，其他 token 會回 `Unknown tool` |
+| `leads.convert_to_member` | `crm:write` | `{ leadUuid }` 以 email 比對建立或連結客戶，回 `{ memberUuid, created }`；名單需有 email（名單本身用 `leads.list` 查，見 commerce skill）。本工具屬 CRM 正式工具、不受測試分類限制；但 `leads.list` 等其餘 `leads.*` 仍在「測試」分類只開給內部帳號，其他 token 會回 `Unknown tool` |
 
 ## 推薦工作流程
 

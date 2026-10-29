@@ -46,7 +46,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `testimonial` | `{ title, items:[{quote,author,role,avatarUrl,rating}] }` | 客戶好評；rating 0–5 |
 | `countdown` | `{ title, subtitle, targetAt, ctaText, ctaUrl, accentColor, endedMessage }` | **targetAt 必須是未來時間**（ISO，如 `2026-12-15T20:00:00+08:00`），否則顯示已結束 |
 | `member-recruit` | `{ title, description, perks, ctaText }` | `perks` 每行一項權益 |
-| `tour-schedule` | `{ title, showsText, layout, hidePast, accentColor }` | `showsText` 每行：`日期 \| 城市 \| 場地 \| 購票連結 \| 狀態(onsale/soldout/upcoming)` |
+| `tour-schedule` | `{ title, shows[], layout, sortOrder, visibility, accentColor }` | `shows[]`＝`{date:"YYYY-MM-DD HH:mm", name, city, venue, url, imageUrl, status(onsale/soldout/upcoming)}`（舊 `showsText` 每行 `日期 \| 城市 \| 場地 \| 購票連結 \| 狀態` 仍相容）；已結束場次自動標「已結束」；`sortOrder`=upcoming_first(預設)/date_asc/date_desc/manual；`visibility`=all/upcoming/ended；`hidePast` 已停用 |
 | `album-wall` | `{ title, albumsText, layout, spinOnHover, accentColor }` | `albumsText` 每行：`標題 \| 封面URL \| 連結URL`（需公開圖片 URL） |
 | `image-carousel` | `{ title, images, captions, autoplay, interval, size, aspectRatio, fit }` | `images` / `captions` 用換行分隔；需公開圖片 URL |
 | `store-map` | `{ title, address, hours, mapUrl }` | `mapUrl` 留空會**用 address 自動產生 Google Map**，最省事 |

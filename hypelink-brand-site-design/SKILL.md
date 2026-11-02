@@ -28,6 +28,7 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - `references/templates.md` — 92 個範本：產業、深淺、醒目色、用途（自動產生）
 - `references/decompose-reference-site.md` — 把參考網站拆成區塊與範本的流程＋完整範例
 - `references/blueprints.md` — 產業藍圖、內容頁設計與頁尾的搭配表
+- `references/design-language.md` — 40 個參考站歸納的 12 條佈局語言、眉標／按鈕／標題／材質對照表、Menu 八種模式、動態與游標原則、40 站索引
 - `references/migrate-existing-site.md` — 把客戶現有網站搬進來：讀原站的工具與備案、Framer 特性、圖片轉存、套範本陷阱、AI 補寫要標註
 
 ---
@@ -58,6 +59,8 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 | **深淺（tone）** | 淺／深／深淺交替 | 每頁 `theme.mode`、`footer.scheme`、區塊 `bg.textLight` |
 | **一個醒目色** | 只有一個（SaaS 可主色＋副色兩個），其他全中性 | `theme.primary`（＋`theme.accent` 副色）、按鈕、眉標、強調字 |
 | **材質語言** | 玻璃（深色半透明板）／紙（米白、細線、襯線字）／攝影（滿版照片）／場景（全站 3D／粒子背景透出）／產品 UI（白卡陰影、柔和漸層） | 區塊底 `bg` 用哪一種、內容頁設計、頁尾版型 |
+
+加兩個小決定（40 站拆解，見 `references/design-language.md`）：**眉標格式**（`sx.eyebrowStyle: dot|bracket|square|slash|mono`，全站同一種）與**按鈕形狀**（`sx.btnStyle: pill|square|outline|underline`，作品集用 underline、企業用 square、SaaS 用 pill）。標題常用「後半降灰」（`sx.titleTone:"muted-tail"`，標題寫 `前半 | 後半`）。
 
 三者一致就會「像一套」。最常見的失敗：深色 hero 接一段米白紙感、再接一段霓虹玻璃 ── 三種材質混用，看起來像拼貼。
 
@@ -146,6 +149,8 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - **標題裝飾**：`headingDeco: leaf`（h2 兩側葉飾）／`squiggle`（下方波浪線）／`line`（下方短線）／`sparkle`（兩側星芒），顏色＝醒目色；自訂兩側圖用 `headingDecoUrl`（https 的 SVG／PNG）。
 - **手工紙質感**：`texture: "paper"`（multiply，搭淺色底；`textureOpacity` 0.2–0.35）。
 - **上下兩色底**：`splitColor`＋`splitAt`（10–90%）＋`splitFrom: top|bottom`——例：上半紙紋、下半粉色，中間壓一張大圖輪播。
+- **文字（2026-10-29）**：`eyebrowStyle`（眉標符號＋等寬字）、`titleTone: muted-tail|accent-word`（雙色標題）、`titleFx: rise|words|blur|scramble|typewriter|shiny`（標題進場，減少動態時直接顯示）、`displayFont`（本段標題字體）、`cursorLabel`（滑過本段時跟隨游標的字，需 `effects.cursor:"follow"`）。
+- **卡片與互動**：`hoverFx: lift|zoom|glare|tilt|spotlight|glow-border|dim-others`（區塊內卡片／圖片連結）、`btnStyle`、`cardShadow`／`cardRadius`／`cardBorder`＋`cardBorderColor`、`gap`（欄間距）、`padY`（上下內距一次設）。
 - 真的不夠再用 `customCss`（只作用在該區塊，`&` 代表區塊本身）。
 - 列舉值以 `site.blocks.catalog` 的 `enums.page["section.sx.*"]` 為準（`section.sx.edgeTop`／`imgShape`／`headingDeco`／`texture`）。
 原則：`sx` 是微調，不是重做版面；同一頁的圓角、陰影、質感要一致。
@@ -184,6 +189,35 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 - **浮動快捷按鈕（小工具）**：`site.update { theme:{ floatingActions:{ enabled:true, items:[{ kind:"facebook", url }, { kind:"instagram", url }, { kind:"line", url }], position:"right", style:"outline" } } }`——全站右下（或左下）固定的社群／聯絡圓鈕，自動疊在「回到頂端」上方；`kind` 還有 threads／youtube／tiktok／whatsapp／phone（填號碼）／email（填信箱）／map／custom（＋`iconUrl`）；`collapsed:true` 收成一顆、`mobile:false` 手機不顯示、`hideOn:[slug]`。後台在「品牌官網 › 小工具」。
 - **頁尾地圖與版權**：`footer { layout:"contact", mapQuery:"地址或店名", copyright:"Copyright © {year} 品牌. All rights reserved." }`（地圖只在 contact 版型右欄；`{year}` 自動換今年）。
 - 頁尾底色要夠深（白字在淺棕底上會看不到），`bgColor` 用 `#7A5A43` 這類深棕。
+
+## 7.10 工作室檔案（品牌設計／創意工作室、建築、攝影工作室）
+範本 `hl-lowtide`（Lowtide 退潮設計室）是完整示範：淺灰底＋白卡、等寬小字、無陰影，Menu 在左下角。拆解自台北品牌設計工作室官網（流程見 `references/decompose-reference-site.md` 最後一個範例）：
+- **`menu.layout:"dock"`**：桌機左下角白卡堆——`dock.intro`（第一行粗體、其餘灰字）、品牌列（＋／−收合）、橫排導覽、`dock.timezone`（IANA，例 Asia/Taipei）＋`dock.city` 的在地時間與 `dock.links` 社群。捲動 160px 後只剩品牌列，滑過展開；手機（<768px）自動用一般頂欄。
+- **`captionReel`**：滿版橫向圖軌，`items[{ imageUrl, videoUrl, width:"normal"(3:4)|"wide"(4:3), title, text, url }]`、`height`（vh，40–90）、`autoplay`、`speed`（px/秒）；滑過暫停，AAA／減少動態改可手動橫捲。當首屏用時 `padTop:0`。
+- **`newsMasonry`**：`title`、`linkText`／`linkUrl`（右上等寬小連結）、`items[{ variant:"tall"|"side"|"text", imageUrl, title, text, date, ctaText, url }]`、`columns:2|3`。三種卡型交錯才有瀑布流感。
+- **`tagProjectGrid`**：`items[{ imageUrl, videoUrl, title, subtitle, tags[], url }]`、`ratio: wide(3:2)|cinema|square`、`columns`；`source:"projects"`＋`limit` 直接讀作品專案（分類變膠囊、年份變副標）。
+- **`fragmentStream`**：`items[{ imageUrl, title, date, year }]` 一張一屏、靠右／置中／靠左輪流；`scrubber`（右上年份＋點點捲軸，預設開）。
+- **`strategyLoop`**：`stages[]`（上緣黑色膠囊，最多 4）、`nodes[{ label, title, text }]`（3–7 個）、`interval` 秒（0＝不自動）。手機改成膠囊清單。
+- **`studioDossier`**：`images[{ url, caption }]`（左欄固定輪播）、`intro`、`sectionNav`、`panels[{ id, kind, title, … }]`：`people`→`groups[{ label, people[{ name, role, note }] }]`；`list`→`items[]`；`columns`→`groups[{ label, items[] }]`；`jobs`→`jobs[{ title, text, date, ctaText, url }]`；`contact`→`cells[{ label, text, linkText, url }]`。
+- 顏色：白卡讀 `--dossier-card`、膠囊讀 `--dossier-chip`（深色站用 `sx.customCss:"&{--dossier-card:#1c1c1c;--dossier-chip:#2a2a2a}"`）。
+- 全站同一個淺灰底（全站 background、每段 `bg.color`、`footer.bgColor`），頁面 `layout.containerWidth:"full"`。
+
+## 7.11 大字留白工作室（作品集、設計／影像工作室、藝術家）
+40 站裡最多的一型：純黑或純白、零圓角、無陰影、標題 100px 以上、段間 200px。做法：
+- 全站：`theme.fontFamily` 用 Inter／Space Grotesk／Switzer 類；`containerWidth:"wide"|"full"`；頁底純色（深色用帶色相近黑）。
+- Menu：§3 模式擇一——透明頂欄＋`shrinkOnScroll`、`alwaysMobile`＋`burgerPos:"bottom"`＋`mobileMenu.preset:"stage"`、或 `preset:"drawer"`；`linkHover:"flip"`；想要角落資訊加 `clock`／`status`。
+- Hero：`giantWordmarkHero`（字標撐滿，`fill:"outline"` 更輕）或 `cornerInfoHero`（四角資訊）。
+- 作品：`pinnedCaseScreens`（一案一屏）／`tagProjectGrid`／`ledgerRows`（細線列表＋`hoverImage`）／`projectIndexGrid`。
+- 關於：`studioDossier`／`profileRail`／`awardsTable`。
+- 每段 `sx { eyebrowStyle:"mono", btnStyle:"underline", cardRadius:0, cardShadow:"none", gap:8, padY:160 }`；標題 `titleTone:"muted-tail"`、進場 `titleFx:"rise"`。
+- 動態只挑兩個：例如 `iconPillMarquee`＋`motion.progressRail`。
+
+## 7.12 SaaS 暗色產品站（AI 工具、軟體）
+verrity／nexra／sanjaya 一型：暖黑或紫黑底、米白字、16–24px 圓角、毛玻璃卡、一個低飽和醒目色。
+- 全站背景一張攝影或 `bg.rich` 動態背景透出；Menu `glass:true, island:true` 或 `shrinkOnScroll`。
+- Hero 置中＋下方產品圖（`floatingUiHero`／`deviceHero`），四角可放 `cornerInfoHero` 式資訊。
+- 功能：`uiFeatureCarousel`（上截圖下說明）、`featureTabsPanel`、`statPills`（數據膠囊）／`photoStat`、`logoGrid { statCell }`。
+- 卡片一律 `sx { cardRadius:20, cardBorder:1, cardBorderColor:"rgba(255,255,255,.08)", hoverFx:"glow-border" }`；眉標 `eyebrowStyle:"dot"`；按鈕 `pill`。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

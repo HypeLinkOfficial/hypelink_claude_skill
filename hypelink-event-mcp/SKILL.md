@@ -38,8 +38,8 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.list` | read | 列出本品牌活動（可帶 status） |
 | `events.get` | read | `{ uuid }` 取完整活動 |
 | `events.content_modules` | read | `{ id? }` 列出活動頁 **內容模組目錄**：每個模組的 sections id、資料欄位名（dataKey）、欄位型別／說明／必填、範例，以及頁面層級欄位（themeId、background、sections…）。**寫 pageContent 前先查**，避免猜錯欄位名造成前台空白 |
-| `events.create` | write | `{ name, startAt, endAt, slug?, description?, format?, location?, meetingUrl?, registration*?, pageContent?, discountCodes?[] }`。`slug` 未給時由名稱自動產生，只保留 a-z0-9-（中文名稱會退回 `event-<yyyymmdd>-<隨機>`），建議中文活動自行帶英數 slug |
-| `events.update` | write | `{ uuid, ... }` 部分更新（`pageContent` 傳 null 物件即清空） |
+| `events.create` | write | `{ name, startAt, endAt, slug?, description?, format?, location?, meetingUrl?, registration*?, publishToDiscover?, seoNoindex?, linkOnly?, pageContent?, discountCodes?[] }`。`slug` 未給時由名稱自動產生，只保留 a-z0-9-（中文名稱會退回 `event-<yyyymmdd>-<隨機>`），建議中文活動自行帶英數 slug |
+| `events.update` | write | `{ uuid, ... }` 部分更新（`pageContent` 傳 null 物件即清空）。`seoNoindex: true`＝不讓搜尋引擎收錄（公開活動頁與報名／付款／投稿子頁輸出 noindex,nofollow、不輸出 Google 活動結構化資料；LINE／FB 分享卡照常），與 `publishToDiscover`（HypeLink 站內活動探索列表）是兩回事。公開狀態三選一：公開＝`status:"active", linkOnly:false`／**僅限連結**＝`status:"active", linkOnly:true`（拿到連結才看得到、能報名；不出現在品牌頁／官網活動列表、主辦者頁、Teams 公開頁、活動探索，且一律不被搜尋引擎收錄）／不公開＝`status:"draft"`（只有編輯者能預覽，任何人都不能報名）。`approvalPaymentOrder`：信用卡收款且需審核（`registrationRequiresApproval` 或票種 `requiresApproval`）時的順序——`pay_first`（預設，先刷卡、付款後進待審核；拒絕要另外退款）／`approve_first`（報名先進待審核不收款，主辦核准後系統寄付款連結，期限＝`paymentHoldMinutes` 自核准起算，付款即報名成功） |
 | `events.duplicate` | write | `{ uuid, name?, slug? }` 複製活動（內容＋票種；副本為 draft、關閉報名）。可指定副本 `name` 與 `slug`（a-z0-9- 1-80 字、同品牌唯一，重複回 409）；未指定時名稱為「原名 (副本)」、slug 為「原 slug-copy-xxxxx」 |
 | `events.delete` | write | `{ uuid }` 軟刪除，**兩階段確認** |
 | `events.cancel` | write | `{ uuid }` 取消活動（會通知已報名者，不刪資料） |

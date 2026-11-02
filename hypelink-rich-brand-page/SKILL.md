@@ -123,6 +123,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | 後台分類 | 目的 | 典型情境 |
 |---|---|---|
 | 展示內容 | 讓人「看懂你是誰、在做什麼」 | 開場介紹、主打活動、品牌牆、倒數、社群佐證、成員 |
+| 資料視覺化 | 把數字／進度／據點「畫出來」（可讀公開 Google Sheet） | 進度報告、KPI、營收趨勢、門市地圖、成果統計 |
 | 蒐集互動 | 讓訪客「留下東西」（名單、留言、投票、提問） | 電子報、洽詢、粉絲互動、LINE 導流 |
 | 販售轉換 | 讓訪客「付錢或加入」 | 商城、課程、會員、優惠券、打賞、預約、委託 |
 | 個人檔案 | 履歷／作品集式的專業呈現 | 個人品牌、接案者、求職、講師 |
@@ -157,6 +158,26 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 | `flash` | 限時活動 | 倒數計時看板＋明確 CTA | 快閃優惠、限時報名（同時屬販售轉換） |
 | `pixel-paint` / `piano` | 像素小畫家／電子琴 | 見「小遊戲」 | 品牌人格、互動彩蛋 |
 | `divider` | 分隔線 | 視覺區隔兩個區塊 | 段落分隔（其他擴充） |
+
+### 資料視覺化（purpose_data）
+> 主要內容都是**純文字**：表格類吃 Markdown 表格或 CSV（第一列＝欄名）；逐行類一行一筆 `A | B | C`。狀態符號 `✓ … ✕ — 待辦` 會自動變成「圖示＋文字」標籤。各模組完整欄位用 `modules.catalog { q }` 查。
+
+| moduleId | 名稱 | 主要內容（data key → 格式） | 推薦情境 |
+|---|---|---|---|
+| `markdown-card` | Markdown 卡片 | `markdown`：標題／清單／`[[progress 18/25]]` 進度條／`[[squares 3/10]]` 方格／`[[✓ 已核發]]` 標籤／```` ```chart bar ```` 圖表／```` ```table legend ```` 狀態表 | 進度報告卡、公告＋數據混排（**這是 Markdown，不是 richtext 的 HTML**） |
+| `data-table` | 資料表格 | `data`：Markdown 表格／CSV；`statusBadges`、`showLegend` | 申請狀態矩陣、價目比較、名額登記 |
+| `stat-cards` | 數字卡 | `items`：`標籤 \| 數值 \| 說明 \| 目標 \| 變化`（有目標會畫進度條） | KPI、成果數字、「累計服務 1,200 人」 |
+| `data-chart` | 資料圖表（Chart.js） | `data`：表格；`chartType`＝bar／hbar／stacked／line／area／combo／donut／pie／polar／radar | 月營收趨勢、報名 vs 到場、佔比 |
+| `chart-gauge` | 儀表板 | `items`：`標籤 \| 數值 \| 最大值 \| 單位`；`shape` half／full | 目標達成率、滿意度、預算使用 |
+| `d3-treemap` | 佔比方塊圖（D3） | `data`：`分類,項目,數值`；`layout` 矩形／圓形打包／旭日 | 預算分配、產品線營收佔比 |
+| `d3-sankey` | 流向圖（D3） | `data`：`來源,目標,數值`（不可成環） | 流量來源→轉換、預算流向、漏斗 |
+| `d3-heatmap` | 熱力圖（D3） | `data`：`日期,數值`（日曆）或矩陣表格；`mode` | 每日活動量、時段×星期人流 |
+| `mapbox-map` | 地圖據點（Mapbox） | `places`：`名稱 \| 緯度,經度 \| 說明 \| 連結`（座標可貼 Google 地圖網址） | 多門市、巡迴路線（自動導覽）；沒 token 時只顯示清單 |
+| `bar-3d` | 3D 立體長條圖 | `data`：表格 | 發表會／主視覺型數據，吸睛用；一般報表用 data-chart |
+| `globe-3d` | 3D 地球據點 | `points`：`名稱 \| 緯度,經度 \| 數值`；`arcs`：`台北 -> 東京` | 國際據點、海外市場、航線 |
+
+> **讀公開 Google Sheet**：以上 11 個模組都能設 `data.source`（流程與欄位對應見 `hypelink-brand-page-mcp` 的 `modules.sheet_preview`）。資料常更新（報名進度、KPI、門市清單）→ 建議 `mode:"live"`（Creator 以上）；一次性資料 → `snapshot`。**主要欄位一定也要寫入轉好的文字**（首屏與讀不到 Sheet 時顯示它）。
+> 選型原則：一個數字 → `stat-cards`；達成率 → `chart-gauge`；隨時間變化 → `data-chart` line／area；佔比 → donut（≤7 項）或 `d3-treemap`（多層）；狀態矩陣 → `data-table`；地點 → `mapbox-map`；跨國 → `globe-3d`。3D 模組只放一頁一個。
 
 ### 蒐集互動（purpose_collect）
 | moduleId | 名稱 | 後台說明 | 推薦情境 |
@@ -256,6 +277,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 - **繪師／設計接案**：portfolio-featured → projects-list → commission-info → picture-book／image-carousel → inquiry-form → copy-text(匯款) → guestbook。
 - **電商／品牌商城**：banner-h → mall-products(分類) → coupon-claim → mall-reviews → member-recruit → brand-points-status → faq。
 - **活動／社群同樂**：event-list → countdown → quick-poll(手動揭曉) → 小遊戲一款 → guestbook → friend-quiz → email-capture。
+- **社團／協會／專案進度公開**：markdown-card(進度報告) → stat-cards(KPI) → data-table(各分會狀態，讀 Google Sheet 保持同步) → data-chart(趨勢) → mapbox-map(據點) → inquiry-form。
 - **線下交友／展會**：pitch-card(HypeCard 落點) → save-contact → similarity／friend-impression → social-card。
 
 ---
@@ -310,7 +332,8 @@ LinkedIn  linear-gradient(135deg,#0A66C2 0%,#004182 100%)
 4. **用 `company` 範本建立會附帶佔位連結**（example.com 的「公司官網」等）—— 記得刪掉再放自己的內容。
 5. **模組上限**：所有方案統一 99 個；**分頁至少保留一個**。
 6. **每個模組要正確 `folderId`**；模組是「整包覆寫」語意，改動前先 `modules.list` 取現況、只改必要部分。
-7. **寫入前先 `dry_run`**；destructive 走兩階段 `confirmToken`；缺 scope 回 `SCOPE_DENIED`。
+7. **資料視覺化接 Google Sheet 時只寫 `source` 不寫主要欄位** —— 首屏與 Sheet 讀不到時會是空的；試算表必須是「知道連結的任何人可檢視」，私人試算表不支援。
+8. **寫入前先 `dry_run`**；destructive 走兩階段 `confirmToken`；缺 scope 回 `SCOPE_DENIED`。
 
 ---
 

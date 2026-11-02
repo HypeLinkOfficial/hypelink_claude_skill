@@ -96,6 +96,22 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > **多團隊（2026-10-26）**：一件作品可掛多個團隊（例：設計團隊／開發團隊各自成員）——用 `teamGroups: [{ name, members: [{role,name,url?,icon?}] }]`（≤10 組，整組取代；寫入時 `team` 會自動同步為成員攤平，舊消費端不壞）。單一團隊沿用 `team` 即可。
 > **作品輪播牆（2026-10-26）**：快速模式的媒體清單在公開詳細頁以輪播牆呈現——`carousel: { autoplay?: boolean（預設 true）, intervalSec?: 2–30（預設 5） }`；瀏覽者手動切換後自動輪播即停（重新整理才恢復）。
 
+### Decks（極速簡報，數位工具 → 極速簡報；公開頁 `/@id/decks/<token>`）
+
+| Tool | 用途 |
+|---|---|
+| `decks.list` / `decks.get` | 列出簡報／取單份完整設定（`get` 含自訂頁面的 `sections`、`theme`），回傳都帶 `urls`（public / preview / pdf / publicPdf） |
+| `decks.sources` | 可放進簡報的作品、分類、服務、商品、活動、品牌頁（取 `items` 的 uuid） |
+| `decks.create` / `decks.update` | 建立／部分更新；`items` 是播放順序（type：project / category / service / product / event / brand(uuid=`self`) / page），`pages`、`items` 整組取代；`layout` 版型＋`mediaMode` 圖片排法（auto / carousel 輪播 / grid 格狀 / mosaic 隨機拼貼，換 `layoutSeed` 重新排列） |
+| `decks.pages.upsert` | 新增（不帶 `page.uuid`，自動加入播放順序，可給 `position`）或整頁取代一個自訂頁面 |
+| `decks.pages.delete` ⚠️ | 刪自訂頁面並移出播放順序 |
+| `decks.export_pdf` | 回列印版網址（瀏覽器「另存為 PDF」，每頁 16:9）；伺服器不直接產 PDF 檔 |
+| `decks.delete` ⚠️ | 兩階段確認刪除簡報 |
+
+> **自訂頁面**＝官網頁面編輯器的區塊（與 `site.*` builder 頁同一套，用 `site.blocks.catalog` 查型別與欄位），只屬於這份簡報。`decks.create` 一次帶頁面時：自己產生 UUID 放 `pages[].uuid`，items 用同一個 uuid `{ type:'page', uuid }`；指向不存在頁面的 item 會回 VALIDATION_FAILED。表單、商店牆、品牌模組等需官網情境的區塊不要放。
+> 畫布 1600×900：一頁內容盡量控制在一屏（標題＋2～3 個區塊）；超過時播放可捲動、PDF 會等比縮小到一頁，字會變小。新頁面主題預設跟簡報深淺色、區塊高度隨內容、寬版。
+> **PDF**：`urls.pdf`（`?preview=1&print=1`）需品牌編輯者登入開啟；要讓觀看者也能存 PDF 設 `allowPdf: true`，公開頁右上角出現「轉存 PDF」，`urls.publicPdf` 才有值。
+
 ### Assets（圖片上傳）
 | Tool | Scope | 說明 |
 |---|---|---|
@@ -159,6 +175,12 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `modules.update` | write | 同上驗證；預設只回該模組（`returnProfile:true` 回整份） |
 | `modules.reorder` | write | — |
 | `modules.delete` | write | — |
+| `modules.sheet_preview` | read | 讀公開 Google 試算表（`{ url, gid?, range?, maxRows? }`）→ 分頁清單、前幾列、總列數、`liveAllowed`；私人試算表會回「沒有公開」 |
+| `modules.sheet_refresh` | write | `{ id }`：立即重新讀取某個已設 `data.source` 的模組（20 秒內重複呼叫回快取） |
+
+> **資料視覺化模組讀 Google Sheet**（`data-table` / `data-chart` / `stat-cards` / `chart-gauge` / `mapbox-map` / `d3-treemap` / `d3-sankey` / `d3-heatmap` / `bar-3d` / `globe-3d` / `markdown-card`）：
+> 1. `modules.sheet_preview` 確認讀得到、看欄位；2. `modules.update` 寫入 `data.source = { type:"gsheet", url, gid?, range?, headerRow:true, mode:"snapshot"|"live", columns?:number[] }`，**同時把轉好的文字寫進主要欄位當快照**（表格類＝Markdown 表格；`stat-cards`／`chart-gauge`／`mapbox-map`／`globe-3d`＝`A | B | C` 一行一列，`columns` 是各欄位對應的 Sheet 欄號、-1＝不用）。`markdown-card` 的快照放 `source.snapshot`，正文用 ```` ```sheet legend ```` 或 ```` ```sheet chart line ```` 區塊引用。
+> `mode:"live"` 需 Creator 以上（快取 Creator 15 分、Pro 以上 5 分），公開頁會讀最新資料、讀不到時沿用快照；Free 只能 `snapshot`。
 
 > 常見 `moduleId`：`richtext`（`{ content }`）、`text-btn`（`{ text, url, style }`）、`bio`、`inquiry-form`、`video`、`logo-wall`…。
 > **不確定某模組的 `data` 形狀時，先 `modules.catalog { q }` 查權威 schema，或 `modules.list` 看既有模組的 data，不要憑記憶猜。**

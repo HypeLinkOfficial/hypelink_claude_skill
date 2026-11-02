@@ -73,6 +73,44 @@
 | 商品型錄左側直排分類 | `hlContent { filterTabs:true, filterLayout:"sidebar" }` |
 | 右下角固定的 FB／IG／LINE 圓鈕 | `theme.floatingActions`（小工具） |
 | 頁尾嵌地圖、自訂版權字 | `footer { layout:"contact", mapQuery, copyright }` |
+| 淺灰底＋白卡、無陰影、等寬小字「ALL NEWS →」「READ MORE ↗」的工作室站 | 工作室檔案區塊（下列六個），頁面 `layout.containerWidth:"full"` |
+| 左下角一疊白卡當 Menu（介紹＋品牌＋連結＋在地時間／社群），捲動後收起 | `menu { layout:"dock", dock:{ intro, timezone, city, links } }`（手機自動回頂欄） |
+| 滿版橫向大圖軌慢慢往左捲、每張右上角一張霧面標題卡 | `captionReel` |
+| 三欄瀑布流消息白卡（上圖下文／左圖右文／純文字混排） | `newsMasonry` |
+| 作品卡：圖下左標題＋灰副標、右側白色分類膠囊 | `tagProjectGrid`（`source:"projects"` 直接讀作品專案） |
+| 一張一屏、左中右錯位的作品片段＋右上年份點點捲軸 | `fragmentStream` |
+| 圓角跑道上的編號流程節點、上排黑色階段膠囊、下方說明輪播 | `strategyLoop` |
+| 關於頁：左固定照片輪播＋介紹，右捲動團隊／客戶／服務／職缺／聯絡，右上段落導覽 | `studioDossier` |
+| 大標後半灰、關鍵詞一個顏色 | `sx.titleTone: "muted-tail"`（標題寫 `A \| B`）／`"accent-word"`（`*詞*`） |
+| 等寬字眉標 `● REC`、`( 01 )`、`■`、`/` | `sx.eyebrowStyle: dot|bracket|square|slash|mono` |
+| 文字＋↗＋底線的按鈕；方角按鈕；細框按鈕 | `sx.btnStyle: underline|square|outline` |
+| 標題逐行上滑／逐詞淡入／模糊轉清晰／亂碼解碼／打字／掃光 | `sx.titleFx` |
+| 卡片滑過抬起／放大／掃光／3D 傾斜／聚光／發光邊／其餘變暗 | `sx.hoverFx` |
+| 卡片圓角 0 或 20、1px 淡邊框、無陰影、gap 0–8 | `sx { cardRadius, cardBorder, cardBorderColor, cardShadow, gap }` |
+| 滑過作品時游標變成「VIEW」膠囊 | `effects.cursor:"follow"`＋`sx.cursorLabel` |
+| 頂欄捲動後縮成置中膠囊 | `menu.shrinkOnScroll:true` |
+| 只有品牌＋底部置中漢堡圓鈕 | `menu { alwaysMobile:true, burgerPos:"bottom" }`＋`mobileMenu.preset:"stage"` |
+| 品牌＋MENU 鈕 → 右側抽屜 | `menu.alwaysMobile:true`＋`mobileMenu.preset:"drawer"` |
+| 左側固定側欄當導覽 | `menu.layout:"side"`＋`dock { intro, links }` |
+| 頂欄文字走過深淺段落自動反色 | `menu.blend:"difference"` |
+| 導覽連結逐字翻字 | `menu.linkHover:"flip"` |
+| 頂欄活時鐘／城市、「剩 3 個名額」狀態 | `menu.clock`／`menu.status` |
+| 右緣直排頁名＋進度線 | `motion.progressRail:true` |
+| 分類側欄：膠囊／底線樣式、放右邊、筆數、搜尋框、底部聯絡 | `hlContent { filterLayout:"sidebar", sidebarStyle, sidebarPosition, sidebarCounts, sidebarSearch, sidebarFooter }` |
+| 品牌名 160–300px 撐滿的 Hero（描邊／跑馬） | `giantWordmarkHero` |
+| 滿版圖四角各一組資訊 | `cornerInfoHero` |
+| 一案一屏釘住、巨型數據或浮水印大字 | `pinnedCaseScreens` |
+| 細線分隔列（logo／標題／meta／標籤，hover 浮圖） | `ledgerRows` |
+| 年份／單位／獎項細線表 | `awardsTable` |
+| 兩列反向圖示膠囊跑馬 | `iconPillMarquee` |
+| outline 數字膠囊／照片大數字卡＋數據列 | `statPills` |
+| 置中大標＋傾斜便利貼／拍立得 | `stickerHero` |
+| 全寬色塊卡堆疊、左上斜角 tab | `folderTabCards` |
+| 左半醒目色巨字、右半滿版人像 | `splitPosterPanel` |
+| 左固定人物名片＋右內容流 | `profileRail` |
+| 拱形頂直式圖卡列 | `archImageStrip` |
+| 球面照片牆可拖曳 | `domeGallery` |
+| 上 UI 截圖下說明的橫向拖曳卡 | `uiFeatureCarousel` |
 
 ### 3. 決定全站外觀
 - **Menu 與載入畫面**：Menu 是否固定、是否透明疊在首屏、往下捲會不會收起、桌機是否只有漢堡鈕；進站時有沒有載入畫面、長什麼樣、怎麼離場。判斷方法與對應設定見 `migrate-existing-site.md` §1「Menu 與載入畫面」。
@@ -140,3 +178,25 @@
 | 右下浮動社群鈕 | `theme.floatingActions` |
 
 參考站本身的問題順手修掉：Menu 連結太多時在 HypeLink 會自動收成漢堡；甜點牆用作品專案資料（不寫死）、活動用專欄文章，之後新增不用改頁面。
+
+## 完整範例：台北品牌設計工作室官網 → 「Lowtide 退潮設計室」範本（`hl-lowtide`）
+
+參考站：Next.js 自架的品牌／創意工作室站。整站只有三種顏色——淺灰頁底 `#ECEDEF`、白卡、近黑字，**沒有陰影、沒有醒目色**；卡片 10px 圓角、間距 22px；小標與連結用等寬字大寫（ALL NEWS ARTICLES →、READ MORE ↗）。**沒有頂欄**：Menu 是左下角一疊白卡，捲動後收成品牌一列。內容滿版、左右只留 22px。
+改寫：工作室名、人名、客戶名、職缺與文案全部原創；照片用 Pexels（可商用，已排除真實品牌標籤、真實招牌），來源記在 `Assets/GetLayers/templates/hl-lowtide/CREDITS.md`。
+
+| 參考站的段落 | 區塊／設定 |
+|---|---|
+| 左下角白卡：一句介紹、品牌名、四個連結、當地時間＋IG／FB | `menu { layout:"dock", dock:{ intro:"第一行粗體\n其餘灰字", timezone:"Asia/Taipei", city:"TAIPEI", links:[{label,url}] } }` |
+| 首屏：滿版橫向大圖軌（直橫混排）自動慢捲、右上霧面卡寫新聞標題 | `captionReel { items[{ imageUrl, width:"normal"|"wide", title, text, url }], height:84, speed }`，`padTop:0` |
+| 最新消息：三欄瀑布流白卡 | `newsMasonry { title, linkText, linkUrl, items[{ variant:"tall"|"side"|"text", … }] }` |
+| 精選作品：3:2 圓角圖＋分類膠囊 | `tagProjectGrid { ratio:"wide", items[{ title, subtitle, tags }] }`；正式站改 `source:"projects"` |
+| Fragments：一張一屏錯位長捲＋右上年份捲軸 | `fragmentStream { items[{ imageUrl, title, date, year }] }` |
+| About：Core Strategy 跑道圖（Research → Design，五個節點） | `strategyLoop { stages:["研究","設計"], nodes[{ label, title, text }] }` |
+| About：左固定照片右捲動的 Team／Clients／Services／Career／Contact，右上段落膠囊 | `studioDossier { images, intro, panels[{ id, kind:"people"|"list"|"columns"|"jobs"|"contact", … }] }` |
+| 頁尾：幾乎沒有 | `footer { layout:"minimal", bgColor:"#ECEDEF" }` |
+
+做法重點：
+- 這種「材質就是設計」的站，**整頁都要同一個底色**：每個區塊 `bg.color` 與全站 `background` 都設成同一個淺灰，頁尾也是，白卡才會浮出來。
+- 頁面主題用 `theme(accent, "light", { layout:{ containerWidth:"full" } })`，否則內容被限制在 1200px，跟滿版圖軌對不齊。
+- 左下 dock 會蓋住頁面左下角：重要的按鈕別放在區塊左下；手機版 dock 不出現、用一般頂欄。
+- 職缺用 `studioDossier` 的 `jobs` 段落（可展開、Apply 連到 mailto 或表單頁），錨點 `id:"jobs"` 讓首頁消息卡可以連 `/site/about#jobs`。

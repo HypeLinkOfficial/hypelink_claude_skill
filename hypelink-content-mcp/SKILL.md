@@ -32,7 +32,7 @@ description: 透過 HypeLink MCP server 經營品牌的寫作專欄（content）
 | `content:read` | `content.articles.list / get`、`content.categories.list` |
 | `content:write` | `content.articles.create / update / publish / delete / import_wordpress`、`content.categories.create / update / delete` |
 
-寫入工具多支援 `dry_run: true`；`*.delete` 為兩階段確認（先拿 `confirmToken` 再帶回）。
+部分寫入工具支援 `dry_run: true`（inputSchema 有才支援）；破壞性操作一律兩段確認（先拿 `confirmToken`，5 分鐘內帶回＋相同參數）。
 
 ## 工具表
 
@@ -146,7 +146,7 @@ GET https://<wp-site>/wp-json/wp/v2/posts?_embed&per_page=100&page=1&status=publ
 | `VALIDATION_FAILED` | 欄位名錯、型別錯、超過上限（例：posts > 50） | 依訊息修正 |
 | `SCOPE_DENIED` | token 缺 `content:*` | 重新產生 token 勾選 scope |
 | `NOT_FOUND` | uuid 不存在或不屬此品牌 | 先 `list` 取正確 uuid |
-| `CONFIRM_REQUIRED` / `CONFIRM_INVALID` | 刪除未帶或帶錯 `confirmToken` | 先呼叫一次拿 token，10 分鐘內再呼叫 |
+| `CONFIRM_REQUIRED` / `CONFIRM_INVALID` | 刪除未帶或帶錯 `confirmToken` | 先呼叫一次拿 token，5 分鐘內帶相同參數再呼叫 |
 
 ## 與 dashboard 的關係
 

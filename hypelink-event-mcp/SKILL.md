@@ -28,7 +28,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 
 - `events:read` → 讀（list / get / attendees / checkin / report / 各子功能 list/get）
 - `events:write` → 寫（create / update / delete / 票種 / 報名表 / 通知 / 報到 / 子功能 create/update/delete）
-- 寫入大多支援 `dry_run`；`events.delete` 兩階段確認。
+- 部分寫入支援 `dry_run`（inputSchema 有 `dry_run` 才支援）；破壞性操作（刪除／還原／重設等，`tools/list` 標 `destructiveHint`）**一律兩段確認**：第一次呼叫只回 `confirmToken` 與將執行的內容，向使用者確認後 5 分鐘內帶 `confirmToken`＋**相同參數**再呼叫才執行（換參數會回 `CONFIRM_INVALID`）（如 `events.delete`）。
 
 ## 核心活動工具（`events.tools.ts`）
 
@@ -39,7 +39,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.get` | read | `{ uuid }` 取完整活動 |
 | `events.content_modules` | read | `{ id? }` 列出活動頁 **內容模組目錄**：每個模組的 sections id、資料欄位名（dataKey）、欄位型別／說明／必填、範例，以及頁面層級欄位（themeId、background、sections…）。**寫 pageContent 前先查**，避免猜錯欄位名造成前台空白 |
 | `events.create` | write | `{ name, startAt, endAt, slug?, description?, format?, location?, meetingUrl?, registration*?, publishToDiscover?, seoNoindex?, linkOnly?, pageContent?, discountCodes?[] }`。`slug` 未給時由名稱自動產生，只保留 a-z0-9-（中文名稱會退回 `event-<yyyymmdd>-<隨機>`），建議中文活動自行帶英數 slug |
-| `events.update` | write | `{ uuid, ... }` 部分更新（`pageContent` 傳 null 物件即清空）。`seoNoindex: true`＝不讓搜尋引擎收錄（公開活動頁與報名／付款／投稿子頁輸出 noindex,nofollow、不輸出 Google 活動結構化資料；LINE／FB 分享卡照常），與 `publishToDiscover`（HypeLink 站內活動探索列表）是兩回事。公開狀態三選一：公開＝`status:"active", linkOnly:false`／**僅限連結**＝`status:"active", linkOnly:true`（拿到連結才看得到、能報名；不出現在品牌頁／官網活動列表、主辦者頁、Teams 公開頁、活動探索，且一律不被搜尋引擎收錄）／不公開＝`status:"draft"`（只有編輯者能預覽，任何人都不能報名）。`approvalPaymentOrder`：信用卡收款且需審核（`registrationRequiresApproval` 或票種 `requiresApproval`）時的順序——`pay_first`（預設，先刷卡、付款後進待審核；拒絕要另外退款）／`approve_first`（報名先進待審核不收款，主辦核准後系統寄付款連結，期限＝`paymentHoldMinutes` 自核准起算，付款即報名成功） |
+| `events.update` | write | `{ uuid, ... }` 部分更新（`pageContent` 傳 null 物件即清空）。`seoNoindex: true`＝不讓搜尋引擎收錄（公開活動頁與報名／付款／投稿子頁輸出 noindex,nofollow、不輸出 Google 活動結構化資料；LINE／FB 分享卡照常），與 `publishToDiscover`（HypeLink 站內活動探索列表）是兩回事。公開狀態三選一：公開＝`status:"active", linkOnly:false`／**僅限連結**＝`status:"active", linkOnly:true`（拿到連結才看得到、能報名；不出現在品牌頁／官網活動列表、主辦者頁、Teams 公開頁、活動探索，且一律不被搜尋引擎收錄）／不公開＝`status:"draft"`（只有編輯者能預覽，任何人都不能報名）。`approvalPaymentOrder`：信用卡收款且需審核（`registrationRequiresApproval` 或票種 `requiresApproval`）時的順序——`pay_first`（預設，先刷卡、付款後進待審核；拒絕要另外退款）／`approve_first`（報名先進待審核不收款，主辦核准後系統寄付款連結，期限＝`paymentHoldMinutes` 自核准起算，付款即報名成功）。`hideRegisterButtonWhenClosed: true`＝`registrationEnabled:false` 時公開頁不顯示報名按鈕（預設 false，顯示停用的「暫停報名」）。票券上要印哪些資料存在 `pageContent.ticketContent.fields`（有序 key：`ticketType`／`seat`／`date`／`venue`／`email`／`phone`，報名表欄位用 `f:<基本欄位 key 或自訂欄位 id>`，最多 12 個；姓名／QR／票號固定顯示；`pageContent.ticketContent.showCheckinStatus: false` 可關掉票券上的「未報到／已報到」標籤，預設顯示）——改 `pageContent` 時要帶上原本整包（含 `ticketDesign`／`ticketContent`），否則會被清掉 |
 | `events.duplicate` | write | `{ uuid, name?, slug? }` 複製活動（內容＋票種；副本為 draft、關閉報名）。可指定副本 `name` 與 `slug`（a-z0-9- 1-80 字、同品牌唯一，重複回 409）；未指定時名稱為「原名 (副本)」、slug 為「原 slug-copy-xxxxx」 |
 | `events.delete` | write | `{ uuid }` 軟刪除，**兩階段確認** |
 | `events.cancel` | write | `{ uuid }` 取消活動（會通知已報名者，不刪資料） |
@@ -119,7 +119,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `events.form.get` | read | `{ uuid }`：basicFields / customFields / successMessage / redirectUrl |
-| `events.form.put` | write | `{ uuid, basicFields[], customFields[] }`（覆寫）；basicField=`{key,label,enabled,required}`、customField=`{id,label,type,required,options?}`。`type`：`text` 單行｜`textarea` 多行｜`number`｜`url`｜`select` 下拉單選｜`radio` 單選（平鋪）｜`checkbox` 多選；後三者必帶 `options`。多選答案存成以全形分號「；」串接的字串，選項文字勿含「；」；其他 type 會當單行文字顯示。**附加確認條款** `consents:[{ id?, title, content, checkboxLabel?, required?（預設 true）, display?: inline\|link }]`（最多 5 則、整組取代、不帶＝不動）：個資同意書、活動規範、肖像授權等，報名者要勾選才能送出；改條款時沿用 `events.form.get` 回傳的 `id`，標題或內容有變系統自動把 `version` +1，報名者同意的版本與時間存在 `customValues.__consents`（`events.attendees.get` 看得到） |
+| `events.form.put` | write | `{ uuid, basicFields?, customFields?, consents?, successMessage?, redirectUrl? }`——**只取代有帶的頂層欄位，沒帶的保留**（只改 customFields 不會清掉 consents 同意書）；basicField=`{key,label,enabled,required}`、customField=`{id,label,type,required,options?}`。`type`：`text` 單行｜`textarea` 多行｜`number`｜`url`｜`select` 下拉單選｜`radio` 單選（平鋪）｜`checkbox` 多選；後三者必帶 `options`。多選答案存成以全形分號「；」串接的字串，選項文字勿含「；」；其他 type 會當單行文字顯示。**附加確認條款** `consents:[{ id?, title, content, checkboxLabel?, required?（預設 true）, display?: inline\|link }]`（最多 5 則、整組取代、不帶＝不動）：個資同意書、活動規範、肖像授權等，報名者要勾選才能送出；改條款時沿用 `events.form.get` 回傳的 `id`，標題或內容有變系統自動把 `version` +1，報名者同意的版本與時間存在 `customValues.__consents`（`events.attendees.get` 看得到） |
 
 > **姓名欄位可關閉**：`basicFields` 中 `key: "name"` 設 `enabled: false` 後，後端不再要求姓名；報名者姓名會從名稱類自訂欄位（label 含「姓名／名字／name」）或 email 前綴推導。Email 仍為必填。
 | `events.notifications.get` | read | `{ uuid }` |

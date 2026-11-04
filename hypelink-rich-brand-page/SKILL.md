@@ -22,7 +22,7 @@ description: 打造「內容豐富」品牌頁的實戰手冊 — 分頁結構�
 
 ---
 
-## 建置流程（每一步都先 `dry_run` 再正式）
+## 建置流程（有 `dry_run` 的寫入先預覽再正式；不是每支都有，看 `tools/list` 的 inputSchema）
 1. **開場先讀** `homeinfo.get_overview` 看現況。
 2. **規劃分頁** `folders.create` / `folders.update`：依場景命名（如「關於 & 菜單」「行程 & 作品」「預約諮詢」）。至少保留一個分頁。
 3. **每個分頁放模組** `modules.add {folderId, moduleId, data}`：見下方「模組選型速查」。`data` 形狀隨 `moduleId` 變，不確定就先 `modules.list` 看既有模組或查 `tools/list`。
@@ -333,7 +333,7 @@ LinkedIn  linear-gradient(135deg,#0A66C2 0%,#004182 100%)
 5. **模組上限**：所有方案統一 99 個；**分頁至少保留一個**。
 6. **每個模組要正確 `folderId`**；模組是「整包覆寫」語意，改動前先 `modules.list` 取現況、只改必要部分。
 7. **資料視覺化接 Google Sheet 時只寫 `source` 不寫主要欄位** —— 首屏與 Sheet 讀不到時會是空的；試算表必須是「知道連結的任何人可檢視」，私人試算表不支援。
-8. **寫入前先 `dry_run`**；destructive 走兩階段 `confirmToken`；缺 scope 回 `SCOPE_DENIED`。
+8. **支援 `dry_run` 的寫入先預覽**（schema 有 `dry_run` 才支援）；破壞性操作（刪除／還原／重設等，`tools/list` 標 `destructiveHint`）**一律兩段確認**：第一次呼叫只回 `confirmToken` 與將執行的內容，向使用者確認後 5 分鐘內帶 `confirmToken`＋**相同參數**再呼叫才執行（換參數會回 `CONFIRM_INVALID`）；缺 scope 回 `SCOPE_DENIED`。
 
 ---
 

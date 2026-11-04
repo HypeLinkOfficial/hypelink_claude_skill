@@ -31,7 +31,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 
 - `homeinfo:read` → 可讀（profile / folders / links / modules / socials / design / themes / webhooks）
 - `homeinfo:write` → 才能寫（含 webhooks；Webhook 建立 / 啟用 / test 另需 **Max 方案**）
-- 寫入類工具大多支援 `dry_run: true`：**會跑完整驗證**（錯了一樣回 `VALIDATION_FAILED`），並回傳將變更的欄位與 `ignoredFields`（會被伺服器忽略的欄位）；`*.delete` 走兩階段 `confirmToken`。
+- 部分寫入工具支援 `dry_run: true`（inputSchema 有 `dry_run` 才支援，不是每支都有）：**會跑完整驗證**（錯了一樣回 `VALIDATION_FAILED`），並回傳將變更的欄位與 `ignoredFields`（會被伺服器忽略的欄位）。
+- 破壞性操作（刪除／還原／重設等，`tools/list` 標 `destructiveHint`）**一律兩段確認**：第一次呼叫只回 `confirmToken` 與將執行的內容，向使用者確認後 5 分鐘內帶 `confirmToken`＋**相同參數**再呼叫才執行（換參數會回 `CONFIRM_INVALID`）。
 - 所有寫入都**嚴格驗證**：傳了不存在的欄位或不合法的值會直接報錯並列出可用欄位／可用值，不會再回 ok:true 卻沒寫進去。
 
 ## 可用工具
@@ -156,7 +157,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 |---|---|---|
 | `links.list` | read | 支援 `?folderId` 過濾 |
 | `links.create` | write | 連結卡欄位：name / url / description / size / type / redirectType，加上樣式 `backgroundType`（color｜gradient｜image）/ `backgroundColor` / `backgroundGradient`（完整 CSS gradient 字串）/ `backgroundAssetId` / `imageAssetId` / `buttonSize`（small｜medium｜large）/ `textPosition`（九宮格）/ `textStyle`（showTitle、showDescription、titleSize、titleColor、descriptionSize、descriptionColor）。只給 `backgroundGradient` 沒給 `backgroundType` 會自動補成 gradient |
-| `links.update` | write | 部分更新（同上所有欄位） |
+| `links.update` | write | 部分更新（同上所有欄位）。隱藏連結傳 `isVisible: false`（或 `enabled: false`），回傳欄位是 `enabled` |
 | `links.set_background` | write | 一次設定卡片背景：`{ id, type:'color', color }`、`{ id, type:'gradient', gradient }`、`{ id, type:'image', url | assetId }`；可順帶 `textPosition` / `buttonSize` / `textStyle` |
 | `links.set_image` | write | 設定連結卡封面：`{ id, url }`（公開 URL）或 `{ id, assetId }`；`clear:true` 清除 |
 | `links.reorder` | write | `{ orderedIds }` |
@@ -182,7 +183,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 > 1. `modules.sheet_preview` 確認讀得到、看欄位；2. `modules.update` 寫入 `data.source = { type:"gsheet", url, gid?, range?, headerRow:true, mode:"snapshot"|"live", columns?:number[] }`，**同時把轉好的文字寫進主要欄位當快照**（表格類＝Markdown 表格；`stat-cards`／`chart-gauge`／`mapbox-map`／`globe-3d`＝`A | B | C` 一行一列，`columns` 是各欄位對應的 Sheet 欄號、-1＝不用）。`markdown-card` 的快照放 `source.snapshot`，正文用 ```` ```sheet legend ```` 或 ```` ```sheet chart line ```` 區塊引用。
 > `mode:"live"` 需 Creator 以上（快取 Creator 15 分、Pro 以上 5 分），公開頁會讀最新資料、讀不到時沿用快照；Free 只能 `snapshot`。
 
-> 常見 `moduleId`：`richtext`（`{ content }`）、`text-btn`（`{ text, url, style }`）、`bio`、`inquiry-form`、`video`、`logo-wall`…。
+> 常見 `moduleId`：`richtext`（`{ content }`，**content 用 HTML**：`<h2>`／`<p>`／`<ul><li>`／`<strong>`，不要寫 Markdown）、`text-btn`（`{ text, url, style }`）、`bio`、`inquiry-form`、`video`、`logo-wall`…。
 > **不確定某模組的 `data` 形狀時，先 `modules.catalog { q }` 查權威 schema，或 `modules.list` 看既有模組的 data，不要憑記憶猜。**
 > 各模組的中文名稱、後台說明與「什麼情境該用哪個」見 `hypelink-rich-brand-page` 的「展示模組總覽」一節（依後台分類：展示內容／蒐集互動／販售轉換／個人檔案／媒體嵌入／小遊戲／社交互動／HypeLink 系統模組／其他擴充）。
 > 小遊戲（`tetris` / `snake` / `basketball` / `gameboy`）自帶排行榜（訪客留暱稱即可上榜、每人取最高分），適合放在「互動」分頁當停留時間的鉤子。
@@ -203,6 +204,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 | `design.put` | write | **整包替換** `designSettings`（`{ settings }`）—— 風險高，務必先 `design.get` 再做最小變更 |
 | `design.set_colors` | write | 只改顏色、其他設定不動：`{ brandColor?, titleColor?, handleColor?, bioColor? }`；`brandColor` 為 `#RRGGBB`，三個文字顏色可填 `#RRGGBB`（自訂）、`"brand"`（跟隨品牌色）或 `"auto"`（清除覆寫） |
 | `design.set_theme` | write | 套用內建主題（`{ themeId }`，例如 `builtin-original` / `builtin-dark` / `builtin-notion`…）；**換主題會保留品牌色與文字顏色覆寫** |
+| `design.publish` | write | **發佈設計**：`design.put`／`set_colors`／`set_theme` 都只存草稿（同後台「儲存」），訪客看不到；改完呼叫 `design.publish`（等同後台「更新發佈」）才上線。`design.get` 與寫入回傳的 `hasUnpublishedChanges` 告訴你是否還有未發佈變更 |
 | `themes.list` | read | 列出可用內建主題 |
 
 > 品牌色單一來源：`accentColor`（後端同時鏡射到 `brandColors[0]`），全站按鈕／分頁／模組主色／底部 dock／所有子頁都用它。要改顏色一律用 `design.set_colors`，不要為了一個顏色 `design.put` 整包。hypeID 的顏色就是 `handleColor`（使用者常問「hypeID 顏色在哪改」）。
@@ -372,7 +374,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 2. **任何寫入前先 `dry_run: true`** → 把 changes 摘要給使用者確認 → 同意後移除 dry_run 正式執行。
 3. **`*.delete` 兩階段**：第一次回 `{ confirmToken }` + 將刪除的摘要 → 第二次帶 `confirmToken` 執行。
 4. **調順序用 `*.reorder { orderedIds }`**，不要用 N 次 update。
-5. **`design.put` 一律先 `design.get`** 取基底，只改必要欄位。
+5. **`design.put` 一律先 `design.get`** 取基底，只改必要欄位；設計改完記得 **`design.publish`**，否則公開頁不會變。
 6. 回 `SCOPE_DENIED` → 請使用者在 dashboard 重新產生帶足 scope 的 token。
 
 ### 範例：一鍵把空品牌頁填成「公司品牌」雛形

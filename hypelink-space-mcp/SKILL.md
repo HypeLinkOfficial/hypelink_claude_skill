@@ -30,7 +30,7 @@ description: 透過 HypeLink MCP server 佈置品牌的 3D 空間（space:*）�
 | `space:read` | `space.list / get / templates.list / objects.list` |
 | `space:write` | `space.update / objects.create / objects.update / objects.delete / guidebook.reorder` |
 
-寫入類工具支援 `dry_run: true`（回傳 `changes` 不執行）；`space.objects.delete` 走兩階段 `confirmToken`。
+部分寫入工具支援 `dry_run: true`（回傳 `changes` 不執行；inputSchema 有才支援）；破壞性操作一律兩段確認，如 `space.objects.delete` 走兩階段 `confirmToken`。
 
 ## 可用工具
 

@@ -36,7 +36,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `affiliates:read` / `affiliates:write` | 聯盟行銷：夥伴、歸因訂單、出金查詢 |
 | `payconnect:read` | PayConnect（唯讀）：訂單查詢、會員資格／付款狀態查詢；品牌需先在 dashboard「PayConnect」頁啟用 |
 
-寫入類工具大多支援 `dry_run: true`；`*.delete` 走兩階段 `confirmToken`。
+部分寫入工具支援 `dry_run: true`（inputSchema 有才支援）；破壞性操作（`*.delete` 等）一律兩段 `confirmToken`。
 
 ---
 
@@ -82,7 +82,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 - **結帳、金流與退款不開放於 API**（金錢敏感）—— 請走 dashboard「收款管理」。
 - 商品文字欄位分工：`description`＝**簡介**（1–3 句純文字摘要，「商品介紹」區塊開頭的導言，不要放 HTML）；`intro`＝**詳細介紹**（HTML 富文字，接在簡介後）。description 帶 HTML 時工具會回 `warnings` 提醒改放 intro。
-- `mall.orders.update_fulfillment` 會**對外寄通知信**：先 `dry_run` 摘要、使用者確認後再送。
+- `mall.orders.update_fulfillment` 會**對外寄通知信**：先 `dry_run`（回傳狀態前後對照與 `willEmailBuyer` 收件人）、使用者確認後再送。
 
 ---
 
@@ -116,7 +116,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `affiliates.payouts.get` | read | 單一出金單 |
 
 - **出金單的建立、標記已付與作廢不開放於 API**（金錢敏感）—— 出金**只有查詢**；實際操作請走 dashboard「聯盟行銷 > 出金」。
-- `affiliates.create` 帶 `sendInvite: true` 會寄信：先 `dry_run` 確認再送。
+- `affiliates.create` 帶 `sendInvite: true` 會寄信：先 `dry_run`（檢查重複 Email／優惠碼、回 `willSendInviteTo`）確認再送。
 
 ---
 
@@ -138,8 +138,8 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 ## 推薦工作流程
 
 1. **開場先讀**：對應 `*.list`（`lead_pages.list` / `mall.products.list` / `mall.orders.list` / `courses.list` / `affiliates.list` / `payconnect.orders.list`）看現況，再動作。
-2. **任何寫入先 `dry_run: true`** → 摘要給使用者確認 → 同意後正式執行。
-3. **`*.delete` 兩階段**：第一次回 `{ confirmToken }` + 摘要 → 第二次帶 `confirmToken`。
+2. **有 `dry_run` 的寫入先預覽**（inputSchema 有 `dry_run` 才支援）→ 摘要給使用者確認 → 同意後正式執行。
+3. **破壞性操作一律兩段**（`*.delete`、`*.restore` 等，伺服器強制）：第一次回 `{ confirmToken }` + 摘要 → 5 分鐘內帶 `confirmToken` 與**相同參數**再呼叫。
 4. **會對外寄信 / 通知的動作**（`mall.orders.update_fulfillment`、`affiliates.create` 帶 `sendInvite`）一律先預覽 + 明確同意。
 5. **整組覆寫型欄位**（如 `lead_pages.update` 的 `sections`）先 `get` 取基底，改最小子集再回寫。
 6. 回 `SCOPE_DENIED` → 請使用者在 dashboard 產生帶對應 scope 的 token（且該功能需付費方案）。

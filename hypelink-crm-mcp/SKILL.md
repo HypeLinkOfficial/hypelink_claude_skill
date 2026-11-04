@@ -32,7 +32,7 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 | `crm:read` | 客戶列表與詳細、標籤庫、分類、自訂欄位定義、分群與人數、儀表板、行事曆 |
 | `crm:write` | 建立／更新／刪除客戶、備註與互動、標籤庫／分類／欄位／分群管理、名單轉客戶 |
 
-寫入類工具多支援 `dry_run: true`；`*.delete` 走兩階段 `confirmToken`。
+部分寫入工具支援 `dry_run: true`（inputSchema 有才支援）；破壞性操作一律兩段 `confirmToken`（5 分鐘內帶回＋相同參數）。
 
 ---
 

@@ -61,7 +61,8 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `body` | 富文字內容 | `body` | string | HTML |
 | `highlights` | 活動亮點 | `highlights` | array | `icon`(emoji 或 `lucide:Star`), `title`*, `description` |
 | `agenda` | 議程 | `agenda` | array | `time`*(自由文字), `endTime`, `title`*, `speaker`, `description`, `ctaLabel`+`ctaUrl` |
-| `speakers` | 講者 | `speakers` | array | `name`*, `role`, `avatar`(URL), `bio`, `hypeId`(@handle), `linkUrl`, `socials[{label,url}]` |
+| `speakers` | 講者 | `speakers` | array | `name`*, `role`, `avatar`(URL), `bio`(富文字 HTML), `hypeId`(@handle), `linkUrl`, `socials[{label,url}]` |
+| `vendors` | 廠商資訊（不在預設順序，需加進 sections） | `vendors` | array | `name`*, `category`, `booth`, `logo`(URL；卡片縮圖), `cover`(URL；彈窗主圖，優先於 logo), `bio`(富文字 HTML), `qrCode`(URL), `details[{label,value}]`, `hypeId`(@handle), `linkUrl`, `socials[{label,url}]` |
 | `faqs` | 常見問題 | `faqs` | array | **`q`\*, `a`\***（不是 question／answer） |
 | `sponsors` | 贊助商 | `sponsors` | array | `name`*, `logo`, `url`, `tier`(platinum\|gold\|silver\|partner) |
 | `coOrganizers` | 協辦方 | `coOrganizers` | array | `name`*, `logo`, `url` |
@@ -79,7 +80,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 
 #### 頁面層級欄位
 
-`themeId`（gradient\|minimal\|editorial\|conference\|workshop\|concert\|midnight\|cyber）、`primaryColor`、`baseBg`、`baseInk`、`glassTone`(dark\|light)、`coverAspectRatio`、`background`（`{ type: none|color|gradient|animated|image|library, … }`）、`sections`、`sectionTitles`（自訂模組標題）、`showQa`、`hideRegistrationCount`、`postRegFields`、`completion`（報名完成頁）、`share`（分享預覽）。
+`themeId`（gradient\|minimal\|editorial\|conference\|workshop\|concert\|midnight\|cyber）、`primaryColor`、`baseBg`、`baseInk`、`glassTone`(dark\|light)、`coverAspectRatio`、`background`（`{ type: none|color|gradient|animated|image|library, … }`）、`sections`、`sectionTitles`（自訂模組標題）、`showQa`、`hideRegistrationCount`、`postRegFields`、`shareButtons`（社群分享按鈕陣列：facebook\|threads\|instagram\|line\|x\|linkedin\|email，未設定＝不顯示）、`completion`（報名完成頁）、`share`（分享預覽）。
 
 #### 範例
 
@@ -118,7 +119,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | Tool | Scope | 說明 |
 |---|---|---|
 | `events.form.get` | read | `{ uuid }`：basicFields / customFields / successMessage / redirectUrl |
-| `events.form.put` | write | `{ uuid, basicFields[], customFields[] }`（覆寫）；basicField=`{key,label,enabled,required}`、customField=`{id,label,type,required,options?}` |
+| `events.form.put` | write | `{ uuid, basicFields[], customFields[] }`（覆寫）；basicField=`{key,label,enabled,required}`、customField=`{id,label,type,required,options?}`。`type`：`text` 單行｜`textarea` 多行｜`number`｜`url`｜`select` 下拉單選｜`radio` 單選（平鋪）｜`checkbox` 多選；後三者必帶 `options`。多選答案存成以全形分號「；」串接的字串，選項文字勿含「；」；其他 type 會當單行文字顯示。**附加確認條款** `consents:[{ id?, title, content, checkboxLabel?, required?（預設 true）, display?: inline\|link }]`（最多 5 則、整組取代、不帶＝不動）：個資同意書、活動規範、肖像授權等，報名者要勾選才能送出；改條款時沿用 `events.form.get` 回傳的 `id`，標題或內容有變系統自動把 `version` +1，報名者同意的版本與時間存在 `customValues.__consents`（`events.attendees.get` 看得到） |
 
 > **姓名欄位可關閉**：`basicFields` 中 `key: "name"` 設 `enabled: false` 後，後端不再要求姓名；報名者姓名會從名稱類自訂欄位（label 含「姓名／名字／name」）或 email 前綴推導。Email 仍為必填。
 | `events.notifications.get` | read | `{ uuid }` |
@@ -141,6 +142,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 | `events.report.summary` | read | 成效摘要（總報名 / 到場 / 到場率 / 來源分佈 / UTM / 每日報名 / 最近報名） |
 | `events.report.attendees` | read | 成效名單（checked_in / absent） |
 | `events.feature_data.get` / `events.feature_data.put` | read/write | 活動頁進階區塊資料 |
+| `events.vendors.get` / `events.vendors.update` / `events.vendors.sync_from_page` | read/write | 加值功能「廠商資訊」：`enabled`（開啟後顯示於參加者「我的票券」並開放公開頁 `/@id/events/<slug>/vendors`）、`title`、`description`、`vendors`（格式同 pageContent.vendors，最多 300 家；update 帶 vendors 即整組取代）；`sync_from_page` 一鍵把活動頁設計「廠商資訊」區塊的廠商複製過來（取代現有清單）。存在 featureData.vendorDirectory——**用 `events.feature_data.put` 整包覆寫時要保留 `vendorDirectory`**，或改用這三支工具 |
 | `events.outcomes.list` / `events.outcomes.delete` / `events.outcomes.quota` | read/write | 活動成果紀錄（回顧素材） |
 
 > **僅 dashboard 的加值功能**（`events.feature_data.*` 之外）：**現場交友**——與會者在活動頁「現場交友」牆（`/@id/events/<slug>/networking`）用 HypeLink 帳號（hypeID 搜尋）或社群帳號上傳名片、公開牆可分享，主辦在 dashboard 活動 → 加值功能 → 現場交友 開啟並設定 6 位數入場密碼；MCP 目前無對應工具，請引導到 dashboard。

@@ -47,6 +47,9 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 | `crm.members.add_note` | write | `{ memberUuid, content }` |
 | `crm.members.add_interaction` | write | `{ memberUuid, type, note?, occurredAt? }`；type 例 call / meeting / email / line / visit / other；會更新最近互動與互動分數 |
 | `crm.members.delete` | write | 兩階段確認 |
+| `crm.members.bulk_create` | write | `{ members: [...], dry_run? }` 一次最多 **500 筆**，每筆欄位同 `create`；逐筆執行、逐筆回報（`results[].ok`），某筆失敗不影響其他筆。超過 500 筆請分批 |
+| `crm.members.bulk_update` | write | `{ updates: [{ memberUuid, ...欄位 }], dry_run? }` 一次最多 500 筆，逐筆回報；`tags`／`categories` 整組取代，先 `get` 讀現值合併 |
+| `crm.members.bulk_delete` | write | `{ memberUuids: [...] }` 兩階段確認，一次最多 500 筆 |
 
 **銷售階段**：`new → contacting → scheduled → visited → quoting → won / lost`。
 **關心程度**：`low / medium / high`。列表回傳另含系統算的 `intentTier`（visitor / engaged / lead / high_intent / priority_lead）與 `lifecycleStage`，這兩個是唯讀。

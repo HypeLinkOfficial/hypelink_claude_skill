@@ -115,11 +115,14 @@ description: 設計並製作 HypeLink「品牌官網」（/@id/site）的方法�
 
 - **內容頁**（`kind:"content"`）撈系統資料，不用自己拼區塊：作品專案、商店、專欄、最新消息、課程、3D 展、服務項目、**活動**（`content.source:"events"`，公開中＋已結束的活動牆，卡片連到活動頁；活動多的品牌把它放進 Menu，首頁再用 `hlContent` 區塊只露 3 張）。內容頁的頁首帶、卡片、列表排法跟著全站 `theme.contentDesign`，單頁可用 `content.style` 固定一種。
 - **小工具頁**（`kind:"widget"`）是 HypeLink 管理員做好的現成工具（試算器、表單、特殊互動版面），品牌在後台「頁面設計 › 新增頁面／新增子頁面 › 小工具」挑；MCP 建不了它，但可以 **用 `site.pages.get` 讀到完整原始碼，再用 `site.pages.update { widgetCss }` 寫覆蓋 CSS** 讓它跟官網材質一致——改色用 `var(--site-accent)`、圓角對齊 `theme.contentDesign.radius`、字體跟 `--site-font`，不要整份重寫。
+- **只有詳細頁、沒有列表頁**：作品／文章的列表想自己用 `hlContent` 排在首頁或別頁（而不是系統內容頁），但詳細頁仍要官網導覽與頁尾——建一個 `kind:"content"` 頁（source projects／articles）設 `content.detailOnly:true`、`showInMenu:false`，`backSlug` 填「返回」要回的頁（例首頁或 `works`）；再把 `hlContent` 區塊的 `detailBase` 設成這一頁的 slug，卡片就會連到 `/site/<detailBase>/<作品 slug>`。列表頁本身 `/site/<slug>` 會回「找不到頁面」，屬正常。
 - **子頁面**：官網 Menu 只有一層下拉。把「相關但不值得佔 Menu 一格」的頁面（活動攻略、計算機、FAQ、小工具）用 `parentId` 掛到主題頁底下；內容頁也可以用 `categoriesInMenu` 讓分類自動變子目錄。原則：Menu 一排 5–7 個主項，其餘收進下拉。
 
 ## 7. 讓訪客「做事」：連結、表單、會員
-- **站內連結**：區塊按鈕的網址寫 `/site/<頁面 slug>`（例：`/site/apply`、`/site/pricing`），會自動換成官網實際網址（自訂網域也正確），同分頁開啟。外部網址會開新分頁。
+- **站內連結**：區塊按鈕的網址寫 `/site/<頁面 slug>`（例：`/site/apply`、`/site/pricing`），會自動換成官網實際網址（自訂網域也正確），同分頁開啟。外部網址會開新分頁。**站台層（頁尾 links／columns、Menu 的 buttons／cta／topBar／dock.links）同一條規則**，不要再填 `/@id/site/…` 或絕對網址。
+- **頁內錨點**：任何區塊加 `anchor:"pricing"`（英數與連字號）就成為 DOM id，連結寫 `#pricing`（Menu 按鈕、頁尾、其他區塊的 `ctaUrl` 都可）會平滑捲到那一段。單頁式官網（長首頁＋Menu 按鈕跳段）就靠這個，不必拆頁。
 - **表單區塊** `form`：官網上可直接送出（姓名、公司、Email／電話至少一項、需求說明），進後台「服務報價 › 詢價」收件匣、寄站內通知＋Email、自動建立 CRM 潛在客戶。`title` 會附在留言前面，讓品牌分得出是哪個表單（例：「申請試用」「預約丈量」）。品牌在服務報價設定關閉「接受詢價」時表單會被拒。
+  - **表單直接建會員** `form.createMember { enabled:true, mode: "invite"|"direct", tierKey? }`：送出的人除了進 CRM 名單，還會轉成品牌會員——`invite`＝寄「完成註冊」連結讓對方自己加入（已有 HypeLink 帳號的寄登入連結）；`direct`＝填表 Email 已是 HypeLink 帳號就直接加入品牌會員，否則退回寄邀請信。`tierKey`＝加入後授予的會員等級 key（`crm.tiers`；空＝品牌最低等級）。會員招募頁、課程報名頁用；`direct` 要使用者明確同意。
 - **詢價單**：有作品專案或服務項目內容頁時，Menu 右上自動出現「詢價」；不想佔 Menu 位置可 `menu.actions.inquiry:false`（訪客詢價單有項目時仍會出現）。
 - **Menu 右側按鈕**：主要行動做成 `menu.buttons`（最多 4 個，例「預約諮詢」實心＋「官方 LINE」外框），不必為了一顆按鈕新增頁面；最多一顆實心，其餘外框／文字。登入鈕在精簡風格的站用 `menu.actions.account:"icon"`，純形象站用 `"hidden"` 或直接關 `memberPageEnabled`。
 - **數據與報表**：要展示成果、進度、據點、流向時用 `dataViz` 區塊（品牌頁同款 11 種圖表／表格／數字卡／地圖／3D），一頁最多 2–3 個、每個配一句標題說明重點；資料常更新的接公開 Google Sheet（保持同步）。
@@ -220,6 +223,25 @@ verrity／nexra／sanjaya 一型：暖黑或紫黑底、米白字、16–24px �
 - Hero 置中＋下方產品圖（`floatingUiHero`／`deviceHero`），四角可放 `cornerInfoHero` 式資訊。
 - 功能：`uiFeatureCarousel`（上截圖下說明）、`featureTabsPanel`、`statPills`（數據膠囊）／`photoStat`、`logoGrid { statCell }`。
 - 卡片一律 `sx { cardRadius:20, cardBorder:1, cardBorderColor:"rgba(255,255,255,.08)", hoverFx:"glow-border" }`；眉標 `eyebrowStyle:"dot"`；按鈕 `pill`。
+
+## 7.13 區塊選用補充（2026-11 新增欄位與新區塊）
+欄位型別與列舉以 `site.blocks.catalog` 的 `fields` 為準；寫入前 `dry_run` 看 `invalidFields`／`ignoredFields`。
+- **方案比較矩陣 `tierMatrix`**：`plans[{ name, price?, period?, desc?, ctaText?, ctaUrl?, highlight?, badge? }]`（2–4 個方案當欄；`highlight` 整欄淡主色底＋`badge` 標籤）＋`features[{ label, values[] }]`（每列一個權益，`values` 依方案順序填 `true|false|"文字"`：true 畫 ✓、false／空字串畫 —、文字原樣顯示）；`note` 表下小字。功能多（≥8 列）或要「同一功能各方案限制不同」時用它；只有三張價格卡、功能列短的用 `pricing`。
+- **軌道環繞圖 `orbitSystem` 2.0**（產業星系／生態圖）：`center`（中央文字）＋`centerImageUrl`（有圖時圖在上、文字變小字在下）、`items[{ label, imageUrl?, ring?: "1"|"2"|"3", count?, children?: [{ label, count? }], clients?: [作品 slug] }]`——`count` 顯示客戶數（沒填＝children 加總，再沒有＝clients 數）、`children` 細分領域、`clients` 填作品專案 slug，點節點開側欄列出；`clientBase` 是側欄客戶連去的官網頁 slug（`/site/<clientBase>/<slug>`，預設 `projects`）；`speed` 內圈一圈秒數 20–120。用在「我們服務過哪些產業」「生態系」；一頁只放一個（有互動與動畫）。
+- **對開欄 `splitFeature` 輪播**：`items[].images[]` 多張時該側自動輪播（單張照舊）；區塊層 `moreText`＋`moreUrl` 在最後補一顆「看全部」。產品線或服務各有多張照片時用，不必每項再拆區塊。
+- **大字卡片環 `ringCarousel`**：`images[{ url, title?, link?, alt? }]`——**`url` 是圖片、連結欄叫 `link`**（填成 `url` 會被當圖片、`link` 進 ignoredFields）；`title` 顯示在卡片上、`alt` 替代文字。
+- **圖片跑馬 `imageMarqueeRows`**：`images[]` 可以是純網址字串或 `{ url, caption?, alt? }`；**`masonryLightbox`** 的 caption 滑過才顯示（手機點開燈箱可見），所以圖說寫短句。
+- **巨型字標 `giantWordmarkHero`**：`logoUrl` 搭配 `word` 內的 `{logo}` 佔位（例 `"{logo} STUDIO"`），Logo 會以字高內嵌在字標裡、baseline 對齊；`word` 沒寫 `{logo}` 時 Logo 放在字標前面。
+- **地圖據點 `mapCard`**：`useSiteContact:true` 直接帶入 `site.update { contact }` 的地址／電話／傳真／Email／LINE／營業時間（一處維護）；要個別覆寫再填 `fax`／`email`／`lineId` 等欄位。
+- **音樂／Podcast `trackListPlayer`**：`embed { provider: spotify|apple|youtube, url }` 貼一般分享網址（Spotify playlist／album／track、Apple Music、YouTube 播放清單或影片）就改成 iframe 播放器、不自動播放；沒有 embed 時用內建波形播放器播 `tracks[{ title, artist?, audioUrl（mp3 直連）, coverUrl?, duration?, peaks? }]`。有 embed 時 `tracks[].url` 變成「點曲目開新分頁」的連結（例該首歌的 Spotify 頁）；`links[]` 每行「平台名｜網址」做外部平台按鈕。
+- **圖文重疊 `imageTextOverlap`**：`panelColor`／`panelTextColor` 指定文字板底色與字色（預設跟主色），深色照片上用淺板、淺色照片用深板。
+- **比較表格 `table`**：`highlightIcon: "check"|"none"`——`check` 只把 ✓／v／true／yes／空字串畫成綠勾，其餘文字原樣顯示；`none` 全部顯示原文。
+- **訂閱膠囊 `subscribeBar`**：`successText`／`pendingText` 自訂訂閱成功／待 Email 確認的訊息（同頁尾 newsletter）。
+- **內容元件 `hlContent`**：`detailBase:"<slug>"` 讓卡片連到 `/site/<slug>/<項目 slug>`（搭配 `content.detailOnly` 頁，見 §6.5）。
+- **展開服務列 `expandServiceRows`**：項目沒有 `imageUrl` 時文字自動撐全寬，不會留空欄。**段落索引列 `sectionIndexBar`** 的 `right` 預設空（要年份才填 `©2026`）。
+- **開業路線圖 `entityRouteMap`**：幾何已修正，可以直接用原生區塊（不必再用 code 區塊自畫）。
+- **自訂程式 `code`**：script 在公開頁掛載時執行一次、切頁卸載時清除——第三方 widget 初始化放這裡沒問題；但**編輯器畫布不執行 script**，驗證要看公開預覽。不要依賴全域變數跨區塊共用。
+- **背景固定 `bg.fixed:true`**：桌機 `background-attachment: fixed` 視差（手機關閉）；跟 `sx.scrollFx:"parallax"` 擇一，不要疊加。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

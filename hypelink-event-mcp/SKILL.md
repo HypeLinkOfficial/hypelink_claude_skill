@@ -80,7 +80,7 @@ description: 透過 HypeLink MCP server 製作 / 經營活動（events）——�
 
 #### 頁面層級欄位
 
-`themeId`（gradient\|minimal\|editorial\|conference\|workshop\|concert\|midnight\|cyber）、`primaryColor`、`baseBg`、`baseInk`、`glassTone`(dark\|light)、`coverAspectRatio`、`background`（`{ type: none|color|gradient|animated|image|library, … }`）、`sections`、`sectionTitles`（自訂模組標題）、`showQa`、`hideRegistrationCount`、`postRegFields`、`shareButtons`（社群分享按鈕陣列：facebook\|threads\|instagram\|line\|x\|linkedin\|email，未設定＝不顯示）、`completion`（報名完成頁）、`share`（分享預覽）。
+`themeId`（gradient\|minimal\|editorial\|conference\|workshop\|concert\|midnight\|cyber）、`primaryColor`、`baseBg`、`baseInk`、`glassTone`(dark\|light)、`coverAspectRatio`、`background`（`{ type: none|color|gradient|animated|image|library, … }`）、`sections`、`sectionTitles`（自訂模組標題）、`showQa`、`hideRegistrationCount`、`ticketsDisplay`（票券模組外觀：`layout` grid\|list、`showImage`／`showDescription`／`showBadges`／`showRegisterButton` 布林、`registerButtonLabel`、`registerButtonWidth` auto\|full）、`postRegFields`、`shareButtons`（社群分享按鈕陣列：facebook\|threads\|instagram\|line\|x\|linkedin\|email，未設定＝不顯示）、`completion`（報名完成頁）、`share`（分享預覽）。
 
 #### 範例
 

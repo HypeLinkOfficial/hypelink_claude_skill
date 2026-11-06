@@ -231,17 +231,27 @@ verrity／nexra／sanjaya 一型：暖黑或紫黑底、米白字、16–24px �
 - **對開欄 `splitFeature` 輪播**：`items[].images[]` 多張時該側自動輪播（單張照舊）；區塊層 `moreText`＋`moreUrl` 在最後補一顆「看全部」。產品線或服務各有多張照片時用，不必每項再拆區塊。
 - **大字卡片環 `ringCarousel`**：`images[{ url, title?, link?, alt? }]`——**`url` 是圖片、連結欄叫 `link`**（填成 `url` 會被當圖片、`link` 進 ignoredFields）；`title` 顯示在卡片上、`alt` 替代文字。
 - **圖片跑馬 `imageMarqueeRows`**：`images[]` 可以是純網址字串或 `{ url, caption?, alt? }`；**`masonryLightbox`** 的 caption 滑過才顯示（手機點開燈箱可見），所以圖說寫短句。
-- **巨型字標 `giantWordmarkHero`**：`logoUrl` 搭配 `word` 內的 `{logo}` 佔位（例 `"{logo} STUDIO"`），Logo 會以字高內嵌在字標裡、baseline 對齊；`word` 沒寫 `{logo}` 時 Logo 放在字標前面。
+- **巨型字標 `giantWordmarkHero`**：`logoUrl` 搭配 `word` 內的 `{logo}` 佔位（例 `"{logo} STUDIO"`），Logo 會以字高內嵌在字標裡、baseline 對齊；`word` 沒寫 `{logo}` 時 Logo 放在字標前面。深色背景只有深色 Logo：區塊設 `logoTint:"light"`（或 `auto` 依 `bg.textLight`、`#hex` 品牌色），或整站 `site.update` 的 `logoLightUrl` 放白色版（深底自動換圖、保留原配色）。voidHero／ledgerRows／quoteScaleSlider 的 logo 同樣吃 `logoTint`。
+- **主色底收尾 `ctaBand`**：`bg.color` 直接用品牌主色即可——主按鈕與底色對比不足時自動改白底主色字（≥ 4.5:1），不必再換淺灰底避開。
+- **全螢幕選單**：半透明淺色面板（例 `mobileMenu.backgroundColor:"rgba(255,255,255,0.92)"`）打開時頂欄 LOGO／✕ 會自動變深色；選單只想放頁面連結就設 `mobileMenu.showButtons:false`、`showAccount:false`。
+- **頁尾 contact 版型去重複**：`footer.showHoursColumn:false`＋`footer.contactFields`（不放 `line` 就不露出 LINE），有 `footer.columns` 時照自訂連結欄排。
 - **地圖據點 `mapCard`**：`useSiteContact:true` 直接帶入 `site.update { contact }` 的地址／電話／傳真／Email／LINE／營業時間（一處維護）；要個別覆寫再填 `fax`／`email`／`lineId` 等欄位。
 - **音樂／Podcast `trackListPlayer`**：`embed { provider: spotify|apple|youtube, url }` 貼一般分享網址（Spotify playlist／album／track、Apple Music、YouTube 播放清單或影片）就改成 iframe 播放器、不自動播放；沒有 embed 時用內建波形播放器播 `tracks[{ title, artist?, audioUrl（mp3 直連）, coverUrl?, duration?, peaks? }]`。有 embed 時 `tracks[].url` 變成「點曲目開新分頁」的連結（例該首歌的 Spotify 頁）；`links[]` 每行「平台名｜網址」做外部平台按鈕。
 - **圖文重疊 `imageTextOverlap`**：`panelColor`／`panelTextColor` 指定文字板底色與字色（預設跟主色），深色照片上用淺板、淺色照片用深板。
 - **比較表格 `table`**：`highlightIcon: "check"|"none"`——`check` 只把 ✓／v／true／yes／空字串畫成綠勾，其餘文字原樣顯示；`none` 全部顯示原文。
+- **方案卡 `pricing` 權益比較＋訂閱**（2026-11-06）：`matrix { rows:[權益…], values:[[方案1 各列…],[方案2…]] }`（`values[方案][列]`，true→✓、false→—、字串如 `"每月 5 張"` 原樣）——有填就取代 `features`、三張卡逐列對齊、手機多一個「方案卡／比較表」切換；**三張價格卡＋6 列以內的權益用它，不必再另放 `table`／`tierMatrix`**。`plans[].ctaType:"subscribe"` 讓該卡底部變成 Email 輸入框（訂閱品牌電子報並進 CRM，標籤依電子報設定、預設「L1 訂閱者」；`placeholder`／`successText`／`ctaText` 選填），適合「L1 免費訂閱」那張卡。
+- **地圖 `mapCard` 按鈕**：`showMapButton:false` 隱藏「在 Google 地圖開啟」（內嵌地圖照常）。
+- **音樂播放清單 `musicPlaylist`**（新區塊）：`items[{ url, title?, subtitle?, imageUrl? }]` 每項貼 Spotify／Apple Music 分享連結（曲目／專輯／歌單／Podcast），前台變官方播放器；`layout: list|grid|featured`、`size: standard|compact`。多首／多位客戶的音樂用它；單一專輯＋自家音檔波形用 `trackListPlayer`。可連動作品專案（`url←fields.spotifyUrl|fields.appleMusicUrl`，`subtitle←fields.role`）。
 - **訂閱膠囊 `subscribeBar`**：`successText`／`pendingText` 自訂訂閱成功／待 Email 確認的訊息（同頁尾 newsletter）。
 - **內容元件 `hlContent`**：`detailBase:"<slug>"` 讓卡片連到 `/site/<slug>/<項目 slug>`（搭配 `content.detailOnly` 頁，見 §6.5）。
 - **展開服務列 `expandServiceRows`**：項目沒有 `imageUrl` 時文字自動撐全寬，不會留空欄。**段落索引列 `sectionIndexBar`** 的 `right` 預設空（要年份才填 `©2026`）。
 - **開業路線圖 `entityRouteMap`**：幾何已修正，可以直接用原生區塊（不必再用 code 區塊自畫）。
 - **自訂程式 `code`**：script 在公開頁掛載時執行一次、切頁卸載時清除——第三方 widget 初始化放這裡沒問題；但**編輯器畫布不執行 script**，驗證要看公開預覽。不要依賴全域變數跨區塊共用。
 - **背景固定 `bg.fixed:true`**：桌機 `background-attachment: fixed` 視差（手機關閉）；跟 `sx.scrollFx:"parallax"` 擇一，不要疊加。
+
+## 7.14 會變動的內容用「連動資料」，不要手抄
+
+客戶牆、作品輪播、精選專案、團隊、產業星系這類「之後還會增減」的內容，先放進資料模組（作品專案＋分類＋自訂欄位），區塊用 `source` 連動（欄位見 `hypelink-brand-page-mcp` 的〈區塊資料連動〉）。判斷：同一批資料會出現在兩個以上區塊、或品牌會自己新增 → 一律連動；一次性的文案卡片 → 手動 items。身份／產業這類小字放 `customFields`（如 `role`、`industry`），封面以外的多張照片放 `gallery`，首頁精選用 `featured` 篩，不要另開分類。詳細頁網址交給 `@detailUrl`，不要手寫 `/site/...` 連結。
 
 ## 8. 動畫與效能
 - 進站動畫 `theme.intro.style`（counter／curtain／wordmark）一個站選一種，文字用品牌名；不需要就 none。

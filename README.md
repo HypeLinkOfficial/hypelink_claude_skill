@@ -15,6 +15,7 @@
 | **變現與成長**（`hypelink-commerce-mcp/`） | 「上架一個新商品 / 補庫存 / 把訂單標成已出貨並填單號」「幫我開一門課，加章節與單元」「看名單神器投廣頁的名單，把成交的標成 won」「新增一位聯盟 KOL 並寄邀請、給專屬折扣碼」「查這個月待出金的夥伴」 |
 | **寫作專欄**（`hypelink-content-mcp/`） | 「幫我發一篇專欄並排進『旅行筆記』分類」「建立分類：設計 › UI、UX」「把我 WordPress 的文章全部匯入 HypeLink，圖片也搬過來」「這篇改成草稿」 |
 | **CRM**（`hypelink-crm-mcp/`） | 「把丈量表單進來的名單建成客戶並標成已聯絡」「記一筆拜訪互動、階段改成報價中」「列出本週要跟進的客戶」「建一個高意向客戶的分群看有幾人」 |
+| **成交系統**（`hypelink-deal-mcp/`） | 「把這份 Excel 的 40 個人都寄團隊邀請」「有誰在等我審核？把王小明核准」「把陳美華設成管理員」「今天先跟進哪幾個人？」「剛跟李先生通完電話，記一筆並改成準備成交」 |
 | **3D 空間**（`hypelink-space-mcp/`） | 「在展場中間放一張桌子和一台筆電」「把空間改成黃昏、下點雨」「開啟導覽手冊，第一站是入口看板」「用發光的紅色方塊做招牌」 |
 | **品牌官網設計**（`hypelink-brand-site-design/`） | 「幫我做一個 SaaS 官網」「我想要像 https://… 那樣的網站」「哪個範本適合我的餐廳？」「首頁要怎麼排比較專業？」 |
 | **內容豐富品牌頁**（`hypelink-rich-brand-page/`） | 「幫我把品牌頁做豐富一點、模組多加一點」「照偶像 / 餐飲 / 個人品牌的場景把整頁填好」「加幾個漸層 / 圖片背景的連結按鈕連到我的 Spotify / IG / 訂位」 |
@@ -73,7 +74,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    依官方文件把 MCP 設定加進你的 Claude（會用到上一步的 Token）。
    👉 <https://hypelink.app/docs/ai/mcp>
 3. **裝上這些 Skill**
-   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-brand-site-design/`、`hypelink-space-mcp/`、`hypelink-crm-mcp/`、`hypelink-content-mcp/` 八個資料夾放到 Claude 會讀取 skill 的位置：
+   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-brand-site-design/`、`hypelink-space-mcp/`、`hypelink-crm-mcp/`、`hypelink-deal-mcp/`、`hypelink-content-mcp/` 九個資料夾放到 Claude 會讀取 skill 的位置：
    - 個人全域：`~/.claude/skills/`
    - 或你專案的：`.claude/skills/`
 
@@ -86,6 +87,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    ln -s "$(pwd)/hypelink-brand-site-design" ~/.claude/skills/hypelink-brand-site-design
    ln -s "$(pwd)/hypelink-space-mcp"       ~/.claude/skills/hypelink-space-mcp
    ln -s "$(pwd)/hypelink-crm-mcp"         ~/.claude/skills/hypelink-crm-mcp
+   ln -s "$(pwd)/hypelink-deal-mcp"        ~/.claude/skills/hypelink-deal-mcp
    ln -s "$(pwd)/hypelink-content-mcp"     ~/.claude/skills/hypelink-content-mcp
    ```
    （複製整個資料夾過去也可以；只需要用到的 skill 也可只裝其中一兩個。）

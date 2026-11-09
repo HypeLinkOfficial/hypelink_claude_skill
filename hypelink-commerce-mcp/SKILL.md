@@ -82,6 +82,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 - **結帳、金流與退款不開放於 API**（金錢敏感）—— 請走 dashboard「收款管理」。
 - 商品文字欄位分工：`description`＝**簡介**（1–3 句純文字摘要，「商品介紹」區塊開頭的導言，不要放 HTML）；`intro`＝**詳細介紹**（HTML 富文字，接在簡介後）。description 帶 HTML 時工具會回 `warnings` 提醒改放 intro。
+- **SEO 與商品 Feed 欄位（HL-41，2026-11-07）**：`mall.products.create / update` 可帶 `seoTitle`／`seoDescription`／`seoNoindex`（商品頁 metadata），以及 Feed 欄位 `brandName`、`compareAtPrice`（原價；`basePrice` 為售價）、`currency`（預設 TWD）、`gtin`、`mpn`、`condition`（new|refurbished|used）、`availabilityOverride`（in_stock|out_of_stock|pre_order|backorder；GMC 輸出時 `pre_order`→`preorder`，且 preorder／backorder 必附 `availabilityDate`）、`availabilityDate`、`googleProductCategory`、`productType`、`shippingDaysMin/Max`、`returnDays`、`feedExcluded`、`weightGrams`；規格 `variants[].options {color,size,material,…}`、`gtin`、`mpn`、`compareAtPrice`。商品異動會自動排程重產 Feed（5 分鐘合併）。Feed 匯出本身（GMC／OpenAI 規格／CSV）在 dashboard「AI 搜尋與曝光 › 商品 Feed」（Pro 起）；OpenAI 僅為「規格匯出」，不等於已提交或收錄。
 - `mall.orders.update_fulfillment` 會**對外寄通知信**：先 `dry_run`（回傳狀態前後對照與 `willEmailBuyer` 收件人）、使用者確認後再送。
 
 ---
@@ -132,6 +133,21 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 - 典型用法：外部 app 登入後以 email 呼叫 `payconnect.member.status`，`hasActiveSubscription` 或 `tierGrants` 含指定 `tierKey` 即放行。
 - 訂閱訂單只存會員 uuid，帶 `email` 查訂閱時會先反查會員；查無會員回空陣列。
 - 回傳含買家 email／姓名等個資，比照名單匯出處理。
+
+---
+
+## 六、公開目錄（`catalog:read`，唯讀；HL-41 Agent Commerce API）
+
+| Tool | Scope | 說明 |
+|---|---|---|
+| `catalog.brand.get` | read | 品牌公開資訊（名稱、簡介、SEO、canonical 網址、各目錄連結） |
+| `catalog.products.search` | read | 公開商品搜尋（`q`／`category`／`channel`／`cursor`／`updated_since`）；只回上架、非會員限定隱藏 |
+| `catalog.products.get` | read | 單一商品（規格、價格、庫存狀態、canonical 網址） |
+| `catalog.cart.checkout_link` | read | 回商品頁結帳連結（帶 `utm_source=agent&utm_medium=api`）；**不建購物車、不付款** |
+| `catalog.events.list` / `catalog.courses.list` | read | 公開活動／課程 |
+
+- 同資料亦有免授權 REST：`GET https://api.hypelink.app/api/v1/public/brands/:hypeId[/products|/products/:uuid|/events|/courses]`（IP 限流 60/min，`Cache-Control` 60 秒），OpenAPI 在 `/api/v1/openapi.json`。
+- 交易型操作（建購物車、代付款）未開放；付款狀態一律以金流驗證為準。
 
 ---
 

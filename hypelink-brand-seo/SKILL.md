@@ -55,6 +55,22 @@ description: HypeLink 品牌 SEO 教練——用 HypeLink MCP 直接讀寫品牌
 4. 檢查頁面 H1/首段是否真的含該意圖的語彙（不是塞關鍵字，是自然出現）
 5. 發布後請品牌方用 Google `site:自己的網域` 檢查收錄，1–2 週後對照 搜尋成效 › 熱門頁面
 
+## 可見 AEO 區塊（摘要與常見問題要「看得到」，不只放 JSON-LD）
+
+AI 搜尋（ChatGPT／Perplexity／Google AI Overview）引用的是**頁面上實際可見的文字**；只有 JSON-LD、頁面上沒有對應內容的 FAQPage，Google 已不再給 rich result，也有被判定為隱藏內容的風險。所以 HypeLink 的做法一律是「頁面可見的段落 ＋ 同一份資料輸出結構化資料」：
+
+| 頁面 | 可見內容 | 欄位／區塊 | 結構化資料 |
+|---|---|---|---|
+| 商品頁 `/@id/mall/<slug>` | 「重點摘要」段落＋「常見問題」（`<details>` 可展開，SSR 直出） | `mall.products.create／update` 的 `aeoSummary`（≤600 字）、`faq[{q,a}]`（≤10 題） | `Product.abstract`＝aeoSummary；`FAQPage`＝faq。沒填 aeoSummary 時頁面用商品介紹前兩句 |
+| 作品頁 `/@id/projects/<slug>` | 摘要答案＋FAQ | 作品的 `aeoSummary`／`faq`（後台作品 › SEO 分頁） | `CreativeWork.abstract`＋`FAQPage` |
+| 官網頁 `/@id/site[/<slug>]` | 區塊 **`aeoAnswers`**：眉標「AI 搜尋摘要」＋ 20–22px 直接回答段落＋ `<details>` 常見問題 | `site.pages.update` 放區塊 `{ type:"aeoAnswers", summary, faq[], layout:"stack"\|"twoCol", useSiteSeo?, showSchema? }` | 區塊自己輸出 `FAQPage`（`showSchema` 預設 true）；`useSiteSeo:true` 時摘要／問答從 `site.seo.geoSummary`／`seo.faq` 帶入，且不再重複輸出（首頁已由系統輸出） |
+
+寫法：
+- `aeoSummary`／`summary`：2–4 句直接回答「這是什麼、適合誰、為什麼選」，可被整段引用；不要寫成廣告標語。
+- `faq`：用顧客真的會問的句子當 `q`（「可以分期嗎？」「多久出貨？」），`a` 純文字 1–3 句、給具體數字；一頁 3–6 題最有效，上限 10。
+- 官網想「一處維護」就把內容寫進 `site.update { seo: { geoSummary, faq } }`，再在要出現的頁面放 `aeoAnswers { useSiteSeo:true }`；單頁要客製就直接在區塊裡填 `summary`／`faq`（區塊自填優先於站台設定）。
+- 同一頁不要放兩個都開 `showSchema` 的 FAQ 區塊（會輸出兩份 FAQPage）。
+
 ## 文案守則（寫 title/description 時）
 
 - title：中文約 25–30 字內（≈60 字元），意圖詞在前、品牌名在後，不堆砌

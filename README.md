@@ -19,6 +19,7 @@
 | **3D 空間**（`hypelink-space-mcp/`） | 「在展場中間放一張桌子和一台筆電」「把空間改成黃昏、下點雨」「開啟導覽手冊，第一站是入口看板」「用發光的紅色方塊做招牌」 |
 | **品牌官網設計**（`hypelink-brand-site-design/`） | 「幫我做一個 SaaS 官網」「我想要像 https://… 那樣的網站」「哪個範本適合我的餐廳？」「首頁要怎麼排比較專業？」 |
 | **內容豐富品牌頁**（`hypelink-rich-brand-page/`） | 「幫我把品牌頁做豐富一點、模組多加一點」「照偶像 / 餐飲 / 個人品牌的場景把整頁填好」「加幾個漸層 / 圖片背景的連結按鈕連到我的 Spotify / IG / 訂位」 |
+| **做簡報的方法**（`hypelink-deck-craft/`） | 「幫我做一份募資簡報」「這份簡報吸引人嗎？幫我改」「把我的作品做成提案簡報，先給我看大綱」「我要帶工作坊，幫我排一步一頁的投影片」 |
 
 > **變現與成長** skill 涵蓋名單神器（`leads`）、線上商店（`mall`）、線上課程（`courses`）、聯盟行銷（`affiliates`）與 PayConnect 唯讀查詢（`payconnect`：外部系統以 email 查會員資格 / 付款狀態），皆為付費方案功能；結帳 / 退款 / 出金等金錢操作僅開放於後台，MCP 不提供。
 >
@@ -74,7 +75,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    依官方文件把 MCP 設定加進你的 Claude（會用到上一步的 Token）。
    👉 <https://hypelink.app/docs/ai/mcp>
 3. **裝上這些 Skill**
-   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-brand-site-design/`、`hypelink-space-mcp/`、`hypelink-crm-mcp/`、`hypelink-deal-mcp/`、`hypelink-content-mcp/` 九個資料夾放到 Claude 會讀取 skill 的位置：
+   把 `hypelink-brand-page-mcp/`、`hypelink-event-mcp/`、`hypelink-commerce-mcp/`、`hypelink-rich-brand-page/`、`hypelink-deck-craft/`、`hypelink-brand-site-design/`、`hypelink-space-mcp/`、`hypelink-crm-mcp/`、`hypelink-deal-mcp/`、`hypelink-content-mcp/` 九個資料夾放到 Claude 會讀取 skill 的位置：
    - 個人全域：`~/.claude/skills/`
    - 或你專案的：`.claude/skills/`
 
@@ -89,6 +90,7 @@ Claude 就會幫你套上去（頭像、品牌 Logo、社群分享圖、活動�
    ln -s "$(pwd)/hypelink-crm-mcp"         ~/.claude/skills/hypelink-crm-mcp
    ln -s "$(pwd)/hypelink-deal-mcp"        ~/.claude/skills/hypelink-deal-mcp
    ln -s "$(pwd)/hypelink-content-mcp"     ~/.claude/skills/hypelink-content-mcp
+   ln -s "$(pwd)/hypelink-deck-craft"      ~/.claude/skills/hypelink-deck-craft
    ```
    （複製整個資料夾過去也可以；只需要用到的 skill 也可只裝其中一兩個。）
 

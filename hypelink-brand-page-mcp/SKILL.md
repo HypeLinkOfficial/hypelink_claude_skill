@@ -30,6 +30,8 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 ## Scope
 
 - `homeinfo:read` → 可讀（profile / folders / links / modules / socials / design / themes / webhooks）
+- `analytics:read` → 唯讀 `analytics.ai_referrals.summary`（AI 引薦 session／轉換／營收，僅含可辨識來源的下限值；HL-41）
+- `catalog:read` → 公開目錄唯讀工具 `catalog.*`（見 hypelink-commerce-mcp 第六節）
 - `homeinfo:write` → 才能寫（含 webhooks；Webhook 建立 / 啟用 / test 另需 **Max 方案**）
 - 部分寫入工具支援 `dry_run: true`（inputSchema 有 `dry_run` 才支援，不是每支都有）：**會跑完整驗證**（錯了一樣回 `VALIDATION_FAILED`），並回傳將變更的欄位與 `ignoredFields`（會被伺服器忽略的欄位）。
 - 破壞性操作（刪除／還原／重設等，`tools/list` 標 `destructiveHint`）**一律兩段確認**：第一次呼叫只回 `confirmToken` 與將執行的內容，向使用者確認後 5 分鐘內帶 `confirmToken`＋**相同參數**再呼叫才執行（換參數會回 `CONFIRM_INVALID`）。

@@ -47,6 +47,7 @@ description: 透過 HypeLink MCP server 經營品牌的 CRM（商業工具 › C
 | `crm.members.add_note` | write | `{ memberUuid, content }` |
 | `crm.members.add_interaction` | write | `{ memberUuid, type, note?, occurredAt? }`；type 例 call / meeting / email / line / visit / other；會更新最近互動與互動分數 |
 | `crm.members.delete` | write | 兩階段確認 |
+| `crm.members.import` | write | `{ members: [{ name?, email?, phone?, lineId?, birthday?, tier?, tags?, categories?, source?, note? }], updateExisting?, dry_run? }` **批次匯入或更新（upsert）**，一次最多 **2000 筆**，與後台「會員 › 匯入 CSV」同一套邏輯。判重 email → phone → lineId；新會員 status=active、joinSource=import；既有會員 `updateExisting:true` 才更新（只覆寫有給的欄位，`tags`／`categories` **合併**不洗掉、`note` 追加為備註、潛在客戶／審核中升為正式會員），否則略過。`tier` 可填等級 key 或名稱。回 `{ created, updated, skipped, errors, rows:[{ row, action, memberUuid?, reason? }] }`。**建議先 `dry_run:true`** 看每列動作再正式執行。匯入的 email 若有 HypeLink 帳號，該使用者登入後即為品牌會員 |
 | `crm.members.bulk_create` | write | `{ members: [...], dry_run? }` 一次最多 **500 筆**，每筆欄位同 `create`；逐筆執行、逐筆回報（`results[].ok`），某筆失敗不影響其他筆。超過 500 筆請分批 |
 | `crm.members.bulk_update` | write | `{ updates: [{ memberUuid, ...欄位 }], dry_run? }` 一次最多 500 筆，逐筆回報；`tags`／`categories` 整組取代，先 `get` 讀現值合併 |
 | `crm.members.bulk_delete` | write | `{ memberUuids: [...] }` 兩階段確認，一次最多 500 筆 |

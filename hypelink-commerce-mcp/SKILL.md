@@ -87,6 +87,35 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 
 ---
 
+### 一頁商店（🧪 測試中，僅內部帳號；沿用 `mall:*`）
+
+把商品介紹、方案選擇、收件與付款放在同一頁（`/@id/buy/<slug>`，有自訂網域則是 `https://<網域>/buy/<slug>`），訂單一樣進線上商店。
+
+| Tool | Scope | 用途 |
+|------|-------|------|
+| `mall.onepages.list` | read | 頁面列表＋成效摘要（瀏覽／訂單／營收／轉換率／投報率／貨到付款待收款） |
+| `mall.onepages.get` | read | 單一頁面完整設定（商品、內容、促銷、貨到付款、追蹤、SEO） |
+| `mall.onepages.create` | write | 建立草稿；必填 `title`、`productUuids`（先 `mall.products.list` 查 uuid） |
+| `mall.onepages.update` | write | 更新；`status: "published"` 發布 |
+| `mall.onepages.duplicate` | write | 複製；`asVariant: true` 建立 A/B 版本（共用網址） |
+| `mall.onepages.delete` | write | 刪除頁面（兩階段確認） |
+| `mall.onepages.analytics` | read | 成效（`days` 7～90）含 A/B 版本比較 |
+| `mall.onepages.orders` | read | 這一頁的訂單（**含買家個資**）；`filter`：all／cod_pending／paid |
+| `mall.cod_blocks.list` / `add` / `remove` | read / write | 貨到付款限制名單（**含買家手機／Email**） |
+
+- **整組覆寫**：`content`、`promo`、`checkout`、`tracking`、`seo` 每一組都是整組取代。改任何一項之前先 `mall.onepages.get`，在回傳的那一組上修改後整組送回，否則其他設定會被清成預設值。
+- **促銷 `promo`**（金額一律整數元）：
+  - `tiers`：多件優惠。`{minQty, mode, value, badge?}`，`mode`＝`unit_price`（每件 value 元）／`percent_off`（折掉 value%，打 85 折填 15）／`amount_off`（總價折 value 元）；達到多階時取件數最高的一階。
+  - `addons`：加價購 `{productUuid, variantUuid, price, maxQty}`，不算進多件優惠的件數。
+  - `gifts`：贈品 `{type: amount|qty, threshold, name, variantUuid?}`；有 `variantUuid` 會扣庫存出貨，沒有就只註記在訂單上。滿額以折扣後金額判斷。
+  - `freeShipping`：`{mode: none|always|amount|qty, threshold}`。
+  - `countdown`：`{enabled, endsAt(ISO), label}`；到期後多件優惠、贈品、免運由伺服器自動停止（加價購不受影響）。
+  - `scarcity`、`allowDiscountCode`、`maxQtyPerOrder`。
+- **貨到付款 `checkout.cod`**：`{enabled, channels: [cvs|home], maxAmount, maxPendingPerPhone, fee, note}`。`fee` 是手續費（元），買家選貨到付款時加在總額上；`maxAmount` 以不含手續費的金額判斷。只適用實體商品。
+- **已發布的頁面改了立即生效**（正在結帳的買家會被要求重新確認）。改價格類設定（多件優惠、加購價、手續費）前先把要改的內容講給使用者確認。
+- **不開放**：標記已收款、標記拒收（請走 dashboard）；Conversions API 權杖（機密，`get` 只回遮罩，`update` 帶 `tracking` 時沿用原本的權杖）。
+- `adSpend` 是使用者自己填的廣告花費，用來算投報率——不要自己估，請使用者提供數字。
+
 ## 三、線上課程（`courses:*`）
 
 | Tool | Scope | 說明 |

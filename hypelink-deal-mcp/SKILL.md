@@ -9,7 +9,7 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
 
 | 介面 | 網址 | 誰用 | 對應工具 |
 |---|---|---|---|
-| 成交團隊管理員頁 | `/deal/admin` | 擁有者、管理員 | `deal.teams.*`、`deal.playbook.*`、`deal.members.*`、`deal.requests.*`、`deal.invites.*` |
+| 成交團隊管理員頁 | `/deal/admin` | 擁有者、管理員 | `deal.teams.*`、`deal.playbook.*`、`deal.members.*`、`deal.requests.*`、`deal.invites.*`、`deal.prebuilt.*` |
 | 品牌後台 › 成交系統 | `/dashboard/brands/@id/tool/deal` | 每位成員 | `deal.overview.get`、`deal.contacts.*`、`deal.partners.contacts`、`deal.calendar.get`、`deal.goals.*`、`deal.me.*`、`deal.invites.*`、`deal.playbook.list` |
 
 > 成交系統的「名單」就是 CRM 會員（同一個 `memberUuid`、同一筆資料），CRM 欄位、標籤庫、分群見 `hypelink-crm-mcp`。
@@ -37,7 +37,7 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
   - 設定／取消管理員只有**擁有者**能做；管理員不能移除其他管理員。
   - 主管只看得到自己的下線，內容依對方選的分享等級（`stats` 只有數字／`list` 名單／`full` 完整紀錄）；工作、家庭、伴侶、資金與保單**任何等級都不分享**。
 - **不開放**：AI 今日重點、AI 行動包、AI 摘要／建議、保單 AI 讀取（扣 SP 或用金鑰）；團隊與個人 AI 金鑰設定（成員可在成交系統 › 設定「我的 AI 金鑰」掛自己的金鑰，AI 會優先走它，再來才是團隊金鑰、平台 SP）；Teams 組織連結。
-- 破壞性操作（`deal.teams.reset_invite_code`、`deal.members.remove`、`deal.playbook.delete`、`deal.invites.delete`）一律**兩段確認**：第一次呼叫只回 `confirmToken` 與將執行的內容，**先跟使用者確認**，再於 5 分鐘內帶 `confirmToken`＋相同參數呼叫一次。
+- 破壞性操作（`deal.teams.reset_invite_code`、`deal.members.remove`、`deal.playbook.delete`、`deal.invites.delete`、`deal.prebuilt.delete`）一律**兩段確認**：第一次呼叫只回 `confirmToken` 與將執行的內容，**先跟使用者確認**，再於 5 分鐘內帶 `confirmToken`＋相同參數呼叫一次。
 - 名單屬個資：只在使用者要求時輸出電話／Email；摘要以姓名、階段、下一步為主。以品牌邀請時系統不會回傳對方擁有者的信箱，不要試圖推測或索取。
 
 ## Scope
@@ -102,6 +102,18 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
 | `deal.invites.search_brands` | read | `{ teamUuid, q }` 用 hypeId 或名稱搜尋公開品牌頁，依關聯度排序（hypeId 完全相符＞開頭＞名稱完全相符＞名稱開頭＞包含），最多 8 筆；`teamStatus` active／pending／null、`mine` 自己的品牌 |
 | `deal.invites.send` | write | `{ teamUuid, invites: [...], message?, dryRun? }` 一次最多 **200 位**。每位可為 `"a@b.com"`、`"王小明 <a@b.com>"`、`"王小明, a@b.com"`、`"@hypeId"`，或 `{ email, name }`／`{ hypeId }`（也收 Excel 表頭 `姓名`、`Email`、`品牌`）。以品牌邀請＝寄給該品牌擁有者（信箱不回傳），連結預選該品牌 |
 | `deal.invites.delete` | write ⚠️ | `{ teamUuid, inviteUuid }` 刪紀錄（信無法收回、連結仍有效；兩段確認） |
+| `deal.prebuilt.list` | read | `{ teamUuid }` **預建成員**（擁有者／管理員）：還沒加入、先放進組織的人，不算人數、不進統計。`status`：`draft` 沒有 Email／品牌｜`ready` 可寄｜`invited` 已寄｜`pending` 對方已申請待審。`canInviteAt` 有值＝冷卻中 |
+| `deal.prebuilt.upsert` | write | `{ teamUuid, prebuiltUuid?, name?, email?, hypeId?, parentMemberUuid?, role? }` 不帶 `prebuiltUuid`＝新增（`name` 必填，其餘可之後補）；帶＝只改有給的欄位。`email`／`hypeId` 擇一，空字串＝清掉。`role: "admin"` 只有擁有者能設。**不會寄信** |
+| `deal.prebuilt.invite` | write | `{ teamUuid, prebuiltUuid, message? }` 寄邀請（要先有 Email 或品牌；同一對象 24 小時一次）。連結預選這筆預建成員的主管 |
+| `deal.prebuilt.delete` | write ⚠️ | `{ teamUuid, prebuiltUuid }` 刪除（兩段確認；預設為管理員的只有擁有者能刪）。已寄出的信無法收回 |
+
+**預建成員的流程**（使用者說「先把某某加進團隊，Email 之後給」）：
+
+1. `deal.prebuilt.upsert { teamUuid, name, parentMemberUuid?, role? }` 先建立；主管用 `deal.members.list` 的 `memberUuid`，不給＝掛在擁有者底下。
+2. 之後使用者提供 Email：`deal.prebuilt.list` 找到那一筆 → `deal.prebuilt.upsert { prebuiltUuid, email }`。
+3. **跟使用者確認對象與 Email 後**才 `deal.prebuilt.invite`（會真的寄信）。不要在補 Email 的同一步自動寄出，除非使用者明講。
+4. 對方用同一個 Email 的帳號（或指定的品牌頁）申請時自動對應，狀態變 `pending`；照常用 `deal.requests.list`／`deal.requests.decide` 審核，申請上的 `preset` 會標出通過後的角色。通過後才成為成員並套用預設角色，預建成員從列表消失。
+5. 預建成員不是成員：不要把它算進團隊人數，也不要對它用 `deal.members.*`。
 
 **寄邀請的流程**：
 

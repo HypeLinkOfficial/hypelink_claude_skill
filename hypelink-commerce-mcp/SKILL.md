@@ -53,6 +53,7 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 | `lead_pages.update` | write | 更新；`status: "published"` 即發布。`sections` 建議先 `get` 取回、改完整組回寫 |
 | `lead_pages.delete` | write | 兩階段確認 |
 | `lead_pages.create_variant` | write | 複製為 A/B 變體（權重分流） |
+| `lead_pages.survey_stats` | read | 快速問卷回覆統計：回覆數、完成率、每題答案分布、各結果頁人數 |
 | `leads.list` | read | 名單匣（狀態管線＋標籤）；**回應含個資** |
 | `leads.update` | write | 改單一名單狀態 / 標籤 |
 
@@ -61,7 +62,26 @@ description: 透過 HypeLink MCP server 經營品牌的變現與成長功能—�
 - `theme.animation`：`{ blocksEnabled?, durationSec?(0–10，預設 0.7), defaultEntrance?, transition?: none/stack/fade/horizontal }`（`transition` 為區塊之間的滾動切換）；`theme.layout.sectionMinHeight` 為全頁預設高度。
 - `seo` 除 title／description／OG 外可帶 GEO 欄位：`geoSummary`、`geoKeyPoints[]`、`geoFaq[{q,a}]`、`geoEntities`（輸出成 JSON-LD 供 AI 搜尋引擎引用）。
 - **僅 dashboard**：版本紀錄（草稿／已發布版本還原，creator 以上）、「表單與數據」（UTM／點擊數據；互動熱點圖 creator 以上、滑鼠軌跡 Pro 以上，資料依方案保留 30–365 天）、GEO AI 助手（扣 SP）。
-- **AI 生成 / AI 調整版面需扣 SP，不開放於 API** —— 請走 dashboard。
+- **AI 生成 / AI 調整版面 / AI 建問卷需扣 SP，不開放於 API** —— 請走 dashboard。
+
+### 快速問卷（沿用 `lead_pages.*`）
+
+快速問卷和投廣頁是同一種資源，差別在模板與 `formSchema.mode`。
+
+1. `lead_pages.templates` 找 key 以 `survey` 開頭的模板（`survey`、`survey-csat`、`survey-nps`、`survey-event`、`survey-market`），`lead_pages.create` 帶該 `template`
+2. `lead_pages.get` 取回 `formSchema`，改完用 `lead_pages.update` **整組回寫**（欄位會逐項驗證，打錯會列出可用欄位）
+3. `status: "published"` 發布；回覆統計用 `lead_pages.survey_stats`，個別回覆用 `leads.list` 帶 `pageUuid`
+
+`formSchema` 欄位：
+
+- `mode: "survey"`（逐題填答）、`anonymous`（匿名：回覆只進統計、不進 CRM）、`oncePerPerson`（同一 Email／電話限填一次）、`crmSync`（回覆同步到 CRM，預設開）、`welcomeImageUrl`
+- `fields[]`：`{ key, label, type, required?, options?, description?, imageUrl? }`；`type` 為 `text`／`textarea`／`email`／`tel`／`select` 單選／`multi` 多選／`rating` 1–5 星／`nps` 0–10 分／`date`
+- 跳題（單選題）：`jump: { "選項": "下一題 key" | "__result:<結果 id>" | "__end" }`
+- 計分：`scores: { "選項": 分數 }`；依累計分數跳題：`scoreRules: [{ min?, max?, target }]`
+- 寫回 CRM：`crm: { asTag: true }` 把答案加成客戶標籤，`crm: { field: "<自訂欄位 key>" }` 寫進自訂欄位
+- `results[]`：結果頁 `{ id, title, description?, imageUrl?, min?, max? }`，可由跳題指定，或依總分落在 `min`～`max` 決定
+
+注意：題目的 `key` 建立後不要改，否則舊回覆會對不上；非匿名問卷至少要有一題 Email 或電話才能辨識填答者。
 - `leads.list` 回傳 Email／電話／表單答案等個資，比照名單匯出處理（勿貼公開處）。
 
 ---

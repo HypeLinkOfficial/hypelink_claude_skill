@@ -213,7 +213,7 @@ description: 透過 HypeLink MCP server 製作 / 編輯品牌頁（首頁資訊�
 
 ### 品牌官網（Brand Site，`/@id/site`；scope 仍為 `homeinfo:*`）
 
-> **方案門檻：所有 `site.*` 工具限 Enterprise 方案（2026-10-19 自 Max 上移）。** 看的是**帳號**方案：品牌擁有者帳號或建立這個 token 的操作者帳號，任一為 Enterprise 即可（Enterprise 帳號替其他方案客戶的品牌做官網也能用）；都未達時 tools/call 回 `PLAN_REQUIRED`。另外品牌官網本體全方案可用；`site.apply_template`／`site.apply_page_template` 另限品牌擁有者 Creator（含）以上（Free 回 `CREATOR_PLAN_REQUIRED`）。遇到這個錯誤不要重試，請使用者到 HypeLink「方案與帳單」升級；官網仍可在後台頁面編輯器手動製作。
+> **方案門檻：所有 `site.*` 工具限 Pro 方案以上（Pro／Max／Enterprise；2026-11-20 自 Enterprise 下修）。** 看的是**帳號**方案：品牌擁有者帳號或建立這個 token 的操作者帳號，任一為 Pro 以上即可（Pro 以上帳號替其他方案客戶的品牌做官網也能用）；都未達時 tools/call 回 `PLAN_REQUIRED`。另外品牌官網本體全方案可用；`site.apply_template`／`site.apply_page_template` 另限品牌擁有者 Creator（含）以上（Free 回 `CREATOR_PLAN_REQUIRED`）。遇到這個錯誤不要重試，請使用者到 HypeLink「方案與帳單」升級；官網仍可在後台頁面編輯器手動製作。
 > **範本可能被平台限制：** 平台可設定某些範本／分類只開放給特定方案或帳號。`site.templates.list` 只會列出這個品牌看得到的範本；套用沒開放的範本會回 `NOT_FOUND`（「未開放給此品牌的方案」），改挑清單裡的範本即可。
 官網是「頁面系統」：每頁是 **builder**（頁面編輯器頁，區塊陣列）／**content**（接後台資料：作品專案、商店、專欄、最新消息、課程、3D 展、關於、聯絡、會員中心）／**html**／**link**。所有寫入都是**存草稿**，要 `site.publish` 公開頁才會變。
 

@@ -103,9 +103,22 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
 | `deal.invites.send` | write | `{ teamUuid, invites: [...], message?, dryRun? }` 一次最多 **200 位**。每位可為 `"a@b.com"`、`"王小明 <a@b.com>"`、`"王小明, a@b.com"`、`"@hypeId"`，或 `{ email, name }`／`{ hypeId }`（也收 Excel 表頭 `姓名`、`Email`、`品牌`）。以品牌邀請＝寄給該品牌擁有者（信箱不回傳），連結預選該品牌 |
 | `deal.invites.delete` | write ⚠️ | `{ teamUuid, inviteUuid }` 刪紀錄（信無法收回、連結仍有效；兩段確認） |
 | `deal.prebuilt.list` | read | `{ teamUuid }` **預建成員**（擁有者／管理員）：還沒加入、先放進組織的人，不算人數、不進統計。`status`：`draft` 沒有 Email／品牌｜`ready` 可寄｜`invited` 已寄｜`pending` 對方已申請待審。`canInviteAt` 有值＝冷卻中 |
-| `deal.prebuilt.upsert` | write | `{ teamUuid, prebuiltUuid?, name?, email?, hypeId?, parentMemberUuid?, role? }` 不帶 `prebuiltUuid`＝新增（`name` 必填，其餘可之後補）；帶＝只改有給的欄位。`email`／`hypeId` 擇一，空字串＝清掉。`role: "admin"` 只有擁有者能設。**不會寄信** |
+| `deal.prebuilt.upsert` | write | `{ teamUuid, prebuiltUuid?, name?, email?, hypeId?, parentMemberUuid?, parentPrebuiltUuid?, role? }` 不帶 `prebuiltUuid`＝新增（`name` 必填，其餘可之後補）；帶＝只改有給的欄位。`email`／`hypeId` 擇一，空字串＝清掉。`role: "admin"` 只有擁有者能設。**不會寄信** |
 | `deal.prebuilt.invite` | write | `{ teamUuid, prebuiltUuid, message? }` 寄邀請（要先有 Email 或品牌；同一對象 24 小時一次）。連結預選這筆預建成員的主管 |
 | `deal.prebuilt.delete` | write ⚠️ | `{ teamUuid, prebuiltUuid }` 刪除（兩段確認；預設為管理員的只有擁有者能刪）。已寄出的信無法收回 |
+
+| `deal.prebuilt.bulk_create` | write | `{ teamUuid, items: [{ ref?, parentRef?, name, email?, hypeId?, parentMemberUuid?, parentPrebuiltUuid?, role? }] }` 一次最多 **200 筆**，匯入整段組織用。回 `created[{index, ref, uuid}]`、`errors[{index, ref, message}]`、`total`、`max`。逐筆處理，有錯的列不影響其他列；主管沒建成的列也不會建立。不寄信 |
+
+**主管可以是另一位預建成員**：`deal.prebuilt.upsert` 的 `parentPrebuiltUuid`（與 `parentMemberUuid` 擇一），整棵還沒加入的組織可以先排好，不能掛在自己或自己底下的人。`deal.prebuilt.list` 每筆會回 `parentPrebuiltUuid`。每個團隊上限看 `list` 的 `max`（預設 5,000）。
+
+**匯入一大棵組織樹**（例如上千人的名單）：
+
+1. 先把名單整理成「每個人＋他的上線」，依層級由上往下排序（上線一定排在下線前面）。
+2. 用 `deal.prebuilt.bulk_create`，每批最多 200 筆。同一批裡用 `ref`（例如名單上的編號）和 `parentRef` 連上下線。
+3. 上線在前一批已經建好時，不能再用 `parentRef`：從前一批回傳的 `created` 取出該 `ref` 對應的 `uuid`，這一批改填 `parentPrebuiltUuid`。自己維護一份「名單編號 → uuid」的對照表。
+4. 每批送完檢查 `errors`。常見原因：Email 重複、Email 已是團隊成員、上線沒建成。修正後只重送失敗的列——成功的列不要重送，否則會重複建立。
+5. 全部送完用 `deal.prebuilt.list` 核對筆數與幾個抽樣的上下線。
+6. 最上層的人不填上線＝掛在擁有者底下；上線是已經加入的成員就填 `parentMemberUuid`。
 
 **預建成員的流程**（使用者說「先把某某加進團隊，Email 之後給」）：
 

@@ -1,6 +1,6 @@
-# 官網區塊目錄（233 種）
+# 官網區塊目錄（234 種）
 
-> 自動產生於 2026-11-23（`tools/gen-site-reference.mjs`），依頁面編輯器的分類分組。
+> 自動產生於 2026-11-24（`tools/gen-site-reference.mjs`），依頁面編輯器的分類分組。
 > 欄位與空白預設值以 `site.blocks.catalog { q }` 的 `blank` 為準；這裡只列「長什麼樣、放幾項」幫你選。
 > 建議項數＝版面好看的筆數；標籤字數＝項目標題建議上限（中日韓字算 1）。
 
@@ -93,6 +93,7 @@
 | `featureTabsPanel` | 圖示分頁面板 | 淡灰圓角大面板：雙色眉標與大標，一排帶圖示的膠囊分頁（選中為白底浮起），下方左欄副色標題＋說明、右欄 2 倍寬的產品截圖白框陰影。 | 2–6 | 6 |
 | `spotlightRoadmap` | 光暈人物＋卡列 | 置中兩行大標與引言，中間一張白底人物／產品去背圖浮在主色光暈裡，下方接一條白色陰影卡列（四欄以分隔線隔開：主色標題、副色副標、灰色說明），卡列上緣可掛漸層小標籤（如即將推出）。 | 2–4 | 10 |
 | `glowCta` | 光暈 CTA 卡 | 置中的深靛圓角卡，左上主色、右下副色的柔和光暈，白色大標、半透明副標、主色到副色漸層按鈕與小字。 |  |  |
+| `reactBits` | React Bits 效果 | 滿版深色舞台（可自訂底色）：背後一層 React Bits 動態背景（bgFx：aurora 極光／particles 粒子／waves 波浪線／threads 絲線／iridescence 虹彩／liquidChrome 液態金屬／galaxy 星系／dotGrid 點陣／lightRays 光束／plasma 電漿／none），中央小標、套了文字效果的大標題（textFx：split 逐字升起／blur 模糊進場／shiny 流光／gradient 漸層流動／decrypt 解碼／rotate 輪播字／type 打字／focus 輪流對焦／none）、說明與兩顆按鈕。rotate／type 會輪流顯示 words（一行一個）並接在 headline 後面。效果色留空時跟著主題主色與副色。適合當首頁開場或段落之間的視覺重點；一頁建議最多兩個。 |  | 12 |
 | `giantWordmarkHero` | 巨字字標 Hero | 黑底（或滿版壓暗背景圖）上一行撐滿寬的粗體字標（72–300px、字距 -0.04em），下方一句灰字說明；四個角落各一段等寬小字 meta（公司名／城市／服務／年份）。variant=marquee 字標橫向跑馬、fill=outline 只描邊。logoUrl 可放 Logo：字標裡寫 {logo} 會換成圖（高度對齊字高），沒寫則放在字標前；深色背景只有深色 Logo 時設 logoTint: auto／light／dark／#hex（auto 依 bg.textLight），或在 site.update 設 logoLightUrl 自動換淺色版。製作公司、工作室的開場。 |  | 14 |
 | `cornerInfoHero` | 四角資訊 Hero | 滿版背景圖或影片壓暗，四個角落各一組資訊卡（等寬眉標＋多行文字：Studio／Contact／Services／Now），中央可放一行粗體大字；cardStyle=glass 改成霧面白卡。像一張海報的封面頁。 |  |  |
 | `pinnedCaseScreens` | 釘住案例屏 | 一案一屏的 sticky 疊圖：每件 100vh（手機 80vh）背景圖壓暗，釘在畫面頂端被下一件蓋過；左下 01/03 編號＋粗體標題＋說明＋細框按鈕，右上角巨型數據（+240%）＋小字標籤，或整屏半透明浮水印大字（BOOKS）。 | 2–8 | 30 |

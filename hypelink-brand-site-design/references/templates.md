@@ -1,6 +1,6 @@
 # 官網範本目錄（131 個）
 
-> 自動產生於 2026-11-23。套用：`site.apply_template { key, mode: "replace"|"append", applyTheme: true, dry_run: true }`；只拿一頁：`site.apply_page_template`。
+> 自動產生於 2026-11-24。套用：`site.apply_template { key, mode: "replace"|"append", applyTheme: true, dry_run: true }`；只拿一頁：`site.apply_page_template`。
 
 ## 作品集
 

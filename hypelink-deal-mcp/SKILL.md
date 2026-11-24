@@ -104,7 +104,8 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
 | `deal.invites.delete` | write ⚠️ | `{ teamUuid, inviteUuid }` 刪紀錄（信無法收回、連結仍有效；兩段確認） |
 | `deal.prebuilt.list` | read | `{ teamUuid }` **預建成員**（擁有者／管理員）：還沒加入、先放進組織的人，不算人數、不進統計。`status`：`draft` 沒有 Email／品牌｜`ready` 可寄｜`invited` 已寄｜`pending` 對方已申請待審。`canInviteAt` 有值＝冷卻中 |
 | `deal.prebuilt.upsert` | write | `{ teamUuid, prebuiltUuid?, name?, email?, hypeId?, parentMemberUuid?, parentPrebuiltUuid?, role? }` 不帶 `prebuiltUuid`＝新增（`name` 必填，其餘可之後補）；帶＝只改有給的欄位。`email`／`hypeId` 擇一，空字串＝清掉。`role: "admin"` 只有擁有者能設。**不會寄信** |
-| `deal.prebuilt.invite` | write | `{ teamUuid, prebuiltUuid, message? }` 寄邀請（要先有 Email 或品牌；同一對象 24 小時一次）。連結預選這筆預建成員的主管 |
+| `deal.prebuilt.invite` | write | `{ teamUuid, prebuiltUuid, message? }` 寄邀請（要先有 Email 或品牌；同一對象 24 小時一次）。**連結帶著這個位置**：對方點連結加入後直接生效並接到這個位置，不用再審核（用哪個信箱註冊都可以） |
+| `deal.prebuilt.assign_member` | write | `{ teamUuid, prebuiltUuid, memberUuid }` 把位置交給**已經加入**的成員（`deal.members.list` 的 `memberUuid`，不能是擁有者）：他改掛到位置的主管底下、套用角色，位置底下的人接到他名下，預建成員消失。對方加入後「另外佔了一格、沒接到預建位置」時用。會改動組織，先跟使用者確認對象 |
 | `deal.prebuilt.delete` | write ⚠️ | `{ teamUuid, prebuiltUuid }` 刪除（兩段確認；預設為管理員的只有擁有者能刪）。已寄出的信無法收回 |
 
 | `deal.prebuilt.bulk_create` | write | `{ teamUuid, items: [{ ref?, parentRef?, name, email?, hypeId?, parentMemberUuid?, parentPrebuiltUuid?, role? }] }` 一次最多 **200 筆**，匯入整段組織用。回 `created[{index, ref, uuid}]`、`errors[{index, ref, message}]`、`total`、`max`。逐筆處理，有錯的列不影響其他列；主管沒建成的列也不會建立。不寄信 |
@@ -125,7 +126,8 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
 1. `deal.prebuilt.upsert { teamUuid, name, parentMemberUuid?, role? }` 先建立；主管用 `deal.members.list` 的 `memberUuid`，不給＝掛在擁有者底下。
 2. 之後使用者提供 Email：`deal.prebuilt.list` 找到那一筆 → `deal.prebuilt.upsert { prebuiltUuid, email }`。
 3. **跟使用者確認對象與 Email 後**才 `deal.prebuilt.invite`（會真的寄信）。不要在補 Email 的同一步自動寄出，除非使用者明講。
-4. 對方用同一個 Email 的帳號（或指定的品牌頁）申請時自動對應，狀態變 `pending`；照常用 `deal.requests.list`／`deal.requests.decide` 審核，申請上的 `preset` 會標出通過後的角色。通過後才成為成員並套用預設角色，預建成員從列表消失。
+4. 對方點邀請信的連結、完成加入步驟後**直接成為成員**並接到這個位置（不用審核，預設為管理員的位置也一樣直接成為管理員），預建成員從列表消失。所以對預設為管理員的位置寄邀請前，一定要跟使用者再確認一次收件 Email。沒走邀請連結的人改用 Email 對應，對不上就是一般申請。
+   - 使用者說「某某加入了但沒在我排的位置上」：`deal.members.list` 找到那位成員、`deal.prebuilt.list` 找到那個位置 → 跟使用者確認 → `deal.prebuilt.assign_member`。
 5. 預建成員不是成員：不要把它算進團隊人數，也不要對它用 `deal.members.*`。
 
 **寄邀請的流程**：

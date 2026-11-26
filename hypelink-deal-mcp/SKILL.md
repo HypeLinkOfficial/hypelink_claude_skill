@@ -102,7 +102,7 @@ description: 透過 HypeLink MCP server 操作「終身成交系統」(/deal)—
 | `deal.invites.search_brands` | read | `{ teamUuid, q }` 用 hypeId 或名稱搜尋公開品牌頁，依關聯度排序（hypeId 完全相符＞開頭＞名稱完全相符＞名稱開頭＞包含），最多 8 筆；`teamStatus` active／pending／null、`mine` 自己的品牌 |
 | `deal.invites.send` | write | `{ teamUuid, invites: [...], message?, dryRun? }` 一次最多 **200 位**。每位可為 `"a@b.com"`、`"王小明 <a@b.com>"`、`"王小明, a@b.com"`、`"@hypeId"`，或 `{ email, name }`／`{ hypeId }`（也收 Excel 表頭 `姓名`、`Email`、`品牌`）。以品牌邀請＝寄給該品牌擁有者（信箱不回傳），連結預選該品牌 |
 | `deal.invites.delete` | write ⚠️ | `{ teamUuid, inviteUuid }` 刪紀錄（信無法收回、連結仍有效；兩段確認） |
-| `deal.prebuilt.list` | read | `{ teamUuid }` **預建成員**（擁有者／管理員）：還沒加入、先放進組織的人，不算人數、不進統計。`status`：`draft` 沒有 Email／品牌｜`ready` 可寄｜`invited` 已寄｜`pending` 對方已申請待審。`canInviteAt` 有值＝冷卻中 |
+| `deal.prebuilt.list` | read | `{ teamUuid }` **預建成員**（擁有者／管理員）：還沒加入、先放進組織的人，不算人數、不進統計。`status`：`draft` 沒有 Email／品牌｜`ready` 可寄｜`invited` 已寄｜`declined` 對方在邀請頁拒絕（`declinedAt`；可重寄）｜`pending` 對方已申請待審。`canInviteAt` 有值＝冷卻中 |
 | `deal.prebuilt.upsert` | write | `{ teamUuid, prebuiltUuid?, name?, email?, hypeId?, parentMemberUuid?, parentPrebuiltUuid?, role? }` 不帶 `prebuiltUuid`＝新增（`name` 必填，其餘可之後補）；帶＝只改有給的欄位。`email`／`hypeId` 擇一，空字串＝清掉。`role: "admin"` 只有擁有者能設。**不會寄信** |
 | `deal.prebuilt.invite` | write | `{ teamUuid, prebuiltUuid, message? }` 寄邀請（要先有 Email 或品牌；同一對象 24 小時一次）。**連結帶著這個位置**：對方點連結加入後直接生效並接到這個位置，不用再審核（用哪個信箱註冊都可以） |
 | `deal.prebuilt.assign_member` | write | `{ teamUuid, prebuiltUuid, memberUuid }` 把位置交給**已經加入**的成員（`deal.members.list` 的 `memberUuid`，不能是擁有者）：他改掛到位置的主管底下、套用角色，位置底下的人接到他名下，預建成員消失。對方加入後「另外佔了一格、沒接到預建位置」時用。會改動組織，先跟使用者確認對象 |
